@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">tkcore</string>
+
+
+    <!-- Button类 -->
+    <string name="str_btn_ok">确定</string>
+    <string name="str_btn_cancel">取消</string>
+
+
+    <!-- TextView类 -->
+    <string name="str_tv_exit_title">提示</string>
+    <string name="str_tv_exit_toast_content">您是否要退出?</string>
+</resources>

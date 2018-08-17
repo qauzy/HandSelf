@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!--app中所有按钮的左右渐变色都按照这个风格来-->
+
+    <solid android:color="@color/colorPrimary"></solid>
+
+    <gradient
+        android:angle="0"
+        android:endColor="@color/colorPrimary"
+        android:startColor="@color/colorPrimaryDark" />
+
+
+</shape>

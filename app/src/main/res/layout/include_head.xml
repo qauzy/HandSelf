@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/head"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_46"
+    android:background="@drawable/shape_button">
+
+    <ImageView
+        android:id="@+id/iv_left"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_centerVertical="true"
+        android:paddingRight="@dimen/dp_15"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center"
+        android:text="头文字自定义"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_16" />
+
+    <ImageView
+        android:id="@+id/iv_right"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:paddingLeft="@dimen/dp_15"
+        android:layout_marginRight="@dimen/dp_10"
+        android:src="@mipmap/ic_left_back_default" />
+
+    <TextView
+        android:id="@+id/tv_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/iv_right"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_5"
+        android:layout_centerVertical="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_16"
+        android:text="右边的文字"
+        />
+
+
+</RelativeLayout>

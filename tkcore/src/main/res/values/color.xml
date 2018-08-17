@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <color name="color_white">#FFFFFF</color>
+    <color name="color_black">#000000</color>
+    <color name="color_register">#53a58c</color>
+
+    <color name="color_exittext">#444444</color>
+
+    <color name="color_line_drivier">#999999</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="color_cash">#F59901</color>
+
+    <color name="text_color_primary">#333333</color>
+    <color name="text_color_secondary">#666666</color>
+    <color name="text_color_tertiary">#E2E2E2</color>
+    <color name="triangle_line">#c8c8c8</color>
+    <color name="startSuperButton">#4334fe</color>
+    <color name="startSuperButton1">#fc38ef</color>
+    <color name="endSuperButton">#a835f8</color>
+    <color name="endSuperButton1">#ff662f</color>
+
+
+    <!--公用-->
+    <color name="head_background">#eeeeee</color>
+    <color name="split_line">#e5e5e5</color>
+    <color name="split_line_2">@color/gray_bg</color>
+    <color name="split_line_3">#b7b7b7</color>
+    <color name="head_text_color">@color/text_color_black_gray</color>
+    <color name="black">#000000</color>
+    <color name="black_translucent">#3000</color>
+    <color name="black_dark">#333333</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="white">#ffffff</color>
+
+    <color name="green">#00cc00</color>
+    <color name="green_0">#2eab38</color>
+
+    <color name="green_dark">#4EAC8D</color>
+    <color name="green_light">#59D1AB</color>
+    <color name="green_1">#5bceaa</color>
+    <color name="green_2">#dff5eb</color>
+    <color name="green_light_alf">#cefee5</color>
+    <color name="pressed">#4A9881</color>
+
+    <color name="end_color">#f55b38</color>
+
+    <color name="black_blue">#556777</color>
+    <color name="black_gray">#595757</color>
+    <color name="black_white">#EEEEEE</color>     <!--绝大部分页面的底色以及所有线的颜色-->
+    <color name="item_goods">#f0f0f0</color>
+
+
+    <color name="yellow">#ffdfd4</color>
+    <color name="orange">#e8805d</color>
+
+    <color name="yitui">#ff9000</color>
+    <color name="seracherbck">#f5f5f5</color>    <!--搜索界面背景色-->
+    <color name="gray">#999999</color>
+    <color name="gray_dark">#666666</color>
+    <color name="gray_1">#9b9b9b</color>
+    <color name="gray_2">#c8c8c8</color>
+    <color name="gray_3">#b7b7b7</color>
+    <color name="gray_4">#f2f2f2f2</color>
+    <color name="gray_5">#fbfbfb</color>
+    <color name="gray_6">#f6f6f7</color>
+    <color name="gray_7">#dcdcdc</color>
+    <color name="gray_8">#f7f7f7</color>      <!--购物车里面的商品列表文字信息底色-->
+    <color name="gray_9">#eeeeee</color>
+    <color name="gray_light">#ececec</color>
+    <color name="gray_bg">#cccccc</color>
+    <color name="yunbei_bg">#e95755</color>
+    <color name="yunbei_sloid">#ea736a</color>
+    <color name="progress_bg">#009789</color>
+
+</resources>
