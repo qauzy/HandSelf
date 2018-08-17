@@ -27,6 +27,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     @Override
     public MainPresenter initPresenter() {
-        return null;
+        return new MainPresenter();
     }
 }
