@@ -62,11 +62,10 @@ public class ToastUtils {
 
     /**
      * 短时间显示Toast
-     *
-     * @param context
+     *  @param context
      * @param resId   资源ID:getResources().getString(R.string.xxxxxx);
      */
-    public static void showShort(Context context, int resId) {
+    public static void showShort(Context context, String resId) {
         if (isShow) {
             if (mToast == null) {
                 mToast = Toast.makeText(context, resId, Toast.LENGTH_SHORT);
