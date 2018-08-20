@@ -23,13 +23,15 @@ import jt.kundream.utils.TimeUtil;
  **/
 public class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
 
-    List<GoodsBean> goodsBeanList = new ArrayList<>();
+//    List<GoodsBean> goodsBeanList = new ArrayList<>();
 
     private RequestCallback.GetGoodsCallback getGoodsCallback = new RequestCallback.GetGoodsCallback() {
         @Override
         public void succ(GoodsBean bean) {
             //此处的逻辑处理，应该是将单个商品，放进集合中，将集合返给页面，在页面中展示
-            goodsBeanList.add(bean);
+            mView.manageData(bean);
+//            goodsBeanList.add(bean);
+//            mView.showGoodsList(goodsBeanList);
         }
 
         @Override

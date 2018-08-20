@@ -1,5 +1,8 @@
 package cn.iyunbei.handself.contract;
 
+import java.util.List;
+
+import cn.iyunbei.handself.bean.GoodsBean;
 import jt.kundream.base.IBaseView;
 
 /**
@@ -16,6 +19,12 @@ public interface MainContract {
     }
 
     interface View extends IBaseView {
+        /**
+         * 扫码或者添加商品之后，处理得到的商品数据，之后再展示在界面中
+         *
+         * @param bean
+         */
+        void manageData(GoodsBean bean);
     }
 
     interface Presenter {

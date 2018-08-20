@@ -19,10 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.adapter.GoodsAdapter;
+import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
@@ -32,7 +36,7 @@ import jt.kundream.utils.ActivityUtil;
 /**
  * @author YangTianKun
  */
-public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> {
+public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View {
 
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -66,6 +70,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private static int mCurSerialNo = 3; // usart3
     private static int mBaudrate = 4; // 9600
     private boolean isScan = false;
+    //要展示的商品列表集合
+    private List<GoodsBean> goodsList = new ArrayList<>();
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
         @Override
@@ -76,6 +82,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
     };
     private MediaPlayer player;
+    private GoodsAdapter mAdapter = null;
 
 
     @Override
@@ -282,6 +289,18 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             }
         });
     }
+
+    @Override
+    public void manageData(GoodsBean bean) {
+        goodsList.add(bean);
+        if (mAdapter == null){
+            mAdapter = new GoodsAdapter(this,R.layout.item_getmoneying,goodsList);
+
+        }else{
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
 
     //SCAN按键的监听
     class ScanBroadcastReceiver extends BroadcastReceiver {
