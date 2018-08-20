@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_40"
+        android:layout_height="@dimen/dp_45"
         android:background="@color/black_white">
 
         <TextView
@@ -25,8 +25,25 @@
         android:layout_height="@dimen/dp_50"
         android:layout_marginLeft="@dimen/dp_25"
         android:layout_marginRight="@dimen/dp_25"
-        android:layout_marginTop="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_45"
         android:background="@drawable/shape_input_goods_code"
+        android:gravity="center"
+        android:hint="@string/input_code"
+        android:textColor="@color/black"
+        android:textColorHint="@color/color_line_drivier"
+        android:textSize="@dimen/sp_18" />
+
+    <Button
+        android:id="@+id/btn_add_goods"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_48"
+        android:layout_marginLeft="@dimen/dp_25"
+        android:layout_marginRight="@dimen/dp_25"
+        android:layout_marginTop="@dimen/dp_40"
+        android:background="@drawable/shape_button_add"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:text="@string/add_goods"
+        android:textSize="@dimen/sp_18"
         />
 
 </LinearLayout>

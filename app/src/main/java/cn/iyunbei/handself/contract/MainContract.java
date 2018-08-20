@@ -19,5 +19,12 @@ public interface MainContract {
     }
 
     interface Presenter {
+        /**
+         * 此页面的必须方法
+         *
+         * @param s
+         */
+        void addGoods(String s);
+
     }
 }

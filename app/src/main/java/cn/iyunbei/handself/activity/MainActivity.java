@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.activity;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +10,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -156,8 +158,29 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 输入商品条码的dialog
      */
     private void showInputDialog() {
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.dialog_input, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+
+        View view = View.inflate(this, R.layout.dialog_input, null);
+        // dialog.setView(view);// 将自定义的布局文件设置给dialog
+        // 设置边距为0,保证在2.x的版本上运行没问题
+        dialog.setView(view, 0, 0, 0, 0);
+
+        final EditText etCode = (EditText) view.findViewById(R.id.et_goods_code);
+        Button btnAdd = (Button) view.findViewById(R.id.btn_add_goods);
+
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String s = etCode.getText().toString();
+                presenter.addGoods(s);
+                showToast("请求网络，添加商品=======" + s);
+                // TODO: 2018/8/20 成功之后添加商品，dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -299,8 +322,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                     // 传输扫描信息的串口
                     case PosApi.POS_EXPAND_SERIAL3:
                         //如果为空，返回
-                        if (buffer == null)
+                        if (buffer == null) {
                             return;
+                        }
                         //播放扫描音，提示已经扫描到信息
                         player.start();
                         try {
@@ -308,6 +332,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                             //把扫描头传过来的byte字节转成字符串
                             String str = new String(buffer, "GBK");
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
+                            presenter.addGoods(str);
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
                             isScan = false;
                             //拉低扫描头电压，使扫描头熄灭

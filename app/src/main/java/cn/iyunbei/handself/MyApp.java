@@ -2,9 +2,16 @@ package cn.iyunbei.handself;
 
 import android.os.Build;
 import android.posapi.PosApi;
+import android.text.format.Time;
+
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.cache.CacheMode;
+
+import java.util.concurrent.TimeUnit;
 
 import jt.kundream.base.BaseApplication;
 import jt.kundream.utils.ToastUtils;
+import okhttp3.OkHttpClient;
 
 /**
  * 版权所有，违法必究！！！
@@ -22,6 +29,24 @@ public class MyApp extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         initPosapi();
+        initOkGo();
+    }
+
+    private void initOkGo() {
+
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        //设置全局读取超时时间
+        builder.readTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+        //设置全局写入超时时间
+        builder.writeTimeout(OkGo.DEFAULT_MILLISECONDS,TimeUnit.MILLISECONDS);
+        //设置全局链接超时时间
+        builder.connectTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+
+        OkGo.getInstance().init(this)
+                .setOkHttpClient(builder.build())
+                .setCacheMode(CacheMode.NO_CACHE)
+                .setRetryCount(3);
+//                .addCommonParams();
     }
 
     private void initPosapi(){
