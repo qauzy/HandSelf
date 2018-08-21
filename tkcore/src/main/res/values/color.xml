@@ -75,5 +75,7 @@
     <color name="yunbei_bg">#e95755</color>
     <color name="yunbei_sloid">#ea736a</color>
     <color name="progress_bg">#009789</color>
+    <color name="btn_start">#ea5656</color>
+    <color name="btn_end">#ed694f</color>
 
 </resources>

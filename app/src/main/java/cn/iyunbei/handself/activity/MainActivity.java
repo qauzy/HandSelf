@@ -120,7 +120,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //    }
 
 //    15917694315
-//
 //    123456
 
     @Override
@@ -184,7 +183,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 String s = etCode.getText().toString();
                 presenter.addGoods(s);
                 showToast("请求网络，添加商品=======" + s);
-                // TODO: 2018/8/20 成功之后添加商品，dialog.dismiss();
+                dialog.dismiss();
             }
         });
         dialog.show();
