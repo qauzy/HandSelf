@@ -10,4 +10,6 @@
     <string name="ali_pay">支付宝支付</string>
     <string name="prev">上一步</string>
     <string name="next">下一步</string>
+    <string name="scan">请用收银机扫描顾客支付码</string>
+    <string name="select_again">重新选择支付方式</string>
 </resources>
