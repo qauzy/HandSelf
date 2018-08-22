@@ -1,5 +1,6 @@
 package cn.iyunbei.handself;
 
+import android.content.Context;
 import android.os.Build;
 import android.posapi.PosApi;
 import android.text.format.Time;
@@ -23,11 +24,12 @@ import okhttp3.OkHttpClient;
  * @desc:
  **/
 public class MyApp extends BaseApplication {
-    PosApi mPosApi=null;
+    PosApi mPosApi = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = getApplicationContext();
         initPosapi();
         initOkGo();
     }
@@ -38,7 +40,7 @@ public class MyApp extends BaseApplication {
         //设置全局读取超时时间
         builder.readTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
         //设置全局写入超时时间
-        builder.writeTimeout(OkGo.DEFAULT_MILLISECONDS,TimeUnit.MILLISECONDS);
+        builder.writeTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
         //设置全局链接超时时间
         builder.connectTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
 
@@ -49,29 +51,36 @@ public class MyApp extends BaseApplication {
 //                .addCommonParams();
     }
 
-    private void initPosapi(){
+    private static Context instance;
+
+    public static Context getInstance() {
+
+        return instance;
+    }
+
+    private void initPosapi() {
         //posap初始化
-        mPosApi=PosApi.getInstance(this);
+        mPosApi = PosApi.getInstance(this);
         //根据型号进行初始化mPosApi类
-        if (Build.MODEL.contains("LTE")||android.os.Build.DISPLAY.contains("3508")||
-                android.os.Build.DISPLAY.contains("403")||
+        if (Build.MODEL.contains("LTE") || android.os.Build.DISPLAY.contains("3508") ||
+                android.os.Build.DISPLAY.contains("403") ||
                 android.os.Build.DISPLAY.contains("35S09")) {
             mPosApi.initPosDev("ima35s09");
-        } else if(Build.MODEL.contains("5501")){
+        } else if (Build.MODEL.contains("5501")) {
             mPosApi.initPosDev("ima35s12");
-        }else{
+        } else {
             mPosApi.initPosDev(PosApi.PRODUCT_MODEL_IMA80M01);
         }
         mPosApi.setOnComEventListener(new PosApi.OnCommEventListener() {
             @Override
             public void onCommState(int i, int i1, byte[] bytes, int i2) {
 
-                switch (i){
-                    case  PosApi.POS_INIT:
-                        if(i1==PosApi.COMM_STATUS_SUCCESS){
-                            ToastUtils.showShort(getApplicationContext(),"设备初始化成功");
-                        }else{
-                            ToastUtils.showShort(getApplicationContext(),"设备初始化失败");
+                switch (i) {
+                    case PosApi.POS_INIT:
+                        if (i1 == PosApi.COMM_STATUS_SUCCESS) {
+                            ToastUtils.showShort(getApplicationContext(), "设备初始化成功");
+                        } else {
+                            ToastUtils.showShort(getApplicationContext(), "设备初始化失败");
                         }
                         break;
                 }
