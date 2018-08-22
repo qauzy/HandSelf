@@ -44,11 +44,12 @@
         android:textSize="@dimen/sp_18" />
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_10"
         android:layout_weight="1"
-        android:src="@mipmap/ic_launcher_round" />
+        android:src="@mipmap/pic" />
 
     <Button
         android:id="@+id/btn_sele_pay_type_again"

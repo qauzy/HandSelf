@@ -86,7 +86,7 @@
                 android:layout_height="@dimen/dp_36"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/xjzf" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -104,11 +104,11 @@
 
             <ImageView
                 android:id="@+id/iv_cash"
-                android:layout_width="@dimen/dp_36"
-                android:layout_height="@dimen/dp_36"
+                android:layout_width="@dimen/dp_32"
+                android:layout_height="@dimen/dp_32"
                 android:layout_gravity="center"
                 android:layout_marginRight="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher_round" />
+                android:src="@mipmap/xuanze" />
 
         </LinearLayout>
 
@@ -128,7 +128,7 @@
                 android:layout_height="@dimen/dp_36"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/wechat" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -146,11 +146,11 @@
 
             <ImageView
                 android:id="@+id/iv_wecaht"
-                android:layout_width="@dimen/dp_36"
-                android:layout_height="@dimen/dp_36"
+                android:layout_width="@dimen/dp_32"
+                android:layout_height="@dimen/dp_32"
                 android:layout_gravity="center"
                 android:layout_marginRight="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher_round" />
+                android:src="@mipmap/weixuanze" />
 
         </LinearLayout>
 
@@ -170,7 +170,7 @@
                 android:layout_height="@dimen/dp_36"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/zfbzf" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -188,11 +188,11 @@
 
             <ImageView
                 android:id="@+id/iv_ali"
-                android:layout_width="@dimen/dp_36"
-                android:layout_height="@dimen/dp_36"
+                android:layout_width="@dimen/dp_32"
+                android:layout_height="@dimen/dp_32"
                 android:layout_gravity="center"
                 android:layout_marginRight="@dimen/dp_16"
-                android:src="@mipmap/ic_launcher_round" />
+                android:src="@mipmap/weixuanze" />
 
         </LinearLayout>
     </LinearLayout>

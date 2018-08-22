@@ -11,7 +11,7 @@
         android:layout_centerVertical="true"
         android:paddingRight="@dimen/dp_15"
         android:layout_marginLeft="@dimen/dp_10"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@mipmap/back" />
 
     <TextView
         android:id="@+id/tv_title"

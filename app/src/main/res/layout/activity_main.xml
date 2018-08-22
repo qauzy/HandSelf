@@ -39,15 +39,20 @@
         android:layout_centerVertical="true">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:id="@+id/iv"
+            android:layout_width="@dimen/dp_100"
+            android:layout_height="@dimen/dp_100"
+            android:src="@mipmap/jiesuan"
+            android:layout_centerHorizontal="true"
+
+            />
 
         <TextView
             android:id="@+id/tv_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:layout_below="@id/iv"
             android:text="点击收银设备按钮"
             android:textColor="@color/color_line_drivier"
             android:textSize="@dimen/sp_18" />
