@@ -24,7 +24,7 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property OrderId = new Property(1, int.class, "orderId", false, "ORDER_ID");
         public final static Property GoodsId = new Property(2, int.class, "goodsId", false, "GOODS_ID");
         public final static Property GoodsNum = new Property(3, int.class, "goodsNum", false, "GOODS_NUM");
@@ -43,7 +43,7 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"ORDER_BEAN_DAO\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"ORDER_ID\" INTEGER NOT NULL ," + // 1: orderId
                 "\"GOODS_ID\" INTEGER NOT NULL ," + // 2: goodsId
                 "\"GOODS_NUM\" INTEGER NOT NULL );"); // 3: goodsNum
@@ -58,7 +58,11 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, OrderBeanDao entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getOrderId());
         stmt.bindLong(3, entity.getGoodsId());
         stmt.bindLong(4, entity.getGoodsNum());
@@ -67,7 +71,11 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     @Override
     protected final void bindValues(SQLiteStatement stmt, OrderBeanDao entity) {
         stmt.clearBindings();
-        stmt.bindLong(1, entity.getId());
+ 
+        Long id = entity.getId();
+        if (id != null) {
+            stmt.bindLong(1, id);
+        }
         stmt.bindLong(2, entity.getOrderId());
         stmt.bindLong(3, entity.getGoodsId());
         stmt.bindLong(4, entity.getGoodsNum());
@@ -75,13 +83,13 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.getLong(offset + 0);
+        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
 
     @Override
     public OrderBeanDao readEntity(Cursor cursor, int offset) {
         OrderBeanDao entity = new OrderBeanDao( //
-            cursor.getLong(offset + 0), // id
+            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // orderId
             cursor.getInt(offset + 2), // goodsId
             cursor.getInt(offset + 3) // goodsNum
@@ -91,7 +99,7 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
      
     @Override
     public void readEntity(Cursor cursor, OrderBeanDao entity, int offset) {
-        entity.setId(cursor.getLong(offset + 0));
+        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setOrderId(cursor.getInt(offset + 1));
         entity.setGoodsId(cursor.getInt(offset + 2));
         entity.setGoodsNum(cursor.getInt(offset + 3));
@@ -114,7 +122,7 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
 
     @Override
     public boolean hasKey(OrderBeanDao entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getId() != null;
     }
 
     @Override

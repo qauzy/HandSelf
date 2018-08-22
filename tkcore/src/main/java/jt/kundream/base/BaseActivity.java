@@ -42,16 +42,16 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
             super.setContentView(getLayoutResId());
         }
         //透明状态栏
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         //mmersionBar依赖的默认使用  默认透明状态栏和黑色导航栏
-        ImmersionBar.with(this)
-                .transparentStatusBar()  //透明状态栏  默认透明色
-                .fitsSystemWindows(true) //解决状态栏和布局重叠问题 写完之后 会把状态栏高度留出来 在状态栏下面加载布局
-//                .statusBarColor(getStatusBarColor())
-//                .navigationBarColor(R.color.green) //导航栏颜色，不写默认黑色
-                .init();
-        presenter = initPresenter();
-        presenter.attach((V) this);
+//        ImmersionBar.with(this)
+//                .transparentStatusBar()  //透明状态栏  默认透明色
+//                .fitsSystemWindows(true) //解决状态栏和布局重叠问题 写完之后 会把状态栏高度留出来 在状态栏下面加载布局
+////                .statusBarColor(getStatusBarColor())
+////                .navigationBarColor(R.color.green) //导航栏颜色，不写默认黑色
+//                .init();
+//        presenter = initPresenter();
+//        presenter.attach((V) this);
         ButterKnife.bind(this);
 //        EventBus.getDefault().register(this);
         customProgressDialog = new CustomProgressDialog(this, R.style.loading_style);

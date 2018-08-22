@@ -37,8 +37,8 @@ public class OrderBeanDao {
      */
     private int goodsNum;
 
-    @Generated(hash = 2023212454)
-    public OrderBeanDao(long id, int orderId, int goodsId, int goodsNum) {
+    @Generated(hash = 18325167)
+    public OrderBeanDao(Long id, int orderId, int goodsId, int goodsNum) {
         this.id = id;
         this.orderId = orderId;
         this.goodsId = goodsId;

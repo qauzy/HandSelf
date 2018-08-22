@@ -27,8 +27,8 @@ public class GoodsBeanDao {
 
     private double price;
 
-    @Generated(hash = 1992473408)
-    public GoodsBeanDao(long id, int goodsId, String goodsGuige, String name,
+    @Generated(hash = 799520432)
+    public GoodsBeanDao(Long id, int goodsId, String goodsGuige, String name,
             double price) {
         this.id = id;
         this.goodsId = goodsId;

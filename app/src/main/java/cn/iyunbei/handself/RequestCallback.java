@@ -18,6 +18,7 @@ public interface RequestCallback {
          * 成功的话 回调一个java实体bean给页面显示
          */
         void succ(GoodsBean bean);
+
         /**
          * 失败情况 提示用户
          *
@@ -25,6 +26,17 @@ public interface RequestCallback {
          */
         void fial(String err);
 
+
+    }
+
+    /**
+     * 登陆接口回调监听
+     */
+    interface LoginCallback {
+
+        void succ(String token);
+
+        void fail(String errMsg);
 
     }
 }

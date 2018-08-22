@@ -7,6 +7,7 @@ import android.text.format.Time;
 
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
+import com.lzy.okgo.model.HttpHeaders;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,9 @@ public class MyApp extends BaseApplication {
         builder.writeTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
         //设置全局链接超时时间
         builder.connectTimeout(OkGo.DEFAULT_MILLISECONDS, TimeUnit.MILLISECONDS);
+
+        HttpHeaders headers = new HttpHeaders();
+//        headers.put();
 
         OkGo.getInstance().init(this)
                 .setOkHttpClient(builder.build())

@@ -3,6 +3,8 @@ package jt.kundream.base;
 import android.app.Application;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
@@ -25,9 +27,12 @@ import okhttp3.OkHttpClient;
 
 public class BaseApplication extends Application {
 
+    public static Handler mMainHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mMainHandler = new Handler(Looper.getMainLooper());
         initOKGO();
     }
 

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/shape_button"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="cn.iyunbei.handself.activity.LoginActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,15 +26,16 @@
             android:layout_centerInParent="true"
             android:text="@string/login"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_20" />
+            android:textSize="@dimen/sp_16" />
 
     </RelativeLayout>
 
+
     <TextView
-        android:layout_width="@dimen/dp_80"
-        android:layout_height="@dimen/dp_80"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_50"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_30"
         android:background="@drawable/shape_user_head"
         android:gravity="center"
         android:text="贵"
@@ -40,17 +43,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_120"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_20"
-        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_30"
         android:background="@drawable/shape_login"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_0"
-            android:layout_weight="1"
+            android:layout_height="@dimen/dp_50"
             android:orientation="horizontal">
 
             <ImageView
@@ -67,13 +71,15 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/dp_10"
                 android:layout_weight="1"
+                android:background="@null"
                 android:gravity="center_vertical"
                 android:hint="输入手机号"
+                android:imeOptions="actionNext"
                 android:inputType="number"
+                android:maxLines="1"
+                android:textColor="@color/black"
                 android:textColorHint="@color/gray"
-                android:textSize="@dimen/sp_22" />
-
-
+                android:textSize="@dimen/sp_16" />
         </LinearLayout>
 
 
@@ -84,8 +90,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_0"
-            android:layout_weight="1"
+            android:layout_height="@dimen/dp_50"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="horizontal">
 
             <ImageView
@@ -102,13 +109,17 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/dp_10"
                 android:layout_weight="1"
+                android:background="@null"
                 android:gravity="center_vertical"
                 android:hint="请输入密码"
                 android:inputType="textPassword"
+                android:maxLines="1"
+                android:textColor="@color/black"
                 android:textColorHint="@color/gray"
-                android:textSize="@dimen/sp_22" />
+                android:textSize="@dimen/sp_16" />
         </LinearLayout>
     </LinearLayout>
+
 
     <Button
         android:id="@+id/btn_login"
@@ -120,7 +131,6 @@
         android:background="@drawable/shape_login_btn"
         android:text="@string/login"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_22" />
-
+        android:textSize="@dimen/sp_16" />
 
 </LinearLayout>
