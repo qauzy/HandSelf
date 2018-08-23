@@ -168,13 +168,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-//    @Override
-//    protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        mPosApi = PosApi.getInstance(this);
-//        player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
-//    }
-//
 //    /**
 //     * 初始化一些必须的一些常量值
 //     */
