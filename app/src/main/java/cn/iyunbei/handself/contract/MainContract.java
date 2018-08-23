@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.contract;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,20 @@ public interface MainContract {
         void setNumMap(int goodsId, int num);
 
         void addList(GoodsBean.DataBean bean);
+
+        /**
+         * 设置底部显示的总价钱和总件数
+         *
+         * @param totalMoney
+         * @param totalNum
+         */
+        void setToalData(BigDecimal totalMoney, int totalNum);
+
+        /**
+         * 显示空商品的布局
+         */
+        void showEmptyView();
+
     }
 
     interface Presenter {
@@ -47,5 +62,13 @@ public interface MainContract {
         void addGoods(String s, String token);
 
         void checkGoodsIsSame(Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean);
+
+        /**
+         * 计算订单总
+         *
+         * @param goodsList
+         * @param numMap
+         */
+        void calcTotal(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap);
     }
 }

@@ -1,5 +1,7 @@
 package cn.iyunbei.handself;
 
+import android.view.View;
+
 import cn.iyunbei.handself.bean.GoodsBean;
 
 /**
@@ -37,6 +39,17 @@ public interface RequestCallback {
         void succ(String token);
 
         void fail(String errMsg);
+
+    }
+
+    /**
+     * item内部控件点击处理
+     */
+    interface ItemViewOnClickListener {
+        /**
+         * 用于结算商品时候的数量点击
+         */
+        void clickAddOrMin(View view);
 
     }
 }

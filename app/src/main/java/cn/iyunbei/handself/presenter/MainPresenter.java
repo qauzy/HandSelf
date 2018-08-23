@@ -2,6 +2,7 @@ package cn.iyunbei.handself.presenter;
 
 import android.text.TextUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.model.MainModel;
 import jt.kundream.base.BasePresenter;
+import jt.kundream.utils.CurrencyUtils;
 
 /**
  * 版权所有，违法必究！！！
@@ -67,11 +69,6 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
         } else {
             num = 1;
         }
-//        if (num < 1) {
-//            numMap.put(goodsId, 1);
-//        } else {
-//            numMap.put(goodsId, ++num);
-//        }
 
         ArrayList<Integer> idList = new ArrayList<>();
 
@@ -84,22 +81,27 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
                 mView.addList(bean);
             }
 
-//            for (int i = 0; i < list.size(); i++) {
-//                if (list.get(i).getGoods_id() != goodsId) {
-//                    mView.addList(bean);
-//                    break;
-//                } else {
-//                    continue;
-//                }
-//            }
         } else {
             mView.addList(bean);
         }
 
-
-//        if (!list.contains(bean)) {
-//            mView.addList(bean);
-//        }
         mView.setNumMap(goodsId, num);
+    }
+
+    @Override
+    public void calcTotal(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
+        BigDecimal totalMoney = BigDecimal.valueOf(0);
+        int totalNum = 0;
+        if (goodsList.size() < 1) {
+            mView.showEmptyView();
+        }
+
+        for (int i = 0; i < goodsList.size(); i++) {
+            int goods_id = goodsList.get(i).getGoods_id();
+            totalNum += numMap.get(goods_id);
+            BigDecimal singleGoodsMoney = CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goodsList.get(i).getGoods_price()), CurrencyUtils.toBigDecimal(String.valueOf(numMap.get(goods_id))));
+            totalMoney = CurrencyUtils.add(totalMoney, singleGoodsMoney);
+        }
+        mView.setToalData(totalMoney, totalNum);
     }
 }

@@ -42,8 +42,8 @@
             android:id="@+id/iv"
             android:layout_width="@dimen/dp_100"
             android:layout_height="@dimen/dp_100"
-            android:src="@mipmap/jiesuan"
             android:layout_centerHorizontal="true"
+            android:src="@mipmap/jiesuan"
 
             />
 
@@ -51,8 +51,8 @@
             android:id="@+id/tv_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:layout_below="@id/iv"
+            android:layout_centerInParent="true"
             android:text="点击收银设备按钮"
             android:textColor="@color/color_line_drivier"
             android:textSize="@dimen/sp_18" />
@@ -90,7 +90,7 @@
                 android:layout_centerInParent="true"
                 android:text="@string/hand_input"
                 android:textColor="@color/black"
-                android:textSize="@dimen/sp_18" />
+                android:textSize="@dimen/sp_14" />
 
 
         </RelativeLayout>
@@ -106,7 +106,8 @@
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_10" />
+                android:layout_marginLeft="@dimen/dp_10"
+                android:src="@mipmap/jiesuan" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -120,17 +121,17 @@
                     android:id="@+id/tv_jiesuan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="结算(￥511.00)"
+                    android:text="结算(￥0.00)"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/sp_18" />
+                    android:textSize="@dimen/sp_14" />
 
                 <TextView
                     android:id="@+id/tv_totalnum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="共计18件商品"
+                    android:text="共计0件商品 "
                     android:textColor="@color/white"
-                    android:textSize="@dimen/sp_18" />
+                    android:textSize="@dimen/sp_14" />
 
 
             </LinearLayout>

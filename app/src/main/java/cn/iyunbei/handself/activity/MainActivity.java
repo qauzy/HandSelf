@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
@@ -31,15 +29,16 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
@@ -47,7 +46,6 @@ import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.utils.ActivityUtil;
-import jt.kundream.utils.AndroidUtil;
 import jt.kundream.utils.CommonUtil;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
@@ -145,7 +143,39 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             // TODO: 2018/8/23   删除某一条目  刷新列表
             goodsList.remove(menuPosition);
             mAdapter.notifyDataSetChanged();
+            presenter.calcTotal(goodsList, numMap);
 //            presenter.setSingleGood(goodsList, adapterPosition, AndroidUtil.getUniqueId(mContext));
+        }
+    };
+    /**
+     * item内部点击时间处理
+     */
+    private RequestCallback.ItemViewOnClickListener itemViewOnClickListener = new RequestCallback.ItemViewOnClickListener() {
+
+        @Override
+        public void clickAddOrMin(View view) {
+            int posi = (int) view.getTag();
+            int goodsId = goodsList.get(posi).getGoods_id();
+            int num = numMap.get(goodsId);
+            switch (view.getId()) {
+                case R.id.tv_add:
+                    numMap.put(goodsId, ++num);
+                    mAdapter.notifyDataSetChanged();
+                    presenter.calcTotal(goodsList, numMap);
+                    break;
+                case R.id.tv_min:
+                    if (num < 2) {
+                        showToast("删除请侧滑商品");
+                    } else {
+                        numMap.put(goodsId, --num);
+                    }
+                    mAdapter.notifyDataSetChanged();
+                    presenter.calcTotal(goodsList, numMap);
+                    break;
+
+                default:
+                    break;
+            }
         }
     };
 
@@ -160,6 +190,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //        initConstants();
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
+        ivLeft.setImageResource(R.mipmap.time);
+        ivRight.setImageResource(R.mipmap.person);
         mPosApi = PosApi.getInstance(this);
         openScan();
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
@@ -366,7 +398,21 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         goodsList.add(bean);
     }
 
+    @Override
+    public void setToalData(BigDecimal totalMoney, int totalNum) {
+        tvJiesuan.setText("结算(￥" + totalMoney + ")");
+        tvTotalnum.setText("共计" + totalNum + "件商品");
+    }
+
+    @Override
+    public void showEmptyView() {
+        rlMiddle.setVisibility(View.VISIBLE);
+        rvGoods.setVisibility(View.GONE);
+    }
+
     private void setAdapter() {
+        rlMiddle.setVisibility(View.GONE);
+        rvGoods.setVisibility(View.VISIBLE);
         if (mAdapter == null) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             rvGoods.setLayoutManager(linearLayoutManager);
@@ -375,12 +421,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             rvGoods.setSwipeMenuCreator(mSwipeMenuCreator);
             //设置侧滑出来的菜单的删除监听
             rvGoods.setSwipeMenuItemClickListener(mMenuItemClickListener);
-            mAdapter = new GoodsAdapter(this, R.layout.item_getmoneying, goodsList, numMap);
+            mAdapter = new GoodsAdapter(this, R.layout.item_getmoneying, goodsList, numMap, itemViewOnClickListener);
             rvGoods.setAdapter(mAdapter);
             rlMiddle.setVisibility(View.GONE);
         } else {
             mAdapter.notifyDataSetChanged();
         }
+
+        presenter.calcTotal(goodsList, numMap);
+
     }
 
     //SCAN按键的监听
