@@ -2,6 +2,7 @@ package cn.iyunbei.handself.presenter;
 
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
         GoodsBean.DataBean dataBean = new GoodsBean.DataBean();
         dataBean.setBarcode(s);
-        dataBean.setGoods_id(342423423);
+        dataBean.setGoods_id(Integer.parseInt(s));
         dataBean.setGoods_name("山东大葱");
         dataBean.setGoods_price("12.22");
         dataBean.setSpec("捆");
@@ -58,24 +59,47 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
     }
 
     @Override
-    public void checkGoodsIsSame
-            (Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean) {
+    public void checkGoodsIsSame(Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean) {
         int goodsId = bean.getGoods_id();
         int num;
         if (numMap.get(goodsId) != null) {
-            num = numMap.get(goodsId);
+            num = numMap.get(goodsId) + 1;
         } else {
-            num = 0;
+            num = 1;
         }
-        if (num < 1) {
-            numMap.put(goodsId, 1);
-        } else {
-            numMap.put(goodsId, num++);
-        }
+//        if (num < 1) {
+//            numMap.put(goodsId, 1);
+//        } else {
+//            numMap.put(goodsId, ++num);
+//        }
 
-        if (!list.contains(bean)) {
+        ArrayList<Integer> idList = new ArrayList<>();
+
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                idList.add(list.get(i).getGoods_id());
+            }
+
+            if (!idList.contains(goodsId)) {
+                mView.addList(bean);
+            }
+
+//            for (int i = 0; i < list.size(); i++) {
+//                if (list.get(i).getGoods_id() != goodsId) {
+//                    mView.addList(bean);
+//                    break;
+//                } else {
+//                    continue;
+//                }
+//            }
+        } else {
             mView.addList(bean);
         }
+
+
+//        if (!list.contains(bean)) {
+//            mView.addList(bean);
+//        }
         mView.setNumMap(goodsId, num);
     }
 }

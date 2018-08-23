@@ -158,10 +158,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     public void initView() {
 //        initConstants();
-        openScan();
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         mPosApi = PosApi.getInstance(this);
+        openScan();
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
         initPrintQueue();
         registerListener();
