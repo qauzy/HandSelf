@@ -6,23 +6,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
@@ -32,6 +47,10 @@ import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.utils.ActivityUtil;
+import jt.kundream.utils.AndroidUtil;
+import jt.kundream.utils.CommonUtil;
+
+import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 /**
  * @author YangTianKun
@@ -60,18 +79,30 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     TextView tvJiesuan;
     @Bind(R.id.tv_totalnum)
     TextView tvTotalnum;
+    @Bind(R.id.iv)
+    ImageView iv;
+    @Bind(R.id.ll_bottom)
+    LinearLayout llBottom;
+    @Bind(R.id.rv_goods)
+    SwipeMenuRecyclerView rvGoods;
 
     private PosApi mPosApi = null;
     //GPIO电源的控制
     private static byte mGpioPower = 0x1E;// PB14
     private static byte mGpioTrig = 0x29;// PC9
-    //SCAN 按键
+    /**
+     * SCAN 按键
+     */
     private ScanBroadcastReceiver scanBroadcastReceiver;
-    private static int mCurSerialNo = 3; // usart3
-    private static int mBaudrate = 4; // 9600
+    // usart3
+    private static int mCurSerialNo = 3;
+    // 9600
+    private static int mBaudrate = 4;
     private boolean isScan = false;
-    //要展示的商品列表集合
-    private List<GoodsBean> goodsList = new ArrayList<>();
+    /**
+     * 要展示的商品列表集合
+     */
+    private List<GoodsBean.DataBean> goodsList = new ArrayList<>();
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
         @Override
@@ -83,6 +114,40 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     };
     private MediaPlayer player;
     private GoodsAdapter mAdapter = null;
+    private SwipeMenuItem deleteItem;
+    private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
+        @Override
+        public void onCreateMenu(SwipeMenu swipeMenu, SwipeMenu swipeMenu1, int i) {
+            deleteItem = new SwipeMenuItem(getContext());
+            // 可以设置各种文字和图标了
+            deleteItem.setHeight(MATCH_PARENT);
+            deleteItem.setWidth(80);
+            deleteItem.setText("删除");
+            deleteItem.setTextColorResource(R.color.white);
+            deleteItem.setBackground(R.color.yunbei_bg);
+            swipeMenu1.addMenuItem(deleteItem);
+        }
+    };
+    private SwipeMenuItemClickListener mMenuItemClickListener = new SwipeMenuItemClickListener() {
+        @Override
+        public void onItemClick(SwipeMenuBridge swipeMenuBridge) {
+            // 任何操作必须先关闭菜单，否则可能出现Item菜单打开状态错乱。
+            swipeMenuBridge.closeMenu();
+            /**
+             * 获取这些侧滑的必要信息
+             */
+            // 左侧还是右侧菜单。
+            int direction = swipeMenuBridge.getDirection();
+            // RecyclerView的Item的position。
+            int adapterPosition = swipeMenuBridge.getAdapterPosition();
+            // 菜单在RecyclerView的Item中的Position。
+            int menuPosition = swipeMenuBridge.getPosition();
+            // TODO: 2018/8/23   删除某一条目  刷新列表
+            goodsList.remove(menuPosition);
+            mAdapter.notifyDataSetChanged();
+//            presenter.setSingleGood(goodsList, adapterPosition, AndroidUtil.getUniqueId(mContext));
+        }
+    };
 
 
     @Override
@@ -93,14 +158,13 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     public void initView() {
 //        initConstants();
+        openScan();
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         mPosApi = PosApi.getInstance(this);
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
         initPrintQueue();
         registerListener();
-        openScan();
-
     }
 
 
@@ -181,11 +245,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             @Override
             public void onClick(View v) {
                 String s = etCode.getText().toString();
-                presenter.addGoods(s);
-                showToast("请求网络，添加商品=======" + s);
+                presenter.addGoods(s, CommonUtil.getString(MainActivity.this, "token"));
                 dialog.dismiss();
             }
         });
+        ActivityUtil.backgroundAlpha(1f, this);
         dialog.show();
     }
 
@@ -289,17 +353,42 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         });
     }
 
-    @Override
-    public void manageData(GoodsBean bean) {
-        goodsList.add(bean);
-        if (mAdapter == null){
-            mAdapter = new GoodsAdapter(this,R.layout.item_getmoneying,goodsList);
+    private Map<Integer, Integer> numMap = new HashMap<>();
 
-        }else{
+    @Override
+    public void manageData(GoodsBean.DataBean bean) {
+        // TODO: 2018/8/23 如果这里是相同的goodsId，那么需要的是更改数量就行  如果不是相同的goodsId，那么做的就是集合中添加一个新数据
+//        goodsList.add(bean);
+        presenter.checkGoodsIsSame(numMap, goodsList, bean);
+    }
+
+    @Override
+    public void setNumMap(int goodsId, int num) {
+        numMap.put(goodsId, num);
+        setAdapter();
+    }
+
+    @Override
+    public void addList(GoodsBean.DataBean bean) {
+        goodsList.add(bean);
+    }
+
+    private void setAdapter() {
+        if (mAdapter == null) {
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            rvGoods.setLayoutManager(linearLayoutManager);
+            rvGoods.setItemAnimator(new DefaultItemAnimator());
+            //设置侧滑时候弹出侧滑删除菜单
+            rvGoods.setSwipeMenuCreator(mSwipeMenuCreator);
+            //设置侧滑出来的菜单的删除监听
+            rvGoods.setSwipeMenuItemClickListener(mMenuItemClickListener);
+            mAdapter = new GoodsAdapter(this, R.layout.item_getmoneying, goodsList, numMap);
+            rvGoods.setAdapter(mAdapter);
+            rlMiddle.setVisibility(View.GONE);
+        } else {
             mAdapter.notifyDataSetChanged();
         }
     }
-
 
     //SCAN按键的监听
     class ScanBroadcastReceiver extends BroadcastReceiver {
@@ -350,7 +439,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                             //把扫描头传过来的byte字节转成字符串
                             String str = new String(buffer, "GBK");
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
-                            presenter.addGoods(str);
+                            presenter.addGoods(str, CommonUtil.getString(MainActivity.this, "token"));
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
                             isScan = false;
                             //拉低扫描头电压，使扫描头熄灭

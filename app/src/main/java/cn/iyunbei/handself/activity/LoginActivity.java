@@ -49,8 +49,13 @@ public class LoginActivity extends BaseActivity<LoginContract.View, LoginPresent
     public void initView() {
         etPhone.setOnEditorActionListener(this);
         etPswd.setOnEditorActionListener(this);
+        presenter.checkToken(this);
     }
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public LoginPresenter initPresenter() {
@@ -66,7 +71,6 @@ public class LoginActivity extends BaseActivity<LoginContract.View, LoginPresent
 
             case R.id.btn_login:
                 presenter.login(etPhone.getText().toString(), etPswd.getText().toString());
-
                 break;
         }
     }
@@ -75,6 +79,11 @@ public class LoginActivity extends BaseActivity<LoginContract.View, LoginPresent
     public void loginSucc(String token) {
         //将token保存在本地
         CommonUtil.put(this, "token", token);
+        ActivityUtil.startActivity(this, MainActivity.class, true);
+    }
+
+    @Override
+    public void skipLogin() {
         ActivityUtil.startActivity(this, MainActivity.class, true);
     }
 

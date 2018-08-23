@@ -141,7 +141,7 @@
 
     </LinearLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
         android:id="@+id/rv_goods"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

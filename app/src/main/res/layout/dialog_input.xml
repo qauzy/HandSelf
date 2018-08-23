@@ -28,6 +28,7 @@
         android:layout_marginTop="@dimen/dp_45"
         android:background="@drawable/shape_input_goods_code"
         android:gravity="center"
+        android:inputType="number"
         android:hint="@string/input_code"
         android:textColor="@color/black"
         android:textColorHint="@color/color_line_drivier"

@@ -1,6 +1,7 @@
 package cn.iyunbei.handself.contract;
 
 import java.util.List;
+import java.util.Map;
 
 import cn.iyunbei.handself.bean.GoodsBean;
 import jt.kundream.base.IBaseView;
@@ -24,7 +25,17 @@ public interface MainContract {
          *
          * @param bean
          */
-        void manageData(GoodsBean bean);
+        void manageData(GoodsBean.DataBean bean);
+
+        /**
+         * 设置单品数量  存储在map中
+         *
+         * @param goodsId
+         * @param num
+         */
+        void setNumMap(int goodsId, int num);
+
+        void addList(GoodsBean.DataBean bean);
     }
 
     interface Presenter {
@@ -33,7 +44,8 @@ public interface MainContract {
          *
          * @param s
          */
-        void addGoods(String s);
+        void addGoods(String s, String token);
 
+        void checkGoodsIsSame(Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean);
     }
 }

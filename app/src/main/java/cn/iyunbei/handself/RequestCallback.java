@@ -17,7 +17,7 @@ public interface RequestCallback {
         /**
          * 成功的话 回调一个java实体bean给页面显示
          */
-        void succ(GoodsBean bean);
+        void succ(GoodsBean.DataBean bean);
 
         /**
          * 失败情况 提示用户

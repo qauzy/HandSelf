@@ -50,8 +50,8 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
 ////                .statusBarColor(getStatusBarColor())
 ////                .navigationBarColor(R.color.green) //导航栏颜色，不写默认黑色
 //                .init();
-//        presenter = initPresenter();
-//        presenter.attach((V) this);
+        presenter = initPresenter();
+        presenter.attach((V) this);
         ButterKnife.bind(this);
 //        EventBus.getDefault().register(this);
         customProgressDialog = new CustomProgressDialog(this, R.style.loading_style);

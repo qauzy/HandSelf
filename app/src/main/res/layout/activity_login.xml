@@ -74,7 +74,6 @@
                 android:background="@null"
                 android:gravity="center_vertical"
                 android:hint="输入手机号"
-                android:imeOptions="actionNext"
                 android:inputType="number"
                 android:maxLines="1"
                 android:textColor="@color/black"
@@ -82,6 +81,7 @@
                 android:textSize="@dimen/sp_16" />
         </LinearLayout>
 
+                <!--android:imeOptions="actionNext"-->
 
         <View
             android:layout_width="match_parent"

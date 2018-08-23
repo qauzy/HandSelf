@@ -12,7 +12,9 @@ package cn.iyunbei.handself;
 public class Constants {
 
     public static final String ROOT_URL = "http://pda.iyunbei.cn/api/pda/v1/";
-    
-    public static final String LOGIN= ROOT_URL + "ShopMember/login";
+
+    public static final String LOGIN = ROOT_URL + "shopmember/login";
+
+    public static String GET_GOODS = ROOT_URL + "goods/getgoods";
 }
 

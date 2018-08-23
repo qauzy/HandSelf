@@ -48,4 +48,5 @@ dependencies {
     compile files('libs/zypos1.8.jar')
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'org.greenrobot:greendao-generator:3.2.2'
+    compile  'com.yanzhenjie:recyclerview-swipe:1.1.4'
 }
