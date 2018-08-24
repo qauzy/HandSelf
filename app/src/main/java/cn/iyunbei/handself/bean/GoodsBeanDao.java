@@ -19,22 +19,49 @@ public class GoodsBeanDao {
     @Id(autoincrement = true)
     private Long id;
 
+    /**
+     * 商品id
+     */
     private int goodsId;
-
+    /**
+     * 商品规格
+     */
     private String goodsGuige;
 
     private String name;
 
     private double price;
 
-    @Generated(hash = 799520432)
+//    private int goodsNum;
+
+    private int goodsBarCode;
+
+//    public int getGoodsNum() {
+//        return goodsNum;
+//    }
+
+//    public void setGoodsNum(int goodsNum) {
+//        this.goodsNum = goodsNum;
+//    }
+
+    public int getGoodsBarCode() {
+        return goodsBarCode;
+    }
+
+    public void setGoodsBarCode(int goodsBarCode) {
+        this.goodsBarCode = goodsBarCode;
+    }
+
+
+    @Generated(hash = 571451090)
     public GoodsBeanDao(Long id, int goodsId, String goodsGuige, String name,
-            double price) {
+            double price, int goodsBarCode) {
         this.id = id;
         this.goodsId = goodsId;
         this.goodsGuige = goodsGuige;
         this.name = name;
         this.price = price;
+        this.goodsBarCode = goodsBarCode;
     }
 
     @Generated(hash = 1464702812)

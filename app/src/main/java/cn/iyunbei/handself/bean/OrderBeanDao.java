@@ -37,6 +37,26 @@ public class OrderBeanDao {
      */
     private int goodsNum;
 
+//    private int totalNum;
+//
+//    private double totalMoney;  public int getTotalNum() {
+////        return totalNum;
+////    }
+////
+////    public void setTotalNum(int totalNum) {
+////        this.totalNum = totalNum;
+////    }
+////
+////    public double getTotalMoney() {
+////        return totalMoney;
+////    }
+////
+////    public void setTotalMoney(double totalMoney) {
+////        this.totalMoney = totalMoney;
+////    }
+
+//
+
     @Generated(hash = 18325167)
     public OrderBeanDao(Long id, int orderId, int goodsId, int goodsNum) {
         this.id = id;

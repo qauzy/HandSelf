@@ -1,7 +1,5 @@
 package cn.iyunbei.handself.utils.aboutclick;
 
-import java.util.Calendar;
-
 /**
  * 版权所有，违法必究！！！
  *

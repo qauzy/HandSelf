@@ -12,6 +12,7 @@ import android.posapi.PosApi;
 import android.posapi.PrintQueue;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -83,6 +84,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     LinearLayout llBottom;
     @Bind(R.id.rv_goods)
     SwipeMenuRecyclerView rvGoods;
+
+    private double toaMon = 0;
+    private int toaNum = 0;
 
     private PosApi mPosApi = null;
     //GPIO电源的控制
@@ -178,7 +182,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             }
         }
     };
-
 
     @Override
     public int getLayoutResId() {
@@ -402,6 +405,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     public void setToalData(BigDecimal totalMoney, int totalNum) {
         tvJiesuan.setText("结算(￥" + totalMoney + ")");
         tvTotalnum.setText("共计" + totalNum + "件商品");
+        toaMon = totalMoney.doubleValue();
+        toaNum = totalNum;
     }
 
     @Override
@@ -480,8 +485,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
                             //把扫描头传过来的byte字节转成字符串
                             String str = new String(buffer, "GBK");
+                            String substring = str.substring(0, str.length() - 2);
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
-                            presenter.addGoods(str, CommonUtil.getString(MainActivity.this, "token"));
+                            presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
                             isScan = false;
                             //拉低扫描头电压，使扫描头熄灭
@@ -501,5 +507,20 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
     };
 
+    /**
+     * 返回键监听  这里是为了将正在结算的单子挂为临时订单
+     */
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        /**
+         * 如果用户按下的是返回键  此时需要将原来的订单和数据存在本地数据库
+         */
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            presenter.saveOrderDatas(goodsList, numMap, this, toaMon, toaNum);
+        }
+
+        return true;
+//        return super.onKeyDown(keyCode, event);
+    }
 }

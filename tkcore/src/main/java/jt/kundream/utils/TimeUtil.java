@@ -18,6 +18,33 @@ import java.util.GregorianCalendar;
  */
 public class TimeUtil {
 
+    /**
+     * 获取精确到秒的时间戳  10位数
+     *
+     * @return
+     */
+    public static int getSecondTimestamp(Date date) {
+        if (null == date) {
+            return 0;
+        }
+        String timestamp = String.valueOf(date.getTime());
+        int length = timestamp.length();
+        if (length > 3) {
+            return Integer.valueOf(timestamp.substring(0, length - 3));
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * 获取当前时间的时间戳
+     *
+     * @return
+     */
+    public static int getNowTimestamp() {
+        return (int) (Calendar.getInstance().getTimeInMillis() / 1000);
+    }
+
     /***
      * 将时间转换为时间戳
      *

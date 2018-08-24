@@ -29,6 +29,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
         public final static Property GoodsGuige = new Property(2, String.class, "goodsGuige", false, "GOODS_GUIGE");
         public final static Property Name = new Property(3, String.class, "name", false, "NAME");
         public final static Property Price = new Property(4, double.class, "price", false, "PRICE");
+        public final static Property GoodsBarCode = new Property(5, int.class, "goodsBarCode", false, "GOODS_BAR_CODE");
     }
 
 
@@ -48,7 +49,8 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
                 "\"GOODS_ID\" INTEGER NOT NULL ," + // 1: goodsId
                 "\"GOODS_GUIGE\" TEXT," + // 2: goodsGuige
                 "\"NAME\" TEXT," + // 3: name
-                "\"PRICE\" REAL NOT NULL );"); // 4: price
+                "\"PRICE\" REAL NOT NULL ," + // 4: price
+                "\"GOODS_BAR_CODE\" INTEGER NOT NULL );"); // 5: goodsBarCode
     }
 
     /** Drops the underlying database table. */
@@ -77,6 +79,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
             stmt.bindString(4, name);
         }
         stmt.bindDouble(5, entity.getPrice());
+        stmt.bindLong(6, entity.getGoodsBarCode());
     }
 
     @Override
@@ -99,6 +102,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
             stmt.bindString(4, name);
         }
         stmt.bindDouble(5, entity.getPrice());
+        stmt.bindLong(6, entity.getGoodsBarCode());
     }
 
     @Override
@@ -113,7 +117,8 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
             cursor.getInt(offset + 1), // goodsId
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // goodsGuige
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // name
-            cursor.getDouble(offset + 4) // price
+            cursor.getDouble(offset + 4), // price
+            cursor.getInt(offset + 5) // goodsBarCode
         );
         return entity;
     }
@@ -125,6 +130,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
         entity.setGoodsGuige(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setPrice(cursor.getDouble(offset + 4));
+        entity.setGoodsBarCode(cursor.getInt(offset + 5));
      }
     
     @Override

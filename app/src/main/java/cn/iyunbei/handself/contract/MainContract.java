@@ -1,5 +1,7 @@
 package cn.iyunbei.handself.contract;
 
+import android.content.Context;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -70,5 +72,13 @@ public interface MainContract {
          * @param numMap
          */
         void calcTotal(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap);
+
+        /**
+         * 点击back之后 将数据存储在本地数据库  这里是判断数据的
+         *
+         * @param goodsList
+         * @param numMap
+         */
+        void saveOrderDatas(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum);
     }
 }
