@@ -28,9 +28,9 @@ public class LoginModel {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String s = response.body().toString();
-                        if (JsonUtils.checkToken(s) == 200){
+                        if (JsonUtils.checkToken(s) == 200) {
                             loginCallback.succ(JsonUtils.getInnerStr(s, "_token"));
-                        }else{
+                        } else {
                             loginCallback.fail(JsonUtils.getMsg(s));
                         }
                     }

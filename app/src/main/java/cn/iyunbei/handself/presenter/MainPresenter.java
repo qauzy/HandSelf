@@ -2,10 +2,12 @@ package cn.iyunbei.handself.presenter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.greenrobot.greendao.async.AsyncOperation;
 import org.greenrobot.greendao.async.AsyncOperationListener;
 import org.greenrobot.greendao.async.AsyncSession;
+import org.greenrobot.greendao.query.Query;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -119,21 +121,30 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
         mView.setToalData(totalMoney, totalNum);
     }
 
+
+    /**
+     * 整体方法  从这里开始操作数据库
+     *
+     * @param goodsList
+     * @param numMap
+     * @param ctx
+     * @param tolMon
+     * @param tolNum
+     */
     @Override
-    public void saveOrderDatas(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
-//        DaoSession daoSession = GreenDaoHelper.getDaoSession();
+    public void saveOrderDatas(final List<GoodsBean.DataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
 
         DaoSession daoSession = MyApp.getDaoSession();
 
-        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
-
-        //订单表 存入 订单号(时间戳)，商品id，单个商品的数量，此订单的
-        OrderBeanDaoDao orderBeanDaoDao = daoSession.getOrderBeanDaoDao();
+//        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
+//
+//        //订单表 存入 订单号(时间戳)，商品id，单个商品的数量，此订单的
+//        OrderBeanDaoDao orderBeanDaoDao = daoSession.getOrderBeanDaoDao();
 
         //订单id表  存入用时间戳生成的订单号  以及这个时间戳可以反推时间
-        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
+//        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
 
-        int nowTimestamp = TimeUtil.getNowTimestamp();
+        final int nowTimestamp = TimeUtil.getNowTimestamp();
 
         final AsyncSession asyncSession = daoSession.startAsyncSession();
 
@@ -141,23 +152,31 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             @Override
             public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
                 if (asyncSession.isCompleted()) {
-                    mView.showToast("数据库数据插入成功");
+                    /**
+                     * 此处的逻辑 1.查询orderId中的条数，是几条  就说明是几个临时订单在挂着
+                     *           2.将值返回给页面，在页面中更新UI对应的操作
+                     */
+                    insertOrderBeanDao(nowTimestamp, goodsList, numMap);
+
+//                    queryTempOrderNum();
+//                    mView.hideProgress();
+//                    mView.showToast("数据插入成功");
                 }
             }
         });
 
         asyncSession.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
-        for (int i = 0; i < goodsList.size(); i++) {
-            //订单表中  存入订单号码(时间戳),
-            GoodsBean.DataBean dataBean = goodsList.get(i);
-
-            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
-                    numMap.get(dataBean.getGoods_id())));
-
-            //存入商品属性
-            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-        }
+//        for (int i = 0; i < goodsList.size(); i++) {
+//            //订单表中  存入订单号码(时间戳),
+//            GoodsBean.DataBean dataBean = goodsList.get(i);
+//
+//            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
+//                    numMap.get(dataBean.getGoods_id())));
+//
+//            //存入商品属性
+//            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+//        }
 
 //        asyncSession.insert(goodsList);
 //        asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
@@ -188,5 +207,119 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //            }
 //
 //        }
+    }
+
+    private void insertOrderBeanDao(int nowTimestamp, final List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
+        DaoSession daoSession = MyApp.getDaoSession();
+        final AsyncSession asyncSession = daoSession.startAsyncSession();
+
+        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+            @Override
+            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+                if (asyncOperation.isCompleted()) {
+                    insertGoodsProperties(goodsList);
+                }
+            }
+        });
+
+//        List<OrderBeanDao> list = new ArrayList<>();
+
+        for (int i = 0; i < goodsList.size(); i++) {
+            //订单表中  存入订单号码(时间戳),
+            GoodsBean.DataBean dataBean = goodsList.get(i);
+
+//            list.add(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(), numMap.get(dataBean.getGoods_id())));
+
+            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
+                    numMap.get(dataBean.getGoods_id())));
+
+//            //存入商品属性
+//            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+        }
+
+    }
+
+    /**
+     * 存入商品属性  先判断是否有存储过这个商品  如果有的话  就不再存入了
+     *
+     * @param goodsList
+     */
+    private void insertGoodsProperties(List<GoodsBean.DataBean> goodsList) {
+        DaoSession daoSession = MyApp.getDaoSession();
+        final AsyncSession asyncSession = daoSession.startAsyncSession();
+
+        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
+
+        List<GoodsBeanDao> list = goodsBeanDaoDao.queryBuilder().build().list();
+
+        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+            @Override
+            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+                //全部数据存入之后  查询现在数据库中存入了多少临时订单
+                if (asyncOperation.isCompleted())
+                    queryTempOrderNum();
+            }
+        });
+
+//        List<GoodsBeanDao> list1 = new ArrayList<>();
+        for (int i = 0; i < goodsList.size(); i++) {
+
+            GoodsBean.DataBean dataBean = goodsList.get(i);
+            if (list.contains(dataBean)) {
+                continue;
+            }
+//            list1.add(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+            //存入商品属性
+            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+        }
+//        asyncSession.insert(list1);
+    }
+
+    /**
+     * 查询数据库中的临时订单总数
+     */
+    private void queryTempOrderNum() {
+        final DaoSession daoSession = MyApp.getDaoSession();
+//        long count = 0;
+//        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
+//        orderIdDaoDao.queryBuilder().count();
+
+        AsyncSession asyncSession = daoSession.startAsyncSession();
+        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+            @Override
+            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+                if (asyncOperation.isCompleted()) {
+                    List<OrderIdDao> orderNumList = new ArrayList<>();
+
+                    orderNumList = (List<OrderIdDao>) asyncOperation.getResult();
+                    mView.setThisOrderTemp(orderNumList.size());
+                }
+            }
+        });
+        asyncSession.queryList(daoSession.getOrderIdDaoDao().queryBuilder().build());
+//        asyncSession.queryList();
+//        count = asyncSession.queryBuilder(OrderIdDao.class).count();
+    }
+
+    /**
+     * 查询数据库全部数据
+     */
+    public void quaryAllData() {
+        DaoSession daoSession = MyApp.getDaoSession();
+        AsyncSession asyncSession = daoSession.startAsyncSession();
+        asyncSession.setListener(new AsyncOperationListener() {
+            @Override
+            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+                String s = asyncOperation.getResult().toString();
+                Log.e("database====", s);
+            }
+        });
+
+        asyncSession.loadAll(GoodsBeanDao.class);
+        asyncSession.loadAll(OrderIdDao.class);
+        asyncSession.loadAll(OrderBeanDao.class);
     }
 }

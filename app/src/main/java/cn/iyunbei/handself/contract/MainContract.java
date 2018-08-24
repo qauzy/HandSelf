@@ -53,6 +53,7 @@ public interface MainContract {
          */
         void showEmptyView();
 
+        void setThisOrderTemp(long count);
     }
 
     interface Presenter {

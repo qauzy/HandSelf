@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
@@ -84,6 +86,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     LinearLayout llBottom;
     @Bind(R.id.rv_goods)
     SwipeMenuRecyclerView rvGoods;
+    @Bind(R.id.tv_left)
+    TextView tvLeft;
 
     private double toaMon = 0;
     private int toaNum = 0;
@@ -244,6 +248,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
             case R.id.tv_jiesuan:
                 showToast("进入付款页");
+                presenter.quaryAllData();
                 break;
 
             default:
@@ -415,6 +420,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         rvGoods.setVisibility(View.GONE);
     }
 
+    @Override
+    public void setThisOrderTemp(long count) {
+        hideProgress();
+        tvLeft.setText(count+"");
+    }
+
     private void setAdapter() {
         rlMiddle.setVisibility(View.GONE);
         rvGoods.setVisibility(View.VISIBLE);
@@ -517,6 +528,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
          * 如果用户按下的是返回键  此时需要将原来的订单和数据存在本地数据库
          */
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            showProgress();
             presenter.saveOrderDatas(goodsList, numMap, this, toaMon, toaNum);
         }
 
