@@ -423,7 +423,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     public void setThisOrderTemp(long count) {
         hideProgress();
-        tvLeft.setText(count+"");
+        tvLeft.setText(count + "");
+        /**
+         * 将原本的数据存储在本地数据库之后  清空商品集合
+         */
+        goodsList.clear();
+        numMap.clear();
+        rlMiddle.setVisibility(View.VISIBLE);
+        rvGoods.setVisibility(View.GONE);
     }
 
     private void setAdapter() {
