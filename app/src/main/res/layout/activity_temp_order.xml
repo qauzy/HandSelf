@@ -9,11 +9,10 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_goods"
+        android:id="@+id/rv_temp_orders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        />
+        android:background="@color/gray_8" />
 
 
 </LinearLayout>

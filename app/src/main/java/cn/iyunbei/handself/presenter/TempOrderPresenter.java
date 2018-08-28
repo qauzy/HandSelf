@@ -27,8 +27,8 @@ public class TempOrderPresenter extends BasePresenter<TempOrderContract.View> im
 
     private RequestCallback.QuarySqlCallback callback = new RequestCallback.QuarySqlCallback() {
         @Override
-        public void quarySqlOrderIdSucc(List<TempOrderBean> orderIdList) {
-
+        public void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList) {
+            mView.showTempOrder(orderIdList);
         }
 
         @Override

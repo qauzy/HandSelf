@@ -2,8 +2,12 @@ package cn.iyunbei.handself.contract;
 
 import android.content.Context;
 
+import java.util.List;
+
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.activity.TempOrderActivity;
+import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import jt.kundream.base.IBaseView;
 
 /**
@@ -26,6 +30,12 @@ public interface TempOrderContract {
     }
 
     interface View extends IBaseView {
+        /**
+         * 显示临时订单
+         *
+         * @param orderIdList
+         */
+        void showTempOrder(List<OrderIdDao> orderIdList);
     }
 
     interface Presenter {

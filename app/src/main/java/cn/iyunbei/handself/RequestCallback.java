@@ -49,13 +49,13 @@ public interface RequestCallback {
     }
 
     /**
-     * item内部控件点击处理
+     * 通用的  item内部控件点击处理
      */
     interface ItemViewOnClickListener {
         /**
          * 用于结算商品时候的数量点击
          */
-        void clickAddOrMin(View view);
+        void itemViewClick(View view);
 
     }
 
@@ -64,7 +64,7 @@ public interface RequestCallback {
      */
     interface QuarySqlCallback {
 
-        void quarySqlOrderIdSucc(List<TempOrderBean> orderIdList);
+        void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList);
 
         void quarySqlFail(String errMsg);
     }

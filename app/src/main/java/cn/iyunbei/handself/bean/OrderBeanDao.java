@@ -6,6 +6,7 @@ import org.greenrobot.greendao.annotation.Id;
 import static com.tencent.mm.opensdk.diffdev.a.g.au;
 
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToOne;
 import org.greenrobot.greendao.DaoException;
 import cn.iyunbei.handself.greendao.DaoSession;
@@ -64,8 +65,10 @@ public class OrderBeanDao {
 ////    }
 
     /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
+//    @Generated(hash = 2040040024)
+//    public transient DaoSession daoSession;
+    @Keep
+    public transient DaoSession daoSession;
 
     /** Used for active entity operations. */
     @Generated(hash = 16599192)

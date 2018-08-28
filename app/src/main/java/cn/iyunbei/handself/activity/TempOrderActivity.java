@@ -1,15 +1,28 @@
 package cn.iyunbei.handself.activity;
 
+import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.RequestCallback;
+import cn.iyunbei.handself.adapter.TempOrderAdapter;
+import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
 import cn.iyunbei.handself.presenter.TempOrderPresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.rvdecoration.SpacesItemDecoration;
 
 /**
  * 版权所有，违法必究！！！
@@ -20,7 +33,7 @@ import jt.kundream.base.BaseActivity;
  * @e-mail: 245086168@qq.com
  * @desc:临时订单的activity
  **/
-public class TempOrderActivity extends BaseActivity<TempOrderContract.View,TempOrderPresenter> implements TempOrderContract.View {
+public class TempOrderActivity extends BaseActivity<TempOrderContract.View, TempOrderPresenter> implements TempOrderContract.View {
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_left)
@@ -31,8 +44,17 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View,TempO
     ImageView ivRight;
     @Bind(R.id.tv_right)
     TextView tvRight;
-    @Bind(R.id.rv_goods)
-    RecyclerView rvGoods;
+    @Bind(R.id.rv_temp_orders)
+    RecyclerView rvTempOrders;
+    private TempOrderAdapter mAdapter;
+    private List<OrderIdDao> mDatas = new ArrayList<>();
+
+    private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
+        @Override
+        public void itemViewClick(View view) {
+
+        }
+    };
 
     @Override
     public int getLayoutResId() {
@@ -55,5 +77,20 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View,TempO
     @Override
     public TempOrderPresenter initPresenter() {
         return new TempOrderPresenter();
+    }
+
+    @Override
+    public void showTempOrder(List<OrderIdDao> orderIdList) {
+        mDatas.clear();
+        mDatas.addAll(orderIdList);
+        if (mAdapter == null) {
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            rvTempOrders.setLayoutManager(linearLayoutManager);
+            rvTempOrders.setItemAnimator(new DefaultItemAnimator());
+            mAdapter = new TempOrderAdapter(this, R.layout.item_temp_order, mDatas, itemClickListener);
+            rvTempOrders.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

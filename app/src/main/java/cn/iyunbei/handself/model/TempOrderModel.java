@@ -43,7 +43,7 @@ public class TempOrderModel implements TempOrderContract.Model {
                      * 此处查出来第一个表的内容
                      */
 //                    Object result = asyncOperation.getResult();
-                    List<TempOrderBean> list = (List<TempOrderBean>) asyncOperation.getResult();
+                    List<OrderIdDao> list = (List<OrderIdDao>) asyncOperation.getResult();
 
                     callback.quarySqlOrderIdSucc(list);
 

@@ -4,10 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
-import com.tencent.mm.opensdk.modelmsg.SendAuth;
-
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +57,6 @@ public class GoodsAdapter extends CommonAdapter<GoodsBean.DataBean> implements V
 
     @Override
     public void onClick(View view) {
-        itemViewOnClickListener.clickAddOrMin(view);
+        itemViewOnClickListener.itemViewClick(view);
     }
 }

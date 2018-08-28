@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/black_white" />
+
+    <TextView
+        android:id="@+id/tv_goods_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="山西老陈醋"
+        android:textColor="@color/black"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_goods_guige"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/tv_goods_name"
+        android:layout_below="@id/tv_goods_name"
+        android:layout_marginTop="@dimen/dp_5"
+        android:text="规格:500ML"
+        android:textColor="@color/color_line_drivier"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_goods_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/tv_goods_name"
+        android:layout_below="@id/tv_goods_guige"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_5"
+        android:background="@drawable/shape_goods_num"
+        android:padding="@dimen/dp_5"
+        android:text="214354345643"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_money"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/tv_goods_name"
+        android:layout_marginRight="@dimen/dp_10"
+        android:text="￥12.00"
+        android:textColor="@color/yunbei_bg"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/tv_money"
+        android:layout_below="@id/tv_goods_name"
+        android:layout_marginTop="@dimen/dp_5"
+        android:text="X3"
+        android:textColor="@color/color_line_drivier"
+        android:textSize="@dimen/sp_14" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_below="@id/tv_goods_code"
+        android:background="@color/gray_8" />
+
+</RelativeLayout>

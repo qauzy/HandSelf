@@ -159,7 +159,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private RequestCallback.ItemViewOnClickListener itemViewOnClickListener = new RequestCallback.ItemViewOnClickListener() {
 
         @Override
-        public void clickAddOrMin(View view) {
+        public void itemViewClick(View view) {
             int posi = (int) view.getTag();
             int goodsId = goodsList.get(posi).getGoods_id();
             int num = numMap.get(goodsId);

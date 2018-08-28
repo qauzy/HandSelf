@@ -3,6 +3,7 @@ package cn.iyunbei.handself.bean;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Keep;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
@@ -38,8 +39,11 @@ public class OrderIdDao {
 
 
     /** Used to resolve relations */
-    @Generated(hash = 2040040024)
-    private transient DaoSession daoSession;
+//    @Generated(hash = 2040040024)
+//    public transient DaoSession daoSession;
+
+    @Keep
+    public transient DaoSession daoSession;
 
 
     /** Used for active entity operations. */
