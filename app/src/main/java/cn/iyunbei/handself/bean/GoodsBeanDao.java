@@ -22,7 +22,7 @@ public class GoodsBeanDao {
     /**
      * 商品id
      */
-    private int goodsId;
+    private long goodsId;
     /**
      * 商品规格
      */
@@ -36,25 +36,8 @@ public class GoodsBeanDao {
 
     private int goodsBarCode;
 
-//    public int getGoodsNum() {
-//        return goodsNum;
-//    }
-
-//    public void setGoodsNum(int goodsNum) {
-//        this.goodsNum = goodsNum;
-//    }
-
-    public int getGoodsBarCode() {
-        return goodsBarCode;
-    }
-
-    public void setGoodsBarCode(int goodsBarCode) {
-        this.goodsBarCode = goodsBarCode;
-    }
-
-
-    @Generated(hash = 571451090)
-    public GoodsBeanDao(Long id, int goodsId, String goodsGuige, String name,
+    @Generated(hash = 1771103683)
+    public GoodsBeanDao(Long id, long goodsId, String goodsGuige, String name,
             double price, int goodsBarCode) {
         this.id = id;
         this.goodsId = goodsId;
@@ -69,23 +52,23 @@ public class GoodsBeanDao {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public int getGoodsId() {
-        return goodsId;
+    public long getGoodsId() {
+        return this.goodsId;
     }
 
-    public void setGoodsId(int goodsId) {
+    public void setGoodsId(long goodsId) {
         this.goodsId = goodsId;
     }
 
     public String getGoodsGuige() {
-        return goodsGuige;
+        return this.goodsGuige;
     }
 
     public void setGoodsGuige(String goodsGuige) {
@@ -93,7 +76,7 @@ public class GoodsBeanDao {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -101,10 +84,19 @@ public class GoodsBeanDao {
     }
 
     public double getPrice() {
-        return price;
+        return this.price;
     }
 
     public void setPrice(double price) {
         this.price = price;
     }
+
+    public int getGoodsBarCode() {
+        return this.goodsBarCode;
+    }
+
+    public void setGoodsBarCode(int goodsBarCode) {
+        this.goodsBarCode = goodsBarCode;
+    }
+
 }

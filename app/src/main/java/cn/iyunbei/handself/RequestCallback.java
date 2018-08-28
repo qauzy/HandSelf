@@ -2,7 +2,13 @@ package cn.iyunbei.handself;
 
 import android.view.View;
 
+import java.util.List;
+
 import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.GoodsBeanDao;
+import cn.iyunbei.handself.bean.OrderBeanDao;
+import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.TempOrderBean;
 
 /**
  * 版权所有，违法必究！！！
@@ -51,5 +57,15 @@ public interface RequestCallback {
          */
         void clickAddOrMin(View view);
 
+    }
+
+    /**
+     * 点击临时订单之后，查询数据库拿到的数据，个人在此处做处理。
+     */
+    interface QuarySqlCallback {
+
+        void quarySqlOrderIdSucc(List<TempOrderBean> orderIdList);
+
+        void quarySqlFail(String errMsg);
     }
 }

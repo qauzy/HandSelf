@@ -13,6 +13,11 @@ public abstract class BaseModle<P> {
 
     public P mPresenter;
 
+    public BaseModle(P mPresenter) {
+        this.mPresenter = mPresenter;
+//        attachPresenter(mPresenter);
+    }
+
     public void attachPresenter(P mPresenter) {
         this.mPresenter = mPresenter;
     }

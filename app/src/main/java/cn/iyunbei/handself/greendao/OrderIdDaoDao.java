@@ -30,6 +30,8 @@ public class OrderIdDaoDao extends AbstractDao<OrderIdDao, Long> {
         public final static Property TotalMoney = new Property(3, double.class, "totalMoney", false, "TOTAL_MONEY");
     }
 
+    private DaoSession daoSession;
+
 
     public OrderIdDaoDao(DaoConfig config) {
         super(config);
@@ -37,6 +39,7 @@ public class OrderIdDaoDao extends AbstractDao<OrderIdDao, Long> {
     
     public OrderIdDaoDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -79,6 +82,12 @@ public class OrderIdDaoDao extends AbstractDao<OrderIdDao, Long> {
         stmt.bindLong(2, entity.getOrderId());
         stmt.bindLong(3, entity.getTotalNum());
         stmt.bindDouble(4, entity.getTotalMoney());
+    }
+
+    @Override
+    protected final void attachEntity(OrderIdDao entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
     }
 
     @Override

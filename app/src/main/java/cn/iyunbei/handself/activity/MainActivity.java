@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
@@ -232,7 +230,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
         switch (view.getId()) {
             case R.id.iv_left:
-                showToast("临时订单");
+//                showToast("临时订单");
+                ActivityUtil.startActivityForResult(this, TempOrderActivity.class, 200);
                 break;
 
             case R.id.iv_right:
@@ -535,8 +534,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
          * 如果用户按下的是返回键  此时需要将原来的订单和数据存在本地数据库
          */
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            showProgress();
-            presenter.saveOrderDatas(goodsList, numMap, this, toaMon, toaNum);
+            if (goodsList.size() < 1) {
+                showToast("您还没有添加任何订单");
+            } else {
+                showProgress();
+                presenter.saveOrderDatas(goodsList, numMap, this, toaMon, toaNum);
+            }
         }
 
         return true;

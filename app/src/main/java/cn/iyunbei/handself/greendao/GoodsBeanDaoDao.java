@@ -25,7 +25,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property GoodsId = new Property(1, int.class, "goodsId", false, "GOODS_ID");
+        public final static Property GoodsId = new Property(1, long.class, "goodsId", false, "GOODS_ID");
         public final static Property GoodsGuige = new Property(2, String.class, "goodsGuige", false, "GOODS_GUIGE");
         public final static Property Name = new Property(3, String.class, "name", false, "NAME");
         public final static Property Price = new Property(4, double.class, "price", false, "PRICE");
@@ -114,7 +114,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
     public GoodsBeanDao readEntity(Cursor cursor, int offset) {
         GoodsBeanDao entity = new GoodsBeanDao( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // goodsId
+            cursor.getLong(offset + 1), // goodsId
             cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // goodsGuige
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // name
             cursor.getDouble(offset + 4), // price
@@ -126,7 +126,7 @@ public class GoodsBeanDaoDao extends AbstractDao<GoodsBeanDao, Long> {
     @Override
     public void readEntity(Cursor cursor, GoodsBeanDao entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setGoodsId(cursor.getInt(offset + 1));
+        entity.setGoodsId(cursor.getLong(offset + 1));
         entity.setGoodsGuige(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
         entity.setName(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setPrice(cursor.getDouble(offset + 4));

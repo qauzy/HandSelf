@@ -1,13 +1,20 @@
 package cn.iyunbei.handself.greendao;
 
+import java.util.List;
+import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
+import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
+import org.greenrobot.greendao.query.Query;
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import cn.iyunbei.handself.bean.GoodsBeanDao;
 
 import cn.iyunbei.handself.bean.OrderBeanDao;
 
@@ -25,11 +32,14 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property OrderId = new Property(1, int.class, "orderId", false, "ORDER_ID");
-        public final static Property GoodsId = new Property(2, int.class, "goodsId", false, "GOODS_ID");
+        public final static Property OrderId = new Property(1, long.class, "orderId", false, "ORDER_ID");
+        public final static Property GoodsId = new Property(2, long.class, "goodsId", false, "GOODS_ID");
         public final static Property GoodsNum = new Property(3, int.class, "goodsNum", false, "GOODS_NUM");
     }
 
+    private DaoSession daoSession;
+
+    private Query<OrderBeanDao> orderIdDao_OrderBeanDaoListQuery;
 
     public OrderBeanDaoDao(DaoConfig config) {
         super(config);
@@ -37,6 +47,7 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     
     public OrderBeanDaoDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
+        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -82,6 +93,12 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     }
 
     @Override
+    protected final void attachEntity(OrderBeanDao entity) {
+        super.attachEntity(entity);
+        entity.__setDaoSession(daoSession);
+    }
+
+    @Override
     public Long readKey(Cursor cursor, int offset) {
         return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
     }    
@@ -90,8 +107,8 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     public OrderBeanDao readEntity(Cursor cursor, int offset) {
         OrderBeanDao entity = new OrderBeanDao( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // orderId
-            cursor.getInt(offset + 2), // goodsId
+            cursor.getLong(offset + 1), // orderId
+            cursor.getLong(offset + 2), // goodsId
             cursor.getInt(offset + 3) // goodsNum
         );
         return entity;
@@ -100,8 +117,8 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
     @Override
     public void readEntity(Cursor cursor, OrderBeanDao entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setOrderId(cursor.getInt(offset + 1));
-        entity.setGoodsId(cursor.getInt(offset + 2));
+        entity.setOrderId(cursor.getLong(offset + 1));
+        entity.setGoodsId(cursor.getLong(offset + 2));
         entity.setGoodsNum(cursor.getInt(offset + 3));
      }
     
@@ -130,4 +147,111 @@ public class OrderBeanDaoDao extends AbstractDao<OrderBeanDao, Long> {
         return true;
     }
     
+    /** Internal query to resolve the "orderBeanDaoList" to-many relationship of OrderIdDao. */
+    public List<OrderBeanDao> _queryOrderIdDao_OrderBeanDaoList(long orderId) {
+        synchronized (this) {
+            if (orderIdDao_OrderBeanDaoListQuery == null) {
+                QueryBuilder<OrderBeanDao> queryBuilder = queryBuilder();
+                queryBuilder.where(Properties.OrderId.eq(null));
+                orderIdDao_OrderBeanDaoListQuery = queryBuilder.build();
+            }
+        }
+        Query<OrderBeanDao> query = orderIdDao_OrderBeanDaoListQuery.forCurrentThread();
+        query.setParameter(0, orderId);
+        return query.list();
+    }
+
+    private String selectDeep;
+
+    protected String getSelectDeep() {
+        if (selectDeep == null) {
+            StringBuilder builder = new StringBuilder("SELECT ");
+            SqlUtils.appendColumns(builder, "T", getAllColumns());
+            builder.append(',');
+            SqlUtils.appendColumns(builder, "T0", daoSession.getGoodsBeanDaoDao().getAllColumns());
+            builder.append(" FROM ORDER_BEAN_DAO T");
+            builder.append(" LEFT JOIN GOODS_BEAN_DAO T0 ON T.\"GOODS_ID\"=T0.\"_id\"");
+            builder.append(' ');
+            selectDeep = builder.toString();
+        }
+        return selectDeep;
+    }
+    
+    protected OrderBeanDao loadCurrentDeep(Cursor cursor, boolean lock) {
+        OrderBeanDao entity = loadCurrent(cursor, 0, lock);
+        int offset = getAllColumns().length;
+
+        GoodsBeanDao goodsBeanDao = loadCurrentOther(daoSession.getGoodsBeanDaoDao(), cursor, offset);
+         if(goodsBeanDao != null) {
+            entity.setGoodsBeanDao(goodsBeanDao);
+        }
+
+        return entity;    
+    }
+
+    public OrderBeanDao loadDeep(Long key) {
+        assertSinglePk();
+        if (key == null) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder(getSelectDeep());
+        builder.append("WHERE ");
+        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
+        String sql = builder.toString();
+        
+        String[] keyArray = new String[] { key.toString() };
+        Cursor cursor = db.rawQuery(sql, keyArray);
+        
+        try {
+            boolean available = cursor.moveToFirst();
+            if (!available) {
+                return null;
+            } else if (!cursor.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            }
+            return loadCurrentDeep(cursor, true);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
+    public List<OrderBeanDao> loadAllDeepFromCursor(Cursor cursor) {
+        int count = cursor.getCount();
+        List<OrderBeanDao> list = new ArrayList<OrderBeanDao>(count);
+        
+        if (cursor.moveToFirst()) {
+            if (identityScope != null) {
+                identityScope.lock();
+                identityScope.reserveRoom(count);
+            }
+            try {
+                do {
+                    list.add(loadCurrentDeep(cursor, false));
+                } while (cursor.moveToNext());
+            } finally {
+                if (identityScope != null) {
+                    identityScope.unlock();
+                }
+            }
+        }
+        return list;
+    }
+    
+    protected List<OrderBeanDao> loadDeepAllAndCloseCursor(Cursor cursor) {
+        try {
+            return loadAllDeepFromCursor(cursor);
+        } finally {
+            cursor.close();
+        }
+    }
+    
+
+    /** A raw-style query where you can pass any WHERE clause and arguments. */
+    public List<OrderBeanDao> queryDeep(String where, String... selectionArg) {
+        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
+        return loadDeepAllAndCloseCursor(cursor);
+    }
+ 
 }
