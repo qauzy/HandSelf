@@ -206,16 +206,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-//    /**
-//     * 初始化一些必须的一些常量值
-//     */
-//    private void initConstants() {
-//        mPosApi = PosApi.getInstance(this);
-//        player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
-//    }
-
-//    15917694315
-//    123456
 
     @Override
     public MainPresenter initPresenter() {

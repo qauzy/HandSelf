@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.TempOrderAdapter;
@@ -47,6 +48,34 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
         public void itemViewClick(View view) {
+            int position = (int) view.getTag();
+            switch (view.getId()) {
+                case R.id.ll_bottom_1:
+                    /**
+                     *  1.展开商品列表,将箭头切换为向上  就是做一个箭头的旋转动画  这个在云贝生活中已经有了  直接拿过来就行
+                     *  2.修改TempOrderAdapter中的tempGoodsList  然后notify
+                     */
+
+
+                    break;
+
+                case R.id.ll_pay_again:
+                    //继续支付  将点击的订单数据携带回MainActivity  继续操作
+
+                    break;
+
+                case R.id.ll_pay_cancel:
+                    //取消订单   这里最简单  直接删除集合中的这个数据就行
+                    mDatas.remove(position);
+                    mAdapter.notifyDataSetChanged();
+                    new MyApp().setTempList(mDatas);
+
+                    break;
+
+                default:
+                    break;
+
+            }
 
         }
     };

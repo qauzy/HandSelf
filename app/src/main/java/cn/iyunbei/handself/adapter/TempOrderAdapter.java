@@ -161,6 +161,6 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
 
     @Override
     public void onClick(View view) {
-
+        clickListener.itemViewClick(view);
     }
 }
