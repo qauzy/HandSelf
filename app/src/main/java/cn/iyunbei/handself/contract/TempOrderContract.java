@@ -5,8 +5,6 @@ import android.content.Context;
 import java.util.List;
 
 import cn.iyunbei.handself.RequestCallback;
-import cn.iyunbei.handself.activity.TempOrderActivity;
-import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import jt.kundream.base.IBaseView;
 
@@ -35,7 +33,7 @@ public interface TempOrderContract {
          *
          * @param orderIdList
          */
-        void showTempOrder(List<OrderIdDao> orderIdList);
+        void showTempOrder(List<TempOrderBean> orderIdList);
     }
 
     interface Presenter {

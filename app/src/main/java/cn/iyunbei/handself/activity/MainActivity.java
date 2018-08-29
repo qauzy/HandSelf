@@ -41,7 +41,7 @@ import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
-import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
@@ -106,7 +106,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     /**
      * 要展示的商品列表集合
      */
-    private List<GoodsBean.DataBean> goodsList = new ArrayList<>();
+    private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
+
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
         @Override
@@ -247,7 +248,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
             case R.id.tv_jiesuan:
                 showToast("进入付款页");
-                presenter.quaryAllData();
+//                presenter.quaryAllData();
                 break;
 
             default:
@@ -388,7 +389,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private Map<Integer, Integer> numMap = new HashMap<>();
 
     @Override
-    public void manageData(GoodsBean.DataBean bean) {
+    public void manageData(TempOrderBean.TempGoodsBean bean) {
         // TODO: 2018/8/23 如果这里是相同的goodsId，那么需要的是更改数量就行  如果不是相同的goodsId，那么做的就是集合中添加一个新数据
 //        goodsList.add(bean);
         presenter.checkGoodsIsSame(numMap, goodsList, bean);
@@ -401,7 +402,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
     @Override
-    public void addList(GoodsBean.DataBean bean) {
+    public void addList(TempOrderBean.TempGoodsBean bean) {
         goodsList.add(bean);
     }
 

@@ -4,13 +4,9 @@ import android.content.Context;
 
 import java.util.List;
 
-import cn.iyunbei.handself.RequestCallback;
-import cn.iyunbei.handself.bean.GoodsBeanDao;
-import cn.iyunbei.handself.bean.OrderBeanDao;
-import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
-import cn.iyunbei.handself.model.TempOrderModel;
 import jt.kundream.base.BasePresenter;
 
 /**
@@ -25,20 +21,37 @@ import jt.kundream.base.BasePresenter;
 public class TempOrderPresenter extends BasePresenter<TempOrderContract.View> implements TempOrderContract.Presenter {
 
 
-    private RequestCallback.QuarySqlCallback callback = new RequestCallback.QuarySqlCallback() {
-        @Override
-        public void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList) {
-            mView.showTempOrder(orderIdList);
-        }
+//    private RequestCallback.QuarySqlCallback callback = new RequestCallback.QuarySqlCallback() {
+//        @Override
+//        public void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList) {
+//            mView.showTempOrder(orderIdList);
+//        }
+//
+//        @Override
+//        public void quarySqlFail(String errMsg) {
+//
+//        }
+//    };
 
-        @Override
-        public void quarySqlFail(String errMsg) {
+//    @Override
+//    public void queryData(Context ctx) {
+//        new TempOrderModel().quaryOrderIdList(ctx, callback);
+//    }
 
-        }
-    };
-
+    /**
+     * 这里实质上是需要拿到保存的数据
+     *
+     * @param ctx
+     */
     @Override
     public void queryData(Context ctx) {
-        new TempOrderModel().quaryOrderIdList(ctx, callback);
+        List<TempOrderBean> tempList = new MyApp().getTempList();
+        if (tempList != null && tempList.size() > 0) {
+            mView.showTempOrder(tempList);
+        } else {
+            mView.showToast("暂无临时订单");
+        }
     }
+
+
 }

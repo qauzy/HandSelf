@@ -31,18 +31,18 @@ public class MainModel implements MainContract.Model {
                     public void onSuccess(Response<String> response) {
                         String result = response.body().toString();
                         if (JsonUtils.checkToken(result) == 200) {
-                            GoodsBean goodsBean = new Gson().fromJson(result, GoodsBean.class);
-                            callback.succ(goodsBean.getData());
+                            GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
+                            callback.succ(bean);
                         } else {
                             callback.fial(JsonUtils.getMsg(result));
                         }
                     }
 
-                    @Override
-                    public void onFinish() {
-                        super.onFinish();
-                        callback.fial("请求完成");
-                    }
+//                    @Override
+//                    public void onFinish() {
+//                        super.onFinish();
+//                        callback.fial("请求完成");
+//                    }
 
                     @Override
                     public void onError(Response<String> response) {

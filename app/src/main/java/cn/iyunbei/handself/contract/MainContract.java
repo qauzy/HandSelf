@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import jt.kundream.base.IBaseView;
 
 /**
@@ -28,7 +28,7 @@ public interface MainContract {
          *
          * @param bean
          */
-        void manageData(GoodsBean.DataBean bean);
+        void manageData(TempOrderBean.TempGoodsBean bean);
 
         /**
          * 设置单品数量  存储在map中
@@ -38,7 +38,7 @@ public interface MainContract {
          */
         void setNumMap(int goodsId, int num);
 
-        void addList(GoodsBean.DataBean bean);
+        void addList(TempOrderBean.TempGoodsBean bean);
 
         /**
          * 设置底部显示的总价钱和总件数
@@ -64,7 +64,7 @@ public interface MainContract {
          */
         void addGoods(String s, String token);
 
-        void checkGoodsIsSame(Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean);
+        void checkGoodsIsSame(Map<Integer, Integer> numMap, List<TempOrderBean.TempGoodsBean> list, TempOrderBean.TempGoodsBean bean);
 
         /**
          * 计算订单总
@@ -72,7 +72,7 @@ public interface MainContract {
          * @param goodsList
          * @param numMap
          */
-        void calcTotal(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap);
+        void calcTotal(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap);
 
         /**
          * 点击back之后 将数据存储在本地数据库  这里是判断数据的
@@ -80,6 +80,6 @@ public interface MainContract {
          * @param goodsList
          * @param numMap
          */
-        void saveOrderDatas(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum);
+        void saveOrderDatas(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum);
     }
 }

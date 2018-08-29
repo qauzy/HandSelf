@@ -1,11 +1,7 @@
 package cn.iyunbei.handself.presenter;
 
 import android.content.Context;
-import android.util.Log;
-
-import org.greenrobot.greendao.async.AsyncOperation;
-import org.greenrobot.greendao.async.AsyncOperationListener;
-import org.greenrobot.greendao.async.AsyncSession;
+import android.text.TextUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,12 +11,9 @@ import java.util.Map;
 import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.GoodsBean;
-import cn.iyunbei.handself.bean.GoodsBeanDao;
-import cn.iyunbei.handself.bean.OrderBeanDao;
-import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
-import cn.iyunbei.handself.greendao.DaoSession;
-import cn.iyunbei.handself.greendao.GoodsBeanDaoDao;
+import cn.iyunbei.handself.model.MainModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CurrencyUtils;
 import jt.kundream.utils.TimeUtil;
@@ -40,11 +33,19 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
     private RequestCallback.GetGoodsCallback getGoodsCallback = new RequestCallback.GetGoodsCallback() {
         @Override
-        public void succ(GoodsBean.DataBean bean) {
+        public void succ(GoodsBean bean) {
             //此处的逻辑处理，应该是将单个商品，放进集合中，将集合返给页面，在页面中展示
-            mView.manageData(bean);
-//            goodsBeanList.add(bean);
-//            mView.showGoodsList(goodsBeanList);
+            TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
+            GoodsBean.DataBean data = bean.getData();
+
+            goodsBean.setGoods_id(data.getGoods_id());
+            goodsBean.setSpec(data.getSpec());
+            goodsBean.setGoods_price(data.getGoods_price());
+            goodsBean.setGoods_name(data.getGoods_name());
+            goodsBean.setBarcode(data.getBarcode());
+            goodsBean.setGoodsNum(0);
+
+            mView.manageData(goodsBean);
         }
 
         @Override
@@ -55,23 +56,26 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
     @Override
     public void addGoods(String s, String token) {
-        GoodsBean.DataBean dataBean = new GoodsBean.DataBean();
-        dataBean.setBarcode(s);
-        dataBean.setGoods_id(Integer.parseInt(s));
-        dataBean.setGoods_name("山东大葱");
-        dataBean.setGoods_price("12.22");
-        dataBean.setSpec("捆");
-        mView.manageData(dataBean);
+
+//        TempOrderBean.TempGoodsBean bean = new TempOrderBean.TempGoodsBean();
+//        bean.setBarcode(s);
+//        bean.setGoods_id(Integer.parseInt(s));
+//        bean.setGoods_name("河南胡辣汤");
+//        bean.setGoods_price("12.44");
+//        bean.setSpec("/张");
+//        bean.setGoodsNum(1);
+//        mView.manageData(bean);
+
         // TODO: 2018/8/23   以下是正确逻辑
-//        if (TextUtils.isEmpty(s)) {
-//            mView.showToast("条码不正确");
-//        } else {
-//            MainModel.requestGoods(s, token, getGoodsCallback);
-//        }
+        if (TextUtils.isEmpty(s)) {
+            mView.showToast("条码不正确");
+        } else {
+            MainModel.requestGoods(s, token, getGoodsCallback);
+        }
     }
 
     @Override
-    public void checkGoodsIsSame(Map<Integer, Integer> numMap, List<GoodsBean.DataBean> list, GoodsBean.DataBean bean) {
+    public void checkGoodsIsSame(Map<Integer, Integer> numMap, List<TempOrderBean.TempGoodsBean> list, TempOrderBean.TempGoodsBean bean) {
         int goodsId = bean.getGoods_id();
         int num;
         if (numMap.get(goodsId) != null) {
@@ -99,7 +103,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
     }
 
     @Override
-    public void calcTotal(List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
+    public void calcTotal(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap) {
         BigDecimal totalMoney = BigDecimal.valueOf(0);
         int totalNum = 0;
         if (goodsList.size() < 1) {
@@ -117,7 +121,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
 
     /**
-     * 整体方法  从这里开始操作数据库
+     * 根据最新的需求  这个数据如果app退出就清空了 所以更改为使用list存储
      *
      * @param goodsList
      * @param numMap
@@ -126,150 +130,173 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
      * @param tolNum
      */
     @Override
-    public void saveOrderDatas(final List<GoodsBean.DataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
-
-        DaoSession daoSession = MyApp.getDaoSession();
-
-//        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
-//
-//        //订单表 存入 订单号(时间戳)，商品id，单个商品的数量，此订单的
-//        OrderBeanDaoDao orderBeanDaoDao = daoSession.getOrderBeanDaoDao();
-
-        //订单id表  存入用时间戳生成的订单号  以及这个时间戳可以反推时间
-//        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
-
-        final int nowTimestamp = TimeUtil.getNowTimestamp();
-
-        final AsyncSession asyncSession = daoSession.startAsyncSession();
-
-        asyncSession.setListenerMainThread(new AsyncOperationListener() {
-            @Override
-            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-                if (asyncSession.isCompleted()) {
-                    /**
-                     * 此处的逻辑 1.查询orderId中的条数，是几条  就说明是几个临时订单在挂着
-                     *           2.将值返回给页面，在页面中更新UI对应的操作
-                     */
-                    insertOrderBeanDao(nowTimestamp, goodsList, numMap);
-                }
-            }
-        });
-
-        asyncSession.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
+    public void saveOrderDatas(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
+        //1.用当前时间生成时间戳  作为订单号
+        int nowTimestamp = TimeUtil.getNowTimestamp();
+        //2.需要存储当前订单的总件数和总钱数  这个在参数中已经有了
+        //        //3.生成整个集合
+        List<TempOrderBean> tempList = new ArrayList<>();
+        TempOrderBean bean = new TempOrderBean(nowTimestamp, tolNum, tolMon, goodsList);
+        tempList.add(bean);
+        new MyApp().setTempList(tempList);
+        mView.setThisOrderTemp(tempList.size());
     }
 
-    private void insertOrderBeanDao(int nowTimestamp, final List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
-        DaoSession daoSession = MyApp.getDaoSession();
-        final AsyncSession asyncSession = daoSession.startAsyncSession();
-
-        asyncSession.setListenerMainThread(new AsyncOperationListener() {
-            @Override
-            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-                if (asyncOperation.isCompleted()) {
-                    insertGoodsProperties(goodsList);
-                }
-            }
-        });
-
-
-        for (int i = 0; i < goodsList.size(); i++) {
-            //订单表中  存入订单号码(时间戳),
-            GoodsBean.DataBean dataBean = goodsList.get(i);
-
-
-            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
-                    numMap.get(dataBean.getGoods_id())));
-
-        }
-
-    }
 
     /**
-     * 存入商品属性  先判断是否有存储过这个商品  如果有的话  就不再存入了
+     * 整体方法  从这里开始操作数据库
      *
      * @param goodsList
+     * @param numMap
+     * @param ctx
+     * @param tolMon
+     * @param tolNum
      */
-    private void insertGoodsProperties(List<GoodsBean.DataBean> goodsList) {
-        DaoSession daoSession = MyApp.getDaoSession();
-        final AsyncSession asyncSession = daoSession.startAsyncSession();
-
-        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
-
-        List<GoodsBeanDao> list = goodsBeanDaoDao.queryBuilder().build().list();
-
-        asyncSession.setListenerMainThread(new AsyncOperationListener() {
-            @Override
-            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-                //全部数据存入之后  查询现在数据库中存入了多少临时订单
-                if (asyncOperation.isCompleted())
-                    queryTempOrderNum();
-            }
-        });
-
-
-        /**
-         * 重新整理逻辑  如果数据库中的list中已经包含了某个goods，那么此goods就不再写入了
-         * 1.循环list  获取到所有的订单id集合 即：将所有的数据库中的商品id拿出来 单独放入一个集合中newGoodsIdList
-         * 2.遍历新的需要存入的商品集合goodsList，将每次获取到的goodsid拿出来与newGoodsIdList对比，如果包含，就跳过，否则 在数据库中插入新数据
-         */
-
-        List<Long> newGoodsIdList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            newGoodsIdList.add(list.get(i).getGoodsId());
-        }
-
-        for (int i = 0; i < goodsList.size(); i++) {
-            if (newGoodsIdList.contains(goodsList.get(i).getGoods_id())) {
-                continue;
-            } else {
-                GoodsBean.DataBean dataBean = goodsList.get(i);
-                asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-            }
-        }
-
-    }
-
-    /**
-     * 查询数据库中的临时订单总数
-     */
-    private void queryTempOrderNum() {
-        final DaoSession daoSession = MyApp.getDaoSession();
-//        long count = 0;
-//        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
-//        orderIdDaoDao.queryBuilder().count();
-
-        AsyncSession asyncSession = daoSession.startAsyncSession();
-        asyncSession.setListenerMainThread(new AsyncOperationListener() {
-            @Override
-            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-                if (asyncOperation.isCompleted()) {
-                    List<OrderIdDao> orderNumList = new ArrayList<>();
-
-                    orderNumList = (List<OrderIdDao>) asyncOperation.getResult();
-                    mView.setThisOrderTemp(orderNumList.size());
-                }
-            }
-        });
-        asyncSession.queryList(daoSession.getOrderIdDaoDao().queryBuilder().build());
-    }
-
-    /**
-     * 查询数据库全部数据
-     */
-    public void quaryAllData() {
-        DaoSession daoSession = MyApp.getDaoSession();
-        AsyncSession asyncSession = daoSession.startAsyncSession();
-        asyncSession.setListener(new AsyncOperationListener() {
-            @Override
-            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-                String s = asyncOperation.getResult().toString();
-                Log.e("database====", s);
-            }
-        });
-
-        asyncSession.loadAll(GoodsBeanDao.class);
-        asyncSession.loadAll(OrderIdDao.class);
-        asyncSession.loadAll(OrderBeanDao.class);
-    }
+//    @Override
+//    public void saveOrderDatas(final List<GoodsBean.DataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
+//
+//        DaoSession daoSession = MyApp.getDaoSession();
+//
+////        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
+////
+////        //订单表 存入 订单号(时间戳)，商品id，单个商品的数量，此订单的
+////        OrderBeanDaoDao orderBeanDaoDao = daoSession.getOrderBeanDaoDao();
+//
+//        //订单id表  存入用时间戳生成的订单号  以及这个时间戳可以反推时间
+////        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
+//
+//        final int nowTimestamp = TimeUtil.getNowTimestamp();
+//
+//        final AsyncSession asyncSession = daoSession.startAsyncSession();
+//
+//        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+//            @Override
+//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+//                if (asyncSession.isCompleted()) {
+//                    /**
+//                     * 此处的逻辑 1.查询orderId中的条数，是几条  就说明是几个临时订单在挂着
+//                     *           2.将值返回给页面，在页面中更新UI对应的操作
+//                     */
+//                    insertOrderBeanDao(nowTimestamp, goodsList, numMap);
+//                }
+//            }
+//        });
+//
+//        asyncSession.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
+//    }
+//
+//    private void insertOrderBeanDao(int nowTimestamp, final List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
+//        DaoSession daoSession = MyApp.getDaoSession();
+//        final AsyncSession asyncSession = daoSession.startAsyncSession();
+//
+//        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+//            @Override
+//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+//                if (asyncOperation.isCompleted()) {
+//                    insertGoodsProperties(goodsList);
+//                }
+//            }
+//        });
+//
+//
+//        for (int i = 0; i < goodsList.size(); i++) {
+//            //订单表中  存入订单号码(时间戳),
+//            GoodsBean.DataBean dataBean = goodsList.get(i);
+//
+//
+//            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
+//                    numMap.get(dataBean.getGoods_id())));
+//
+//        }
+//
+//    }
+//
+//    /**
+//     * 存入商品属性  先判断是否有存储过这个商品  如果有的话  就不再存入了
+//     *
+//     * @param goodsList
+//     */
+//    private void insertGoodsProperties(List<GoodsBean.DataBean> goodsList) {
+//        DaoSession daoSession = MyApp.getDaoSession();
+//        final AsyncSession asyncSession = daoSession.startAsyncSession();
+//
+//        GoodsBeanDaoDao goodsBeanDaoDao = daoSession.getGoodsBeanDaoDao();
+//
+//        List<GoodsBeanDao> list = goodsBeanDaoDao.queryBuilder().build().list();
+//
+//        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+//            @Override
+//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+//                //全部数据存入之后  查询现在数据库中存入了多少临时订单
+//                if (asyncOperation.isCompleted())
+//                    queryTempOrderNum();
+//            }
+//        });
+//
+//
+//        /**
+//         * 重新整理逻辑  如果数据库中的list中已经包含了某个goods，那么此goods就不再写入了
+//         * 1.循环list  获取到所有的订单id集合 即：将所有的数据库中的商品id拿出来 单独放入一个集合中newGoodsIdList
+//         * 2.遍历新的需要存入的商品集合goodsList，将每次获取到的goodsid拿出来与newGoodsIdList对比，如果包含，就跳过，否则 在数据库中插入新数据
+//         */
+//
+//        List<Long> newGoodsIdList = new ArrayList<>();
+//        for (int i = 0; i < list.size(); i++) {
+//            newGoodsIdList.add(list.get(i).getGoodsId());
+//        }
+//
+//        for (int i = 0; i < goodsList.size(); i++) {
+//            if (newGoodsIdList.contains(goodsList.get(i).getGoods_id())) {
+//                continue;
+//            } else {
+//                GoodsBean.DataBean dataBean = goodsList.get(i);
+//                asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+//                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+//            }
+//        }
+//
+//    }
+//
+//    /**
+//     * 查询数据库中的临时订单总数
+//     */
+//    private void queryTempOrderNum() {
+//        final DaoSession daoSession = MyApp.getDaoSession();
+////        long count = 0;
+////        OrderIdDaoDao orderIdDaoDao = daoSession.getOrderIdDaoDao();
+////        orderIdDaoDao.queryBuilder().count();
+//
+//        AsyncSession asyncSession = daoSession.startAsyncSession();
+//        asyncSession.setListenerMainThread(new AsyncOperationListener() {
+//            @Override
+//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+//                if (asyncOperation.isCompleted()) {
+//                    List<OrderIdDao> orderNumList = new ArrayList<>();
+//
+//                    orderNumList = (List<OrderIdDao>) asyncOperation.getResult();
+//                    mView.setThisOrderTemp(orderNumList.size());
+//                }
+//            }
+//        });
+//        asyncSession.queryList(daoSession.getOrderIdDaoDao().queryBuilder().build());
+//    }
+//
+//    /**
+//     * 查询数据库全部数据
+//     */
+//    public void quaryAllData() {
+//        DaoSession daoSession = MyApp.getDaoSession();
+//        AsyncSession asyncSession = daoSession.startAsyncSession();
+//        asyncSession.setListener(new AsyncOperationListener() {
+//            @Override
+//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
+//                String s = asyncOperation.getResult().toString();
+//                Log.e("database====", s);
+//            }
+//        });
+//
+//        asyncSession.loadAll(GoodsBeanDao.class);
+//        asyncSession.loadAll(OrderIdDao.class);
+//        asyncSession.loadAll(OrderBeanDao.class);
+//    }
 }

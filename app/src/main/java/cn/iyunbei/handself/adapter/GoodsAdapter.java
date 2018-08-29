@@ -10,7 +10,7 @@ import java.util.Map;
 
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
-import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
 import jt.kundream.utils.TextViewUtils;
@@ -24,22 +24,22 @@ import jt.kundream.utils.TextViewUtils;
  * @e-mail: 245086168@qq.com
  * @desc:
  **/
-public class GoodsAdapter extends CommonAdapter<GoodsBean.DataBean> implements View.OnClickListener {
+public class GoodsAdapter extends CommonAdapter<TempOrderBean.TempGoodsBean> implements View.OnClickListener {
 
     Map<Integer, Integer> numMap = new HashMap<>();
     private RequestCallback.ItemViewOnClickListener itemViewOnClickListener;
 
-    public GoodsAdapter(Context context, int layoutId, List<GoodsBean.DataBean> datas, Map<Integer, Integer> numMap, RequestCallback.ItemViewOnClickListener itemViewOnClickListener) {
+    public GoodsAdapter(Context context, int layoutId, List<TempOrderBean.TempGoodsBean> datas, Map<Integer, Integer> numMap, RequestCallback.ItemViewOnClickListener itemViewOnClickListener) {
         super(context, layoutId, datas);
         this.numMap = numMap;
         this.itemViewOnClickListener = itemViewOnClickListener;
     }
 
     @Override
-    protected void convert(ViewHolder holder, GoodsBean.DataBean dataBean, int position) {
+    protected void convert(ViewHolder holder, TempOrderBean.TempGoodsBean dataBean, int position) {
         TextViewUtils.setText2Tv(dataBean.getGoods_name(), (TextView) holder.getView(R.id.tv_goods_name));
         TextViewUtils.setText2Tv(dataBean.getGoods_price(), (TextView) holder.getView(R.id.tv_money));
-        TextViewUtils.setText2Tv(dataBean.getGoods_id() + "", (TextView) holder.getView(R.id.tv_goods_code));
+        TextViewUtils.setText2Tv(dataBean.getBarcode() + "", (TextView) holder.getView(R.id.tv_goods_code));
         TextViewUtils.setText2Tv(dataBean.getSpec(), (TextView) holder.getView(R.id.tv_goods_guige));
         int num = numMap.get(dataBean.getGoods_id());
         TextViewUtils.setText2Tv(String.valueOf(num), (TextView) holder.getView(R.id.tv_num));

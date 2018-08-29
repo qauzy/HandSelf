@@ -14,7 +14,7 @@ import butterknife.Bind;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.TempOrderAdapter;
-import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
 import cn.iyunbei.handself.presenter.TempOrderPresenter;
 import jt.kundream.base.BaseActivity;
@@ -42,7 +42,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
     @Bind(R.id.rv_temp_orders)
     RecyclerView rvTempOrders;
     private TempOrderAdapter mAdapter;
-    private List<OrderIdDao> mDatas = new ArrayList<>();
+    private List<TempOrderBean> mDatas = new ArrayList<>();
 
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
@@ -75,9 +75,9 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
     }
 
     @Override
-    public void showTempOrder(List<OrderIdDao> orderIdList) {
+    public void showTempOrder(List<TempOrderBean> tempOrderBeanList) {
         mDatas.clear();
-        mDatas.addAll(orderIdList);
+        mDatas.addAll(tempOrderBeanList);
         if (mAdapter == null) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             rvTempOrders.setLayoutManager(linearLayoutManager);

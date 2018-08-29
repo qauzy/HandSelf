@@ -21,6 +21,17 @@ public class TempOrderBean {
 
     private List<TempGoodsBean> goodsList;
 
+
+    public TempOrderBean() {
+    }
+
+    public TempOrderBean(int orderId, int totalNum, double totalMoney, List<TempGoodsBean> goodsList) {
+        this.orderId = orderId;
+        this.totalNum = totalNum;
+        this.totalMoney = totalMoney;
+        this.goodsList = goodsList;
+    }
+
     public int getOrderId() {
         return orderId;
     }
@@ -45,59 +56,67 @@ public class TempOrderBean {
         this.totalMoney = totalMoney;
     }
 
+    public List<TempGoodsBean> getGoodsList() {
+        return goodsList;
+    }
 
-    public class TempGoodsBean {
+    public void setGoodsList(List<TempGoodsBean> goodsList) {
+        this.goodsList = goodsList;
+    }
 
-        private long goodsId;
 
-        private String goodsGuige;
+    public static class TempGoodsBean {
 
-        private String name;
+        private int goods_id;
 
-        private double price;
+        private String spec;
 
-        private int goodsBarCode;
+        private String goods_name;
+
+        private String goods_price;
+
+        private String barcode;
 
         private int goodsNum;
 
-        public long getGoodsId() {
-            return goodsId;
+        public int getGoods_id() {
+            return goods_id;
         }
 
-        public void setGoodsId(long goodsId) {
-            this.goodsId = goodsId;
+        public void setGoods_id(int goods_id) {
+            this.goods_id = goods_id;
         }
 
-        public String getGoodsGuige() {
-            return goodsGuige;
+        public String getSpec() {
+            return spec;
         }
 
-        public void setGoodsGuige(String goodsGuige) {
-            this.goodsGuige = goodsGuige;
+        public void setSpec(String spec) {
+            this.spec = spec;
         }
 
-        public String getName() {
-            return name;
+        public String getGoods_name() {
+            return goods_name;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setGoods_name(String goods_name) {
+            this.goods_name = goods_name;
         }
 
-        public double getPrice() {
-            return price;
+        public String getGoods_price() {
+            return goods_price;
         }
 
-        public void setPrice(double price) {
-            this.price = price;
+        public void setGoods_price(String goods_price) {
+            this.goods_price = goods_price;
         }
 
-        public int getGoodsBarCode() {
-            return goodsBarCode;
+        public String getBarcode() {
+            return barcode;
         }
 
-        public void setGoodsBarCode(int goodsBarCode) {
-            this.goodsBarCode = goodsBarCode;
+        public void setBarcode(String barcode) {
+            this.barcode = barcode;
         }
 
         public int getGoodsNum() {
@@ -108,5 +127,24 @@ public class TempOrderBean {
             this.goodsNum = goodsNum;
         }
 
+        @Override
+        public String toString() {
+//            return "TempGoodsBean{" +
+//                    "goods_id=" + goods_id +
+//                    ", spec='" + spec + '\'' +
+//                    ", goods_name='" + goods_name + '\'' +
+//                    ", goods_price='" + goods_price + '\'' +
+//                    ", barcode='" + barcode + '\'' +
+//                    ", goodsNum=" + goodsNum +
+//                    '}';
+            return "{" +
+                    "goods_id=" + goods_id +
+                    ", spec='" + spec + '\'' +
+                    ", goods_name='" + goods_name + '\'' +
+                    ", goods_price='" + goods_price + '\'' +
+                    ", barcode='" + barcode + '\'' +
+                    ", goodsNum=" + goodsNum +
+                    '}';
+        }
     }
 }
