@@ -93,28 +93,3 @@ public class TempOrderModel implements TempOrderContract.Model {
 
 }
 
-/**
- * 查询订单表  拿到存储的所有订单
- *
- * @param orderIdList
- */
-//    private void quaryOrderList(List<OrderIdDao> orderIdList) {
-//        DaoSession daoSession = MyApp.getDaoSession();
-//        AsyncSession asyncSession = daoSession.startAsyncSession();
-//        asyncSession.setListenerMainThread(new AsyncOperationListener() {
-//            @Override
-//            public void onAsyncOperationCompleted(AsyncOperation asyncOperation) {
-//
-//                if (asyncOperation.isCompleted()) {
-//                    Object result = asyncOperation.getResult();
-//                }
-//
-//            }
-//        });
-//
-//        for (int i = 0; i < orderIdList.size(); i++) {
-//            asyncSession.queryList(daoSession.getOrderBeanDaoDao().queryBuilder()
-//                    .where(new WhereCondition.StringCondition("orderId =" + orderIdList.get(i).getOrderId())).build());
-//        }
-//    }
-//}

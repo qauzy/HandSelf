@@ -428,6 +428,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
          */
         goodsList.clear();
         numMap.clear();
+        toaMon = 0;
+        toaNum = 0;
         rlMiddle.setVisibility(View.VISIBLE);
         rvGoods.setVisibility(View.GONE);
     }

@@ -19,7 +19,7 @@ public class TempOrderBean {
 
     private double totalMoney;
 
-    private List<OrderBean> orderBeanList;
+    private List<TempGoodsBean> goodsList;
 
     public int getOrderId() {
         return orderId;
@@ -45,33 +45,20 @@ public class TempOrderBean {
         this.totalMoney = totalMoney;
     }
 
-    public List<OrderBean> getOrderBeanList() {
-        return orderBeanList;
-    }
 
-    public void setOrderBeanList(List<OrderBean> orderBeanList) {
-        this.orderBeanList = orderBeanList;
-    }
-
-
-    public class OrderBean {
-
-
-        private int orderId;
+    public class TempGoodsBean {
 
         private long goodsId;
 
+        private String goodsGuige;
+
+        private String name;
+
+        private double price;
+
+        private int goodsBarCode;
+
         private int goodsNum;
-
-        private List<TempGoodsBean> goodsBeans;
-
-        public int getOrderId() {
-            return orderId;
-        }
-
-        public void setOrderId(int orderId) {
-            this.orderId = orderId;
-        }
 
         public long getGoodsId() {
             return goodsId;
@@ -79,6 +66,38 @@ public class TempOrderBean {
 
         public void setGoodsId(long goodsId) {
             this.goodsId = goodsId;
+        }
+
+        public String getGoodsGuige() {
+            return goodsGuige;
+        }
+
+        public void setGoodsGuige(String goodsGuige) {
+            this.goodsGuige = goodsGuige;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
+        }
+
+        public int getGoodsBarCode() {
+            return goodsBarCode;
+        }
+
+        public void setGoodsBarCode(int goodsBarCode) {
+            this.goodsBarCode = goodsBarCode;
         }
 
         public int getGoodsNum() {
@@ -89,65 +108,5 @@ public class TempOrderBean {
             this.goodsNum = goodsNum;
         }
 
-        public List<TempGoodsBean> getGoodsBeans() {
-            return goodsBeans;
-        }
-
-        public void setGoodsBeans(List<TempGoodsBean> goodsBeans) {
-            this.goodsBeans = goodsBeans;
-        }
-
-       public class TempGoodsBean {
-
-            private long goodsId;
-
-            private String goodsGuige;
-
-            private String name;
-
-            private double price;
-
-            private int goodsBarCode;
-
-            public long getGoodsId() {
-                return goodsId;
-            }
-
-            public void setGoodsId(long goodsId) {
-                this.goodsId = goodsId;
-            }
-
-            public String getGoodsGuige() {
-                return goodsGuige;
-            }
-
-            public void setGoodsGuige(String goodsGuige) {
-                this.goodsGuige = goodsGuige;
-            }
-
-            public String getName() {
-                return name;
-            }
-
-            public void setName(String name) {
-                this.name = name;
-            }
-
-            public double getPrice() {
-                return price;
-            }
-
-            public void setPrice(double price) {
-                this.price = price;
-            }
-
-            public int getGoodsBarCode() {
-                return goodsBarCode;
-            }
-
-            public void setGoodsBarCode(int goodsBarCode) {
-                this.goodsBarCode = goodsBarCode;
-            }
-        }
     }
 }

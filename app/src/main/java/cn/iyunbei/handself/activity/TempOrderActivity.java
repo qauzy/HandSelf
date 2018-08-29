@@ -1,8 +1,6 @@
 package cn.iyunbei.handself.activity;
 
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,16 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.TempOrderAdapter;
 import cn.iyunbei.handself.bean.OrderIdDao;
-import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
 import cn.iyunbei.handself.presenter.TempOrderPresenter;
 import jt.kundream.base.BaseActivity;
-import jt.kundream.rvdecoration.SpacesItemDecoration;
 
 /**
  * 版权所有，违法必究！！！

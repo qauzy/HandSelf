@@ -1,13 +1,11 @@
 package cn.iyunbei.handself.presenter;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.greenrobot.greendao.async.AsyncOperation;
 import org.greenrobot.greendao.async.AsyncOperationListener;
 import org.greenrobot.greendao.async.AsyncSession;
-import org.greenrobot.greendao.query.Query;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,10 +21,6 @@ import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.DaoSession;
 import cn.iyunbei.handself.greendao.GoodsBeanDaoDao;
-import cn.iyunbei.handself.greendao.GreenDaoHelper;
-import cn.iyunbei.handself.greendao.OrderBeanDaoDao;
-import cn.iyunbei.handself.greendao.OrderIdDaoDao;
-import cn.iyunbei.handself.model.MainModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CurrencyUtils;
 import jt.kundream.utils.TimeUtil;
@@ -157,56 +151,11 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
                      *           2.将值返回给页面，在页面中更新UI对应的操作
                      */
                     insertOrderBeanDao(nowTimestamp, goodsList, numMap);
-
-//                    queryTempOrderNum();
-//                    mView.hideProgress();
-//                    mView.showToast("数据插入成功");
                 }
             }
         });
 
         asyncSession.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
-//        for (int i = 0; i < goodsList.size(); i++) {
-//            //订单表中  存入订单号码(时间戳),
-//            GoodsBean.DataBean dataBean = goodsList.get(i);
-//
-//            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
-//                    numMap.get(dataBean.getGoods_id())));
-//
-//            //存入商品属性
-//            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-//        }
-
-//        asyncSession.insert(goodsList);
-//        asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-//                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-
-
-        // TODO: 2018/8/24 以下为正常的操作 but现在我想在异步操作  获取数据库的操作状态
-//        /**
-//         * 此处需要生成一个唯一标示，用与区分单个订单，另外 还需要将此订单id单独存起来，因为此时的订单id是本地生成的，不与服务器相关，
-//         * 因此还需要将此临时的orderId存储起来以保证单个订单和商品的相对应关系
-//         */
-//
-//
-//        if (goodsList != null && goodsList.size() > 0) {
-//            //将此次点击back时候生成的订单号存入数据库  这个id 同时也是用户点击存储临时订单时候的时间戳  可以反推时间
-//            orderIdDaoDao.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
-//
-//            for (int i = 0; i < goodsList.size(); i++) {
-//                //订单表中  存入订单号码(时间戳),
-//                GoodsBean.DataBean dataBean = goodsList.get(i);
-//
-//                orderBeanDaoDao.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
-//                        numMap.get(dataBean.getGoods_id())));
-//
-//                //存入商品属性
-//                goodsBeanDaoDao.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-//                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-//            }
-//
-//        }
     }
 
     private void insertOrderBeanDao(int nowTimestamp, final List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
@@ -222,20 +171,15 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             }
         });
 
-//        List<OrderBeanDao> list = new ArrayList<>();
 
         for (int i = 0; i < goodsList.size(); i++) {
             //订单表中  存入订单号码(时间戳),
             GoodsBean.DataBean dataBean = goodsList.get(i);
 
-//            list.add(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(), numMap.get(dataBean.getGoods_id())));
 
             asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
                     numMap.get(dataBean.getGoods_id())));
 
-//            //存入商品属性
-//            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
         }
 
     }
@@ -262,20 +206,28 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             }
         });
 
-//        List<GoodsBeanDao> list1 = new ArrayList<>();
-        for (int i = 0; i < goodsList.size(); i++) {
 
-            GoodsBean.DataBean dataBean = goodsList.get(i);
-            if (list.contains(dataBean)) {
-                continue;
-            }
-//            list1.add(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-//                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
-            //存入商品属性
-            asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
-                    dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+        /**
+         * 重新整理逻辑  如果数据库中的list中已经包含了某个goods，那么此goods就不再写入了
+         * 1.循环list  获取到所有的订单id集合 即：将所有的数据库中的商品id拿出来 单独放入一个集合中newGoodsIdList
+         * 2.遍历新的需要存入的商品集合goodsList，将每次获取到的goodsid拿出来与newGoodsIdList对比，如果包含，就跳过，否则 在数据库中插入新数据
+         */
+
+        List<Long> newGoodsIdList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            newGoodsIdList.add(list.get(i).getGoodsId());
         }
-//        asyncSession.insert(list1);
+
+        for (int i = 0; i < goodsList.size(); i++) {
+            if (newGoodsIdList.contains(goodsList.get(i).getGoods_id())) {
+                continue;
+            } else {
+                GoodsBean.DataBean dataBean = goodsList.get(i);
+                asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
+                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
+            }
+        }
+
     }
 
     /**
@@ -300,8 +252,6 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             }
         });
         asyncSession.queryList(daoSession.getOrderIdDaoDao().queryBuilder().build());
-//        asyncSession.queryList();
-//        count = asyncSession.queryBuilder(OrderIdDao.class).count();
     }
 
     /**

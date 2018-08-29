@@ -16,6 +16,7 @@ import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.bean.GoodsBeanDao;
 import cn.iyunbei.handself.bean.OrderBeanDao;
 import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.greendao.GoodsBeanDaoDao;
 import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
 import jt.kundream.utils.TextViewUtils;
@@ -31,10 +32,10 @@ import jt.kundream.utils.TextViewUtils;
  **/
 public class TempGoodsAdapter extends CommonAdapter<GoodsBeanDao> {
 
-    private  Map<Long, Integer> numMap = new HashMap<>();
+    private Map<Long, Integer> numMap = new HashMap<>();
 //    private  List<GoodsBeanDao> mList = new ArrayList<>();
 
-    public TempGoodsAdapter(Context context, int layoutId, List<GoodsBeanDao> datas,Map<Long,Integer> numMap) {
+    public TempGoodsAdapter(Context context, int layoutId, List<GoodsBeanDao> datas, Map<Long, Integer> numMap) {
         super(context, layoutId, datas);
 
         this.numMap = numMap;
@@ -66,10 +67,10 @@ public class TempGoodsAdapter extends CommonAdapter<GoodsBeanDao> {
         TextView tvMoney = holder.getView(R.id.tv_money);
         TextView tvNum = holder.getView(R.id.tv_num);
 
-        TextViewUtils.setText2Tv(goodsBeanDao.getName(),tvName);
-        TextViewUtils.setText2Tv(goodsBeanDao.getGoodsGuige(),tvGuiGe);
-        TextViewUtils.setText2Tv(String.valueOf(goodsBeanDao.getGoodsBarCode()),tvCode);
-        TextViewUtils.setText2Tv("￥"+goodsBeanDao.getPrice(),tvMoney);
-        TextViewUtils.setText2Tv("X"+numMap.get(goodsBeanDao.getGoodsId()),tvNum);
+        TextViewUtils.setText2Tv(goodsBeanDao.getName(), tvName);
+        TextViewUtils.setText2Tv(goodsBeanDao.getGoodsGuige(), tvGuiGe);
+        TextViewUtils.setText2Tv(String.valueOf(goodsBeanDao.getGoodsBarCode()), tvCode);
+        TextViewUtils.setText2Tv("￥" + goodsBeanDao.getPrice(), tvMoney);
+        TextViewUtils.setText2Tv("X" + numMap.get(goodsBeanDao.getGoodsId()), tvNum);
     }
 }
