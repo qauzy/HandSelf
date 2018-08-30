@@ -231,7 +231,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 break;
 
             case R.id.iv_right:
-                showToast("个人中心");
+                ActivityUtil.startActivity(this,UserCenterActivity.class);
+
                 break;
 
             case R.id.tv_hand_input:

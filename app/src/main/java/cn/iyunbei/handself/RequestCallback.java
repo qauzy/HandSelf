@@ -6,6 +6,7 @@ import java.util.List;
 
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.UserBean;
 
 /**
  * 版权所有，违法必究！！！
@@ -17,6 +18,7 @@ import cn.iyunbei.handself.bean.OrderIdDao;
  * @desc:
  **/
 public interface RequestCallback {
+
 
     interface GetGoodsCallback {
         /**
@@ -64,5 +66,16 @@ public interface RequestCallback {
         void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList);
 
         void quarySqlFail(String errMsg);
+    }
+
+    /**
+     * 获取用户信息
+     */
+    interface GetUserMsgCallback {
+
+        void getUserMsgSucc(UserBean bean);
+
+        void getUserMsgFail(String errMsg);
+
     }
 }
