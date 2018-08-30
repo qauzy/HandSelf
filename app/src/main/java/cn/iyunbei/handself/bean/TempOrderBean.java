@@ -1,17 +1,19 @@
 package cn.iyunbei.handself.bean;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 版权所有，违法必究！！！
  *
  * @Company: NanYangYunBeiTeac
  * @Copyright： ©2017-2018
- * @author: YangTiankun created on 2018/3/19/019 10
+ * @author: YangTiankun created
  * @e-mail: 245086168@qq.com
  * @desc:
  **/
-public class TempOrderBean {
+public class TempOrderBean implements Serializable{
 
     private int orderId;
 
@@ -21,6 +23,19 @@ public class TempOrderBean {
 
     private List<TempGoodsBean> goodsList;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TempOrderBean)) return false;
+        TempOrderBean bean = (TempOrderBean) o;
+        return Objects.equals(getGoodsList(), bean.getGoodsList());
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(getGoodsList());
+    }
 
     public TempOrderBean() {
     }
@@ -65,7 +80,7 @@ public class TempOrderBean {
     }
 
 
-    public static class TempGoodsBean {
+    public static class TempGoodsBean implements Serializable{
 
         private int goods_id;
 

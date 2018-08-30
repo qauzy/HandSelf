@@ -4,16 +4,21 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
+import jt.kundream.utils.AnimationUtils;
 import jt.kundream.utils.TextViewUtils;
 import jt.kundream.utils.TimeUtil;
 
@@ -29,8 +34,10 @@ import jt.kundream.utils.TimeUtil;
 public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements View.OnClickListener {
 
     private final RequestCallback.ItemViewOnClickListener clickListener;
-    private List<TempOrderBean.TempGoodsBean> tempGoodsList;
-//    private Map<Long, Integer> numMap = new HashMap<>();
+    private List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
+    private TempGoodsAdapter mGoodsAdapter;
+    private ImageView ivZhankai;
+    private Map<Integer, Boolean> isShowAllMap = new HashMap<>();
 //    private List<GoodsBeanDao> mList = new ArrayList<>();
 //    private List<GoodsBeanDao> list1 = new ArrayList<>();
 
@@ -38,6 +45,10 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
     public TempOrderAdapter(Context context, int layoutId, List<TempOrderBean> datas, RequestCallback.ItemViewOnClickListener clickListener) {
         super(context, layoutId, datas);
         this.clickListener = clickListener;
+        for (int i = 0; i < datas.size(); i++) {
+            //进入之后首先设置所有的商品列表都是默认不展开的
+            isShowAllMap.put(datas.get(i).getOrderId(), false);
+        }
     }
 
     @Override
@@ -50,6 +61,7 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
         LinearLayout llBottom1 = holder.getView(R.id.ll_bottom_1);
         LinearLayout llPayAgain = holder.getView(R.id.ll_pay_again);
         LinearLayout llPayCancle = holder.getView(R.id.ll_pay_cancel);
+        ivZhankai = holder.getView(R.id.iv_zhankai);
 
         TextViewUtils.setText2Tv("订单编号：" + tempOrderBean.getOrderId(), tvOrderId);
         /**
@@ -74,17 +86,7 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
         /**
          * 设置内部的商品列表
          */
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
-        rvGoods.setLayoutManager(linearLayoutManager);
-        List<TempOrderBean.TempGoodsBean> goodsList = tempOrderBean.getGoodsList();
-        if (goodsList.size() > 2) {
-            tempGoodsList = goodsList.subList(0, 2);
-        } else {
-            tempGoodsList.addAll(goodsList);
-        }
-        TempGoodsAdapter mGoodsAdapter = new TempGoodsAdapter(mContext, R.layout.item_temp_goods, tempGoodsList);
-
-        rvGoods.setAdapter(mGoodsAdapter);
+        setGoodsAdapter(tempOrderBean, rvGoods, llBottom1);
 
 
         // TODO: 2018/8/29 因个人更换实现思路，故以下暂时作废，but以下内容很有参考意义，很多时候，东西难，就是难在了实现的思路上面
@@ -159,8 +161,43 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
 //        }
     }
 
+    private void setGoodsAdapter(TempOrderBean tempOrderBean, RecyclerView rvGoods, LinearLayout llBottom) {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
+        rvGoods.setLayoutManager(linearLayoutManager);
+        List<TempOrderBean.TempGoodsBean> goodsList = tempOrderBean.getGoodsList();
+        if (goodsList.size() > 2) {
+            if (isShowAllMap.get(tempOrderBean.getOrderId())) {
+                //如果是不展开的 那么只展示2个商品
+                tempGoodsList = goodsList.subList(0, 2);
+            } else {
+                tempGoodsList.addAll(goodsList);
+            }
+        } else {
+            tempGoodsList.addAll(goodsList);
+            llBottom.setVisibility(View.GONE);
+        }
+        mGoodsAdapter = new TempGoodsAdapter(mContext, R.layout.item_temp_goods, tempGoodsList);
+
+        rvGoods.setAdapter(mGoodsAdapter);
+    }
+
     @Override
     public void onClick(View view) {
         clickListener.itemViewClick(view);
+    }
+
+    /**
+     * 展开所有商品
+     */
+    public void openOrCloseGoodsList(int position) {
+
+        if (isShowAllMap.get(mDatas.get(position).getOrderId())) {
+            AnimationUtils.Up2DownAnimation(0f, 180f, ivZhankai);
+        } else {
+            AnimationUtils.Up2DownAnimation(180f, 0f, ivZhankai);
+        }
+        tempGoodsList.clear();
+        tempGoodsList.addAll(mDatas.get(position).getGoodsList());
+        mGoodsAdapter.notifyDataSetChanged();
     }
 }

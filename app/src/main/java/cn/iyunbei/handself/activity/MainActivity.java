@@ -206,7 +206,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-
     @Override
     public MainPresenter initPresenter() {
         return new MainPresenter();
@@ -245,6 +244,31 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 break;
 
         }
+    }
+
+    /**
+     * 临时订单点击之后回传的数据
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 200) {
+            if (resultCode == 200) {
+                TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
+                goodsList = tempOrder.getGoodsList();
+                toaMon = tempOrder.getTotalMoney();
+                toaNum = tempOrder.getTotalNum();
+                for (int i = 0; i < goodsList.size(); i++) {
+                    numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoodsNum());
+                }
+                setAdapter();
+            }
+        }
+
     }
 
     /**
@@ -514,6 +538,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 }
                 buffer = null;
             }
+
         }
     };
 

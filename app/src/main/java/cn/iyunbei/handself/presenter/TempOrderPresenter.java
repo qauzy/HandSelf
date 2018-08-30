@@ -4,7 +4,7 @@ import android.content.Context;
 
 import java.util.List;
 
-import cn.iyunbei.handself.MyApp;
+import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
 import jt.kundream.base.BasePresenter;
@@ -45,7 +45,7 @@ public class TempOrderPresenter extends BasePresenter<TempOrderContract.View> im
      */
     @Override
     public void queryData(Context ctx) {
-        List<TempOrderBean> tempList = new MyApp().getTempList();
+        List<TempOrderBean> tempList = Single.getInstance().getTempList();
         if (tempList != null && tempList.size() > 0) {
             mView.showTempOrder(tempList);
         } else {

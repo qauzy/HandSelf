@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.model.MainModel;
@@ -136,22 +136,17 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
         //2.需要存储当前订单的总件数和总钱数  这个在参数中已经有了
         //        //3.生成整个集合
         List<TempOrderBean> tempList = new ArrayList<>();
-        TempOrderBean bean = new TempOrderBean(nowTimestamp, tolNum, tolMon, goodsList);
+
+        List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
+        tempGoodsList.addAll(goodsList);
+
+        TempOrderBean bean = new TempOrderBean(nowTimestamp, tolNum, tolMon, tempGoodsList);
         tempList.add(bean);
-        new MyApp().setTempList(tempList);
+        Single.getInstance().setTempList(tempList);
         mView.setThisOrderTemp(tempList.size());
     }
 
 
-    /**
-     * 整体方法  从这里开始操作数据库
-     *
-     * @param goodsList
-     * @param numMap
-     * @param ctx
-     * @param tolMon
-     * @param tolNum
-     */
 //    @Override
 //    public void saveOrderDatas(final List<GoodsBean.DataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
 //

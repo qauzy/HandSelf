@@ -9,10 +9,8 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.HttpHeaders;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.greendao.DaoMaster;
 import cn.iyunbei.handself.greendao.DaoSession;
 import jt.kundream.base.BaseApplication;
@@ -31,19 +29,6 @@ import okhttp3.OkHttpClient;
 public class MyApp extends BaseApplication {
     PosApi mPosApi = null;
 
-
-    /**
-     * 临时订单存储的集合，因为需求是关闭这个页面或者app的时候就小时  所以可以直接存放在当前页面的集合中
-     */
-    private List<TempOrderBean> tempList ;
-
-    public List<TempOrderBean> getTempList() {
-        return this.tempList;
-    }
-
-    public void setTempList(List<TempOrderBean> tempList) {
-        this.tempList = tempList;
-    }
 
     @Override
     public void onCreate() {
