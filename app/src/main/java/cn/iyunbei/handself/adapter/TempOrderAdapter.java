@@ -191,11 +191,13 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
      */
     public void openOrCloseGoodsList(int position) {
 
-        if (isShowAllMap.get(mDatas.get(position).getOrderId())) {
+        Boolean aBoolean = isShowAllMap.get(mDatas.get(position).getOrderId());
+        if (aBoolean) {
             AnimationUtils.Up2DownAnimation(0f, 180f, ivZhankai);
         } else {
             AnimationUtils.Up2DownAnimation(180f, 0f, ivZhankai);
         }
+        isShowAllMap.put(mDatas.get(position).getOrderId(), !aBoolean);
         tempGoodsList.clear();
         tempGoodsList.addAll(mDatas.get(position).getGoodsList());
         mGoodsAdapter.notifyDataSetChanged();

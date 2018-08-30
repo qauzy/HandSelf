@@ -259,7 +259,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         if (requestCode == 200) {
             if (resultCode == 200) {
                 TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
-                goodsList = tempOrder.getGoodsList();
+                goodsList.addAll(tempOrder.getGoodsList());
                 toaMon = tempOrder.getTotalMoney();
                 toaNum = tempOrder.getTotalNum();
                 for (int i = 0; i < goodsList.size(); i++) {
