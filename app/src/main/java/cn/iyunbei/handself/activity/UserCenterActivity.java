@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.activity;
 
+import android.app.Activity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,7 +25,7 @@ import jt.kundream.utils.ActivityUtil;
  * @e-mail: 245086168@qq.com
  * @desc:个人中心
  **/
-class UserCenterActivity extends BaseActivity<UserCenterContract.View, UserCenterPresenter> implements UserCenterContract.View {
+public class UserCenterActivity extends BaseActivity<UserCenterContract.View, UserCenterPresenter> implements UserCenterContract.View {
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_left)
@@ -108,7 +109,7 @@ class UserCenterActivity extends BaseActivity<UserCenterContract.View, UserCente
 
             case R.id.ll_goods_count:
                 //货品盘点  进入盘点页面
-
+                ActivityUtil.startActivity(this,PanDianActivity.class);
                 break;
 
             case R.id.tv_sell_today:

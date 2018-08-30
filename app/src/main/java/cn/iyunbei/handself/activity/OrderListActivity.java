@@ -23,7 +23,7 @@ import jt.kundream.base.BaseActivity;
  * @e-mail: 245086168@qq.com
  * @desc:订单列表页面
  **/
-class OrderListActivity extends BaseActivity<OrderListContract.View, OrderListPresenter> implements OrderListContract.View {
+public class OrderListActivity extends BaseActivity<OrderListContract.View, OrderListPresenter> implements OrderListContract.View {
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_left)
