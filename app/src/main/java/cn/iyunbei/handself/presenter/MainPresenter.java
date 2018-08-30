@@ -122,6 +122,9 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
     /**
      * 根据最新的需求  这个数据如果app退出就清空了 所以更改为使用list存储
+     * <p>
+     * 此方法内逻辑梳理：
+     * 全局的变量集合，长度是可变的，如果按照下面这种写法，只能有一个临时订单，所以更改！
      *
      * @param goodsList
      * @param numMap
@@ -131,19 +134,48 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
      */
     @Override
     public void saveOrderDatas(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
-        //1.用当前时间生成时间戳  作为订单号
+        //用当前时间生成时间戳  作为订单号
         int nowTimestamp = TimeUtil.getNowTimestamp();
-        //2.需要存储当前订单的总件数和总钱数  这个在参数中已经有了
-        //        //3.生成整个集合
-        List<TempOrderBean> tempList = new ArrayList<>();
 
+        List<TempOrderBean.TempGoodsBean> newGoodsList = new ArrayList<>();
+
+        for (int i = 0; i < goodsList.size(); i++) {
+            TempOrderBean.TempGoodsBean bean = goodsList.get(i);
+            bean.setGoodsNum(numMap.get(bean.getGoods_id()));
+            newGoodsList.add(bean);
+        }
+
+        //将所有的商品拿出来 作为一个集合 添加到临时商品集合中
         List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
-        tempGoodsList.addAll(goodsList);
+        tempGoodsList.addAll(newGoodsList);
 
+        //组合成真是需要存储的集合元素
         TempOrderBean bean = new TempOrderBean(nowTimestamp, tolNum, tolMon, tempGoodsList);
-        tempList.add(bean);
-        Single.getInstance().setTempList(tempList);
-        mView.setThisOrderTemp(tempList.size());
+//        tempList.add(bean);
+        //获取app中已经存储的临时订单
+        List<TempOrderBean> applicationList = Single.getInstance().getTempList();
+
+        if (applicationList != null) {
+            applicationList.add(bean);
+        } else {
+            List<TempOrderBean> tempList = new ArrayList<>();
+            tempList.add(bean);
+            Single.getInstance().setTempList(tempList);
+        }
+
+
+//        applicationList.add(bean);
+//        if (applicationList.size() > 0) {
+//            //如果已经有临时订单了，那么就对临时订单的集合数量中加入1个元素
+//            applicationList.add(bean);
+//        } else {
+//            //如果还没有临时订单，那么就对临时订单集合进行设置
+//            List<TempOrderBean> tempList = new ArrayList<>();
+//            tempList.add(bean);
+//            Single.getInstance().setTempList(tempList);
+//        }
+
+        mView.setThisOrderTemp(Single.getInstance().getTempList().size());
     }
 
 

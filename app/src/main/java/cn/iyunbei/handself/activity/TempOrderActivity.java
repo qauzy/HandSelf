@@ -56,7 +56,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                      *  1.展开商品列表,将箭头切换为向上  就是做一个箭头的旋转动画  这个在云贝生活中已经有了  直接拿过来就行
                      *  2.修改TempOrderAdapter中的tempGoodsList  然后notify
                      */
-                    mAdapter.openOrCloseGoodsList(position);
+//                    mAdapter.openOrCloseGoodsList(position);
                     break;
 
                 case R.id.ll_pay_again:
@@ -64,6 +64,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                     Intent intent = new Intent();
                     intent.putExtra("tempOrder",mDatas.get(position));
                     setResult(200,intent);
+                    mDatas.remove(position);
                     finish();
                     break;
 

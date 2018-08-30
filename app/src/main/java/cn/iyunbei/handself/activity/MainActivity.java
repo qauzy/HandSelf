@@ -221,7 +221,13 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         switch (view.getId()) {
             case R.id.iv_left:
 //                showToast("临时订单");
-                ActivityUtil.startActivityForResult(this, TempOrderActivity.class, 200);
+
+                if (goodsList.size() < 1) {
+                    ActivityUtil.startActivityForResult(this, TempOrderActivity.class, 200);
+                }else{
+                    showToast("请优先处理当前订单");
+                }
+
                 break;
 
             case R.id.iv_right:
@@ -561,6 +567,5 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
 
         return true;
-//        return super.onKeyDown(keyCode, event);
     }
 }

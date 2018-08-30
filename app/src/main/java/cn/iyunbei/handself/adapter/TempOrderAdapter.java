@@ -34,7 +34,7 @@ import jt.kundream.utils.TimeUtil;
 public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements View.OnClickListener {
 
     private final RequestCallback.ItemViewOnClickListener clickListener;
-    private List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
+//    private List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
     private TempGoodsAdapter mGoodsAdapter;
     private ImageView ivZhankai;
     private Map<Integer, Boolean> isShowAllMap = new HashMap<>();
@@ -52,13 +52,13 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
     }
 
     @Override
-    protected void convert(ViewHolder holder, TempOrderBean tempOrderBean, int position) {
+    protected void convert(ViewHolder holder, final TempOrderBean tempOrderBean, int position) {
         TextView tvOrderId = holder.getView(R.id.tv_order_id);
         TextView tvOrderTime = holder.getView(R.id.tv_order_time);
         TextView tvGoodsNum = holder.getView(R.id.tv_goods_num);
         TextView tvOrderMoney = holder.getView(R.id.tv_order_money);
-        RecyclerView rvGoods = holder.getView(R.id.rv_goods);
-        LinearLayout llBottom1 = holder.getView(R.id.ll_bottom_1);
+        final RecyclerView rvGoods = holder.getView(R.id.rv_goods);
+        final LinearLayout llBottom1 = holder.getView(R.id.ll_bottom_1);
         LinearLayout llPayAgain = holder.getView(R.id.ll_pay_again);
         LinearLayout llPayCancle = holder.getView(R.id.ll_pay_cancel);
         ivZhankai = holder.getView(R.id.iv_zhankai);
@@ -76,8 +76,23 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
         /**
          * 设置内部的几个点击事件
          */
-        llBottom1.setOnClickListener(this);
-        llBottom1.setTag(position);
+//        llBottom1.setOnClickListener(this);
+//        llBottom1.setTag(position);
+
+        llBottom1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Boolean aBoolean = isShowAllMap.get(tempOrderBean.getOrderId());
+                if (!aBoolean) {
+                    AnimationUtils.Up2DownAnimation(0f, 180f, ivZhankai);
+                } else {
+                    AnimationUtils.Up2DownAnimation(180f, 0f, ivZhankai);
+                }
+                isShowAllMap.put(tempOrderBean.getOrderId(), !aBoolean);
+                setGoodsAdapter(tempOrderBean,rvGoods,llBottom1);
+            }
+        });
+
         llPayAgain.setOnClickListener(this);
         llPayAgain.setTag(position);
         llPayCancle.setOnClickListener(this);
@@ -162,23 +177,32 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
     }
 
     private void setGoodsAdapter(TempOrderBean tempOrderBean, RecyclerView rvGoods, LinearLayout llBottom) {
+
+        List<TempOrderBean.TempGoodsBean> tempGoodsList = new ArrayList<>();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
         rvGoods.setLayoutManager(linearLayoutManager);
         List<TempOrderBean.TempGoodsBean> goodsList = tempOrderBean.getGoodsList();
         if (goodsList.size() > 2) {
-            if (isShowAllMap.get(tempOrderBean.getOrderId())) {
+            if (!isShowAllMap.get(tempOrderBean.getOrderId())) {
                 //如果是不展开的 那么只展示2个商品
                 tempGoodsList = goodsList.subList(0, 2);
             } else {
                 tempGoodsList.addAll(goodsList);
             }
+            llBottom.setVisibility(View.VISIBLE);
         } else {
             tempGoodsList.addAll(goodsList);
             llBottom.setVisibility(View.GONE);
         }
-        mGoodsAdapter = new TempGoodsAdapter(mContext, R.layout.item_temp_goods, tempGoodsList);
 
-        rvGoods.setAdapter(mGoodsAdapter);
+//        if (mGoodsAdapter == null){
+            mGoodsAdapter = new TempGoodsAdapter(mContext, R.layout.item_temp_goods, tempGoodsList);
+
+            rvGoods.setAdapter(mGoodsAdapter);
+//        }else{
+//            mGoodsAdapter.notifyDataSetChanged();
+//        }
     }
 
     @Override
@@ -198,8 +222,5 @@ public class TempOrderAdapter extends CommonAdapter<TempOrderBean> implements Vi
             AnimationUtils.Up2DownAnimation(180f, 0f, ivZhankai);
         }
         isShowAllMap.put(mDatas.get(position).getOrderId(), !aBoolean);
-        tempGoodsList.clear();
-        tempGoodsList.addAll(mDatas.get(position).getGoodsList());
-        mGoodsAdapter.notifyDataSetChanged();
     }
 }
