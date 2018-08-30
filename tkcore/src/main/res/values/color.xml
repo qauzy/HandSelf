@@ -77,5 +77,6 @@
     <color name="progress_bg">#009789</color>
     <color name="btn_start">#ea5656</color>
     <color name="btn_end">#ed694f</color>
+    <color name="pandian">#7990e3</color>
 
 </resources>

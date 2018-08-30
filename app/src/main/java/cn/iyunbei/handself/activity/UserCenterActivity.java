@@ -6,11 +6,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.bean.UserBean;
 import cn.iyunbei.handself.contract.UserCenterContract;
 import cn.iyunbei.handself.presenter.UserCenterPresenter;
+import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.utils.ActivityUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -82,5 +85,46 @@ class UserCenterActivity extends BaseActivity<UserCenterContract.View, UserCente
         tvName.setText(name);
         tvName1.setText(String.valueOf(name.charAt(name.length() - 1)));
         tvTel.setText(bean.getData().getMember_mobile());
+    }
+
+    @OnClick({R.id.iv_left, R.id.ll_order_list, R.id.ll_goods_count, R.id.tv_sell_today, R.id.tv_sell_month})
+    public void onClick(View v) {
+        //判断是否多次点击
+        if (AntiShake.check(v.getId())) {
+            return;
+        }
+
+        switch (v.getId()) {
+
+            case R.id.iv_left:
+                finish();
+                break;
+
+            case R.id.ll_order_list:
+                //订单列表
+                ActivityUtil.startActivity(this,OrderListActivity.class);
+
+                break;
+
+            case R.id.ll_goods_count:
+                //货品盘点  进入盘点页面
+
+                break;
+
+            case R.id.tv_sell_today:
+                //今日订单情况
+
+                break;
+
+            case R.id.tv_sell_month:
+                //本月订单情况
+
+                break;
+
+            default:
+                break;
+
+
+        }
     }
 }
