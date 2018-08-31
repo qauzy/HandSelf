@@ -23,6 +23,7 @@ import jt.kundream.utils.TextViewUtils;
  **/
 public class OrderListDetailAdapter extends CommonAdapter<OrderListBean.DataBean.DayOrder> {
 
+
     public OrderListDetailAdapter(Context context, int layoutId, List<OrderListBean.DataBean.DayOrder> datas) {
         super(context, layoutId, datas);
     }
