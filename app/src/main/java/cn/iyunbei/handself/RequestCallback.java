@@ -6,6 +6,7 @@ import java.util.List;
 
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
+import cn.iyunbei.handself.bean.OrderListBean;
 import cn.iyunbei.handself.bean.UserBean;
 
 /**
@@ -76,6 +77,21 @@ public interface RequestCallback {
         void getUserMsgSucc(UserBean bean);
 
         void getUserMsgFail(String errMsg);
+
+    }
+
+    interface BaseRequestCallback{
+
+        void Fail(String errMsg);
+
+    }
+
+    /**
+     * 获取用户订单列表回调
+     */
+    interface GetOrderListCallback extends BaseRequestCallback{
+
+        void getOrderListSucc(OrderListBean bean);
 
     }
 }

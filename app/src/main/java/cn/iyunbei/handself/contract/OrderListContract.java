@@ -2,6 +2,9 @@ package cn.iyunbei.handself.contract;
 
 import android.content.Context;
 
+import java.util.List;
+
+import cn.iyunbei.handself.bean.OrderListBean;
 import jt.kundream.base.IBaseView;
 
 /**
@@ -18,6 +21,11 @@ public interface OrderListContract {
     }
 
     interface View extends IBaseView {
+        /**
+         * 展示订单列表
+         * @param dayList  单日订单集合
+         */
+        void showOrderList(List<OrderListBean.DataBean> dayList);
     }
 
     interface Presenter {
@@ -25,6 +33,6 @@ public interface OrderListContract {
          * 查询订单列表
          * @param ctx
          */
-        void getOrderList(Context ctx);
+        void getOrderList(Context ctx,String time);
     }
 }
