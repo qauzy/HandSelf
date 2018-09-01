@@ -37,5 +37,10 @@ public class Constants {
      * 获取订单详情
      */
     public static final String GET_ORDER_DETAIL = ROOT_URL + "order/orders";
+
+    /**
+     * 盘点订单列表
+     */
+    public static String PANDIAN_LIST = ROOT_URL + "profit/getprofitlist";
 }
 

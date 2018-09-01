@@ -8,6 +8,7 @@ import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.OrderDetailBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.bean.OrderListBean;
+import cn.iyunbei.handself.bean.PanDianBean;
 import cn.iyunbei.handself.bean.UserBean;
 
 /**
@@ -81,7 +82,7 @@ public interface RequestCallback {
 
     }
 
-    interface BaseRequestCallback{
+    interface BaseRequestCallback {
 
         void Fail(String errMsg);
 
@@ -90,14 +91,18 @@ public interface RequestCallback {
     /**
      * 获取用户订单列表回调
      */
-    interface GetOrderListCallback extends BaseRequestCallback{
+    interface GetOrderListCallback extends BaseRequestCallback {
 
         void getOrderListSucc(OrderListBean bean);
 
     }
 
-    interface GetOrderDetailCallback extends BaseRequestCallback{
+    interface GetOrderDetailCallback extends BaseRequestCallback {
 
         void getOrderDetailSucc(OrderDetailBean bean);
+    }
+
+    interface GetPanDianListCallback extends BaseRequestCallback {
+        void succ(List<PanDianBean.DataBean> list);
     }
 }

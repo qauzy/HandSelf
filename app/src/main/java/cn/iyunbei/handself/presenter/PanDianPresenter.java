@@ -1,7 +1,15 @@
 package cn.iyunbei.handself.presenter;
 
+import android.content.Context;
+
+import java.util.List;
+
+import cn.iyunbei.handself.RequestCallback;
+import cn.iyunbei.handself.bean.PanDianBean;
 import cn.iyunbei.handself.contract.PanDianContract;
+import cn.iyunbei.handself.model.PanDianModel;
 import jt.kundream.base.BasePresenter;
+import jt.kundream.utils.CommonUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -13,4 +21,28 @@ import jt.kundream.base.BasePresenter;
  * @desc:
  **/
 public class PanDianPresenter extends BasePresenter<PanDianContract.View> implements PanDianContract.Presenter {
+
+    private RequestCallback.GetPanDianListCallback pandianCallback = new RequestCallback.GetPanDianListCallback() {
+        @Override
+        public void succ(List<PanDianBean.DataBean> list) {
+            mView.hideProgress();
+            if (list.size() < 1) {
+            } else {
+                mView.showData(list);
+            }
+
+        }
+
+        @Override
+        public void Fail(String errMsg) {
+            mView.hideProgress();
+
+        }
+    };
+
+    @Override
+    public void getPanDianList(Context ctx) {
+        mView.showProgress();
+        new PanDianModel().getPanDianList(CommonUtil.getString(ctx, "_token"), pandianCallback);
+    }
 }
