@@ -32,5 +32,10 @@ public class Constants {
      * 获取订单列表  todo 新需求 只返包含今天的三天内数据   选择日期之后再请求选择日期的数据
      */
     public static String GET_ORDER_LIST = ROOT_URL + "order/orderlist";
+
+    /**
+     * 获取订单详情
+     */
+    public static final String GET_ORDER_DETAIL = ROOT_URL + "order/orders";
 }
 

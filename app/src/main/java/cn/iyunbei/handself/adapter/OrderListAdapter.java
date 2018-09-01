@@ -22,6 +22,7 @@ import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.TextViewUtils;
+import jt.kundream.utils.ToastUtils;
 
 public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> implements View.OnClickListener {
 
@@ -51,10 +52,10 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
         TextViewUtils.setText2Tv("销售笔数 " + dataBean.getOrder_count() + "单", tvSellNum);
 
         // TODO: 2018/8/31 这里还需要一个向上箭头的切图
-        if (orderIsOpen.get(dataBean.getDate())){
-
-        }else{
-
+        if (orderIsOpen.get(dataBean.getDate())) {
+            ivZhankai.setImageResource(R.mipmap.bihe);
+        } else {
+            ivZhankai.setImageResource(R.mipmap.zhankai);
         }
 
         llBottom.setOnClickListener(this);
@@ -90,9 +91,9 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
             }
         } else {
             // TODO: 2018/8/31 如果数据比较多  那么之加载前3条数据
-            if (orderIsOpen.get(dataBean.getDate())){
+            if (orderIsOpen.get(dataBean.getDate())) {
                 order.addAll(dataBean.getOrder());
-            }else{
+            } else {
                 for (int i = 0; i < 3; i++) {
                     order.add(dataBean.getOrder().get(i));
                 }
