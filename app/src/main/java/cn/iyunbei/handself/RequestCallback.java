@@ -105,4 +105,5 @@ public interface RequestCallback {
     interface GetPanDianListCallback extends BaseRequestCallback {
         void succ(List<PanDianBean.DataBean> list);
     }
+
 }

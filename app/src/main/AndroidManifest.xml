@@ -28,6 +28,7 @@
         <activity android:name=".activity.OrderListActivity" />
         <activity android:name=".activity.PanDianActivity" />
         <activity android:name=".activity.OrderDetailActivity" />
+        <activity android:name=".activity.PanDianPageActivity" />
     </application>
 
 </manifest>

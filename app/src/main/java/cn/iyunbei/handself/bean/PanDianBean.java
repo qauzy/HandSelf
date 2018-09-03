@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class PanDianBean {
@@ -38,7 +39,7 @@ public class PanDianBean {
         this.data = data;
     }
 
-    public static class DataBean {
+    public static class DataBean implements Serializable {
         /**
          * profit_id : 26
          * profit_no : PDD0000000666153475566942

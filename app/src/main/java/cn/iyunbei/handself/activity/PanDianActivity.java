@@ -1,7 +1,7 @@
 package cn.iyunbei.handself.activity;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,19 +9,20 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.PanDianAdapter;
-import cn.iyunbei.handself.adapter.TempOrderAdapter;
 import cn.iyunbei.handself.bean.PanDianBean;
-import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.contract.PanDianContract;
 import cn.iyunbei.handself.presenter.PanDianPresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.utils.ActivityUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -46,17 +47,16 @@ public class PanDianActivity extends BaseActivity<PanDianContract.View, PanDianP
     @Bind(R.id.rv_pandian)
     RecyclerView rvPandian;
     private PanDianAdapter mAdapter;
+    private List<PanDianBean.DataBean> mDatas = new ArrayList<>();
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
         public void itemViewClick(View view) {
             int position = (int) view.getTag();
             switch (view.getId()) {
-                case R.id.ll_bottom:
-                    /**
-                     *  1.展开商品列表,将箭头切换为向上  就是做一个箭头的旋转动画  这个在云贝生活中已经有了  直接拿过来就行
-                     *  2.修改TempOrderAdapter中的tempGoodsList  然后notify
-                     */
-//                    mAdapter.openOrCloseGoodsList(position);
+                case R.id.ll_counting:
+                    // TODO: 2018/9/3 点击之后  跳入新的界面
+                    ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_ing", mDatas.get(position).getProfit_id()), true);
+
                     break;
 
                 default:
@@ -66,6 +66,26 @@ public class PanDianActivity extends BaseActivity<PanDianContract.View, PanDianP
 
         }
     };
+
+    @OnClick({R.id.iv_left, R.id.iv_right})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.iv_left:
+                finish();
+                break;
+
+            case R.id.iv_right:
+                /**
+                 * 添加盘点单的时候 进入界面  数据直接为空
+                 */
+                ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_id", -1), true);
+                break;
+
+            default:
+                break;
+
+        }
+    }
 
 
     @Override
@@ -92,10 +112,12 @@ public class PanDianActivity extends BaseActivity<PanDianContract.View, PanDianP
 
     @Override
     public void showData(List<PanDianBean.DataBean> list) {
+        mDatas.clear();
+        mDatas.addAll(list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvPandian.setLayoutManager(linearLayoutManager);
         rvPandian.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new PanDianAdapter(this, R.layout.item_goods_count, list, itemClickListener);
+        mAdapter = new PanDianAdapter(this, R.layout.item_goods_count, mDatas, itemClickListener);
         rvPandian.setAdapter(mAdapter);
     }
 }
