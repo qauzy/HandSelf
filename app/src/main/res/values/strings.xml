@@ -13,4 +13,7 @@
     <string name="scan">请用收银机扫描顾客支付码</string>
     <string name="select_again">重新选择支付方式</string>
     <string name="login">登陆</string>
+    <string name="pd">盘点库存</string>
+    <string name="save">保存</string>
+    <string name="input_pd">请输入实际库存数量</string>
 </resources>

@@ -9,6 +9,7 @@ import cn.iyunbei.handself.bean.OrderDetailBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.bean.OrderListBean;
 import cn.iyunbei.handself.bean.PanDianBean;
+import cn.iyunbei.handself.bean.PanDianingBean;
 import cn.iyunbei.handself.bean.UserBean;
 
 /**
@@ -106,4 +107,11 @@ public interface RequestCallback {
         void succ(List<PanDianBean.DataBean> list);
     }
 
+    interface PanDianingCallback extends BaseRequestCallback{
+        void succ(PanDianingBean bean);
+    }
+
+    interface PanDianGoodsCallback extends BaseRequestCallback{
+        void succ(String succMsg);
+    }
 }
