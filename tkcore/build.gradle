@@ -51,7 +51,7 @@ dependencies {
     /*
                     EventBus线程间通信
                  */
-//    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
     /*
                     OKGO联网
                  */

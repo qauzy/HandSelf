@@ -45,10 +45,18 @@ public class Constants {
     /**
      * 盘点中订单详情
      */
-    public static String PANDIAN_ING = ROOT_URL+"profit/profitgoods";
+    public static String PANDIAN_ING = ROOT_URL + "profit/profitgoods";
     /**
      * 盘点时候的单品数量录入
      */
     public static String PD_SAVE = ROOT_URL + "profit/upprofitmum";
+    /**
+     * 设置盘点订单完成
+     */
+    public static String SET_PD_OK = ROOT_URL + "profit/setprofitstatusok";
+    /**
+     * 支付宝支付
+     */
+    public static String ALI_PAY = ROOT_URL + "order/alibarpay";
 }
 

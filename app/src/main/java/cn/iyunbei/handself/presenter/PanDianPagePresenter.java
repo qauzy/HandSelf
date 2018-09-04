@@ -26,6 +26,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
         }
     };
 
+
     @Override
     public void reqPanDianing(Context ctx, int pd_id, int page) {
         if (pd_id == -1) {
@@ -54,6 +55,28 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
              * 此处数据录入成功之后  要通知界面  更改数据  将实际数量改为输入的数量
              */
             mView.editNumSucc();
+        }
+
+        @Override
+        public void Fail(String errMsg) {
+
+        }
+    };
+
+    /**
+     * 设置盘点单完成
+     *
+     * @param context
+     * @param pd_id
+     */
+    public void setPanDianOk(Context context, int pd_id) {
+        new PanDianPageModel().setPDOk(CommonUtil.getString(context, "token"), pd_id, pdOkCallback);
+    }
+
+    private RequestCallback.PdOkCallback pdOkCallback = new RequestCallback.PdOkCallback() {
+        @Override
+        public void succ(String succ) {
+
         }
 
         @Override

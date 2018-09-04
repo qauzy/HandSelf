@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -29,6 +30,9 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -46,6 +50,7 @@ import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 
@@ -107,6 +112,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 要展示的商品列表集合
      */
     private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
+    private boolean isMain = true;
 
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
@@ -224,14 +230,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
                 if (goodsList.size() < 1) {
                     ActivityUtil.startActivityForResult(this, TempOrderActivity.class, 200);
-                }else{
+                } else {
                     showToast("请优先处理当前订单");
                 }
 
                 break;
 
             case R.id.iv_right:
-                ActivityUtil.startActivity(this,UserCenterActivity.class);
+                ActivityUtil.startActivity(this, UserCenterActivity.class);
 
                 break;
 
@@ -243,8 +249,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 break;
 
             case R.id.tv_jiesuan:
+                Intent intent = new Intent();
+                intent.putExtra("tolMoney", String.valueOf(toaMon));
+                intent.putExtra("goods", (Serializable) goodsList);
+                ActivityUtil.startActivity(this, PayTypeActivity.class, intent);
                 showToast("进入付款页");
-//                presenter.quaryAllData();
                 break;
 
             default:
@@ -527,8 +536,13 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                             //把扫描头传过来的byte字节转成字符串
                             String str = new String(buffer, "GBK");
                             String substring = str.substring(0, str.length() - 2);
+                            if (isMain) {
+                                presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
+                            } else {
+                                // TODO: 2018/9/4 此处发出去的消息实质上是扫码得到的值 发送给支付页面
+                                EventBus.getDefault().post(new EventBusBean(substring));
+                            }
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
-                            presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
                             isScan = false;
                             //拉低扫描头电压，使扫描头熄灭
@@ -548,6 +562,22 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
         }
     };
+
+    /**
+     * 在activity的生命周期中对isMain进行状态更改  如果Main是显示的  那么就让扫描接受的值在本页面处理  否则  就发送一个消息  让其它页面处理
+     */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isMain = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isMain = false;
+    }
 
     /**
      * 返回键监听  这里是为了将正在结算的单子挂为临时订单

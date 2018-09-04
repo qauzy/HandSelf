@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.gyf.barlibrary.ImmersionBar;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.ButterKnife;
 import jt.kundream.R;
 import jt.kundream.utils.LogEncapsulation;
@@ -53,7 +55,7 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
         presenter = initPresenter();
         presenter.attach((V) this);
         ButterKnife.bind(this);
-//        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
         customProgressDialog = new CustomProgressDialog(this, R.style.loading_style);
         // customProgressDialog.setCancelable(false); // 设置不响应返回按钮点击事件
         initView();
@@ -124,7 +126,7 @@ public abstract class BaseActivity<V, T extends BasePresenter<V>> extends AppCom
         ButterKnife.unbind(this);
         //如果不销毁ImmersionBar的话，如果界面bar发生改变，在不关闭app的情况下，退出此界面再进入将记忆最后一次bar改变的状态
         ImmersionBar.with(this).destroy();
-//        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(this);
         hideProgress();
         super.onDestroy();
 //        Glide.with(this).pauseRequests();

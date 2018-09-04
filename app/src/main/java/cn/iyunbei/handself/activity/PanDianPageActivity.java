@@ -168,7 +168,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
             @Override
             public void onClick(View view) {
 
-                showToast("上传盘点状态信息，改为此盘点单盘点完成");
+                presenter.setPanDianOk(getContext(),pd_id);
 
                 pop.dismiss();
             }

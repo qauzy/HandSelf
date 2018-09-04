@@ -29,6 +29,7 @@
         <activity android:name=".activity.PanDianActivity" />
         <activity android:name=".activity.OrderDetailActivity" />
         <activity android:name=".activity.PanDianPageActivity" />
+        <activity android:name=".activity.PayTypeActivity" />
     </application>
 
 </manifest>

@@ -114,4 +114,13 @@ public interface RequestCallback {
     interface PanDianGoodsCallback extends BaseRequestCallback{
         void succ(String succMsg);
     }
+
+    interface PdOkCallback extends BaseRequestCallback{
+        void succ(String succ);
+    }
+
+    interface PayCallback extends BaseRequestCallback{
+        void succ(String succMsg);
+
+    }
 }

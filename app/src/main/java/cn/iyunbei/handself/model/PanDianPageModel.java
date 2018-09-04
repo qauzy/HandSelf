@@ -65,4 +65,27 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                     }
                 });
     }
+
+    public void setPDOk(String token, int pd_id, final RequestCallback.PdOkCallback pdOkCallback) {
+        OkGo.<String>post(Constants.SET_PD_OK)
+                .params("_token", token)
+                .params("profit_id", pd_id)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String s = response.body().toString();
+                        if (JsonUtils.checkToken(s) == 200){
+                            pdOkCallback.succ(JsonUtils.getMsg(s));
+                        }else{
+                            pdOkCallback.Fail(JsonUtils.getMsg(s));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        pdOkCallback.Fail("网络连接错误");
+                    }
+                });
+    }
 }
