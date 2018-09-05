@@ -6,9 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -31,6 +31,8 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
@@ -53,6 +56,7 @@ import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
+import jt.kundream.utils.CurrencyUtils;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
@@ -91,6 +95,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     SwipeMenuRecyclerView rvGoods;
     @Bind(R.id.tv_left)
     TextView tvLeft;
+    @Bind(R.id.rl_input)
+    RelativeLayout rlInput;
+    @Bind(R.id.rl_jiesuan)
+    RelativeLayout rlJiesuan;
 
     private double toaMon = 0;
     private int toaNum = 0;
@@ -192,6 +200,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
     };
 
+
     @Override
     public int getLayoutResId() {
         return R.layout.activity_main;
@@ -200,6 +209,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     public void initView() {
 //        initConstants();
+        EventBus.getDefault().register(this);
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
@@ -211,13 +221,31 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         registerListener();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventBusBean bean) {
+        /**
+         * 接受到扫码的用户支付码之后，请求信息。
+         */
+        if (bean.getEvent().equals("closeAct")){
+            goodsList.clear();
+            mAdapter.notifyDataSetChanged();
+            setToalData(CurrencyUtils.toBigDecimal("0"),0);
+        }
+    }
+
 
     @Override
     public MainPresenter initPresenter() {
         return new MainPresenter();
     }
 
-    @OnClick({R.id.iv_left, R.id.iv_right, R.id.tv_hand_input, R.id.tv_jiesuan})
+    @OnClick({R.id.iv_left, R.id.iv_right, R.id.rl_input, R.id.rl_jiesuan})
     public void onClick(View view) {
         //判断是否多次点击
         if (AntiShake.check(view.getId())) {
@@ -241,14 +269,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
                 break;
 
-            case R.id.tv_hand_input:
+            case R.id.rl_input:
                 //点击弹出输入框
                 ActivityUtil.backgroundAlpha(0.6f, this);
                 showInputDialog();
 
                 break;
 
-            case R.id.tv_jiesuan:
+            case R.id.rl_jiesuan:
                 Intent intent = new Intent();
                 intent.putExtra("tolMoney", String.valueOf(toaMon));
                 intent.putExtra("goods", (Serializable) goodsList);

@@ -1,11 +1,12 @@
 package cn.iyunbei.handself.activity;
 
-import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.bean.TempOrderBean;
@@ -21,6 +21,7 @@ import cn.iyunbei.handself.contract.ScanPayContract;
 import cn.iyunbei.handself.presenter.ScanPayPresenter;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
+import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 
 /**
@@ -58,7 +59,14 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         tvTitle.setText("结算状态");
         ivLeft.setVisibility(View.GONE);
         ivRight.setVisibility(View.GONE);
@@ -71,7 +79,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
 
     }
 
-    @OnClick(R.id.ll_pay_again)
+    @OnClick(R.id.btn_sele_pay_type_again)
     public void onClick(View view) {
         //此页面只有一个点击事件,点击之后回到上一个页面，重新选择支付方式。
         finish();
@@ -87,9 +95,19 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         /**
          * 接受到扫码的用户支付码之后，请求信息。
          */
-        String authCode = bean.getEvent();
-        presenter.startPay(CommonUtil.getString(getContext(),"token"),goodsList,payMode,authCode);
+        if (!bean.getEvent().equals("closeAct")){
+            String authCode = bean.getEvent();
+
+            presenter.startPay(CommonUtil.getString(getContext(), "token"), goodsList, payMode, authCode);
+        }
 
     }
 
+    @Override
+    public void paySucc() {
+        Intent intent = new Intent();
+        intent.putExtra("goodsNum", goodsList.size());
+        intent.putExtra("tolMon", tolMoney);
+        ActivityUtil.startActivity(this, PaySuccActivity.class, intent, true);
+    }
 }

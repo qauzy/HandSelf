@@ -30,6 +30,8 @@
         <activity android:name=".activity.OrderDetailActivity" />
         <activity android:name=".activity.PanDianPageActivity" />
         <activity android:name=".activity.PayTypeActivity" />
+        <activity android:name=".activity.PaySuccActivity" />
+        <activity android:name=".activity.ScanPayActivity" />
     </application>
 
 </manifest>

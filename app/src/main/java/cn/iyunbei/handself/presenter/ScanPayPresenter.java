@@ -16,8 +16,7 @@ public class ScanPayPresenter extends BasePresenter<ScanPayContract.View> implem
         @Override
         public void succ(String succMsg) {
             mView.showToast(succMsg);
-
-//            mView.paySucc();
+            mView.paySucc();
         }
 
         @Override

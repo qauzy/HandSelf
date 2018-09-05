@@ -53,11 +53,6 @@ public class LoginActivity extends BaseActivity<LoginContract.View, LoginPresent
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public LoginPresenter initPresenter() {
         return new LoginPresenter();
     }

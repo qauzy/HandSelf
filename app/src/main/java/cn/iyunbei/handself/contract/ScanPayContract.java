@@ -7,6 +7,11 @@ public interface ScanPayContract {
     }
 
     interface View extends IBaseView {
+        /**
+         * 支付成功 跳转到支付成功界面
+         */
+        void paySucc();
+
     }
 
     interface Presenter {

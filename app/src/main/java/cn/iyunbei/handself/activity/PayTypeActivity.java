@@ -7,6 +7,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,7 @@ import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.PayTypeContract;
 import cn.iyunbei.handself.presenter.PayTypePresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 
 /**
@@ -78,6 +83,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         tolMoney = getIntent().getStringExtra("tolMoney");
         goodsList = (List<TempOrderBean.TempGoodsBean>) getIntent().getSerializableExtra("goods");
         ivLeft.setVisibility(View.GONE);
@@ -86,6 +92,22 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         tvRight.setVisibility(View.GONE);
         tvTitle.setText("结算方式");
         tvMoney.setText(tolMoney);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventBusBean bean) {
+        /**
+         * 接受到扫码的用户支付码之后，请求信息。
+         */
+        if (bean.getEvent().equals("closeAct")){
+            finish();
+        }
     }
 
     @OnClick({R.id.tv_next, R.id.tv_prev, R.id.ll_cash, R.id.ll_wechat, R.id.ll_ali_pay})
