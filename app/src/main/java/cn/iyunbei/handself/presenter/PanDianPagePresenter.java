@@ -32,7 +32,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
         if (pd_id == -1) {
             mView.showEmpty();
         } else {
-            new PanDianPageModel().reqPanDianing(CommonUtil.getString(ctx, "_token"), pd_id, page, netCallback);
+            new PanDianPageModel().reqPanDianing(CommonUtil.getString(ctx, "token"), pd_id, page, netCallback);
         }
     }
 

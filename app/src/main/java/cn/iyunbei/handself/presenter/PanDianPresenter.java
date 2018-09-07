@@ -43,6 +43,6 @@ public class PanDianPresenter extends BasePresenter<PanDianContract.View> implem
     @Override
     public void getPanDianList(Context ctx) {
         mView.showProgress();
-        new PanDianModel().getPanDianList(CommonUtil.getString(ctx, "_token"), pandianCallback);
+        new PanDianModel().getPanDianList(CommonUtil.getString(ctx, "token"), pandianCallback);
     }
 }
