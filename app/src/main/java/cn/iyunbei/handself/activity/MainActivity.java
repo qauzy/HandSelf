@@ -232,10 +232,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         /**
          * 接受到扫码的用户支付码之后，请求信息。
          */
-        if (bean.getEvent().equals("closeAct")){
+        if (bean.getEvent().equals("closeAct")) {
             goodsList.clear();
             mAdapter.notifyDataSetChanged();
-            setToalData(CurrencyUtils.toBigDecimal("0"),0);
+            setToalData(CurrencyUtils.toBigDecimal("0"), 0);
         }
     }
 
@@ -277,11 +277,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 break;
 
             case R.id.rl_jiesuan:
-                Intent intent = new Intent();
-                intent.putExtra("tolMoney", String.valueOf(toaMon));
-                intent.putExtra("goods", (Serializable) goodsList);
-                ActivityUtil.startActivity(this, PayTypeActivity.class, intent);
-                showToast("进入付款页");
+                if (goodsList != null && goodsList.size() > 0) {
+                    Intent intent = new Intent();
+                    intent.putExtra("tolMoney", String.valueOf(toaMon));
+                    intent.putExtra("goods", (Serializable) goodsList);
+                    ActivityUtil.startActivity(this, PayTypeActivity.class, intent);
+                }else{
+                    showToast("你还没有添加任何商品");
+                }
                 break;
 
             default:
