@@ -136,7 +136,7 @@ public class OrderListActivity extends BaseActivity<OrderListContract.View, Orde
                 long msec = date.getTime();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 time = simpleDateFormat.format(msec);
-                presenter.getOrderList(getContext(),time);
+                presenter.getOrderList(getContext(), time);
             }
         });
         dialog.show();
@@ -146,15 +146,14 @@ public class OrderListActivity extends BaseActivity<OrderListContract.View, Orde
     public void showOrderList(List<OrderListBean.DataBean> backList) {
         orderList.clear();
         orderList.addAll(backList);
-
         if (mAdapter == null) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             rvOrders.setLayoutManager(linearLayoutManager);
             rvOrders.setItemAnimator(new DefaultItemAnimator());
             mAdapter = new OrderListAdapter(this, R.layout.item_orders_list, orderList, itemClickListener);
             rvOrders.setAdapter(mAdapter);
-
         } else {
+            mAdapter.setMapFalse(backList);
             mAdapter.notifyDataSetChanged();
         }
     }

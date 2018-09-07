@@ -33,6 +33,10 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
     public OrderListAdapter(Context context, int layoutId, List<OrderListBean.DataBean> datas, RequestCallback.ItemViewOnClickListener clickListener) {
         super(context, layoutId, datas);
         this.clickListener = clickListener;
+        setMapFalse(datas);
+    }
+
+    public void setMapFalse(List<OrderListBean.DataBean> datas) {
         for (int i = 0; i < datas.size(); i++) {
             orderIsOpen.put(datas.get(i).getDate(), false);
         }

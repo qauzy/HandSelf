@@ -61,7 +61,7 @@ public class LoginActivity extends BaseActivity<LoginContract.View, LoginPresent
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_back:
-
+                finish();
                 break;
 
             case R.id.btn_login:

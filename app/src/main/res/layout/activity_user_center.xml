@@ -83,7 +83,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/selector_text"
                     android:gravity="center"
-                    android:text="今日销售"
+                    android:text="本月销售"
                     android:textColor="@color/black"
                     android:textSize="@dimen/sp_20" />
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.TempOrderAdapter;
@@ -101,6 +102,11 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
          */
         presenter.queryData(this);
 
+    }
+
+    @OnClick(R.id.iv_left)
+    public void onClick(View v){
+        finish();
     }
 
     @Override
