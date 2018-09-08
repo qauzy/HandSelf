@@ -120,7 +120,16 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 要展示的商品列表集合
      */
     private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
+    /**
+     * 是否是主页面的判断，如果为true，所有的扫码结果都给主页面处理
+     * 如果是false,看下一个变量
+     */
     private boolean isMain = true;
+    /**
+     * 默认当主页面onPause的时候，所有的扫码处理给盘点界面接收，当然 如果用户进入了扫码支付的界面，
+     * 这时主页面会接收一个值，改变这个变量为pay
+     */
+    private String pdOrPay = "pd";
 
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
@@ -282,7 +291,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                     intent.putExtra("tolMoney", String.valueOf(toaMon));
                     intent.putExtra("goods", (Serializable) goodsList);
                     ActivityUtil.startActivity(this, PayTypeActivity.class, intent);
-                }else{
+                } else {
                     showToast("你还没有添加任何商品");
                 }
                 break;
@@ -571,7 +580,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                                 presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
                             } else {
                                 // TODO: 2018/9/4 此处发出去的消息实质上是扫码得到的值 发送给支付页面
-                                EventBus.getDefault().post(new EventBusBean(substring));
+//                                if (pdOrPay.equals("pd")) {
+//
+//                                } else {
+                                    EventBus.getDefault().post(new EventBusBean(substring));
+//                                }
                             }
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略

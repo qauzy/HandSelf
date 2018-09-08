@@ -24,6 +24,14 @@ public interface PanDianPageContract {
          * 盘点的商品数量修改成功
          */
         void editNumSucc();
+
+        /**
+         * 显示盘点的数量输入框
+         *
+         * @param goods_name
+         * @param barcode
+         */
+        void showPdGoodsDlg(String goods_name, String barcode);
     }
 
     interface Presenter {

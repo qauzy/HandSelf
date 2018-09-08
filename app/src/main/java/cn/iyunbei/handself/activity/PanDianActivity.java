@@ -55,7 +55,7 @@ public class PanDianActivity extends BaseActivity<PanDianContract.View, PanDianP
             switch (view.getId()) {
                 case R.id.ll_counting:
                     // TODO: 2018/9/3 点击之后  跳入新的界面
-                    ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_ing", mDatas.get(position).getProfit_id()), true);
+                    ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_ing", mDatas.get(position).getProfit_id()), false);
 
                     break;
 
@@ -78,7 +78,7 @@ public class PanDianActivity extends BaseActivity<PanDianContract.View, PanDianP
                 /**
                  * 添加盘点单的时候 进入界面  数据直接为空
                  */
-                ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_id", -1), true);
+                ActivityUtil.startActivity(PanDianActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_id", -1), false);
                 break;
 
             default:

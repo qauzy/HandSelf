@@ -1,10 +1,14 @@
 package cn.iyunbei.handself.presenter;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import cn.iyunbei.handself.RequestCallback;
+import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.PanDianingBean;
+import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.PanDianPageContract;
+import cn.iyunbei.handself.model.MainModel;
 import cn.iyunbei.handself.model.PanDianPageModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CommonUtil;
@@ -84,4 +88,33 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
 
         }
     };
+
+    /**
+     * 获取单个商品，如果正确，在页面弹出盘点的dialog
+     *
+     * @param context
+     * @param barCode
+     */
+    public void reqGoods(Context context, String barCode) {
+        if (TextUtils.isEmpty(barCode)) {
+            mView.showToast("条码不正确");
+        } else {
+            PanDianPageModel.requestGoods(barCode, CommonUtil.getString(context, "token"), getGoodsCallback);
+        }
+    }
+
+    private RequestCallback.GetGoodsCallback getGoodsCallback = new RequestCallback.GetGoodsCallback() {
+        @Override
+        public void succ(GoodsBean bean) {
+            String goods_name = bean.getData().getGoods_name();
+            String barcode = bean.getData().getBarcode();
+            mView.showPdGoodsDlg(goods_name,barcode);
+        }
+
+        @Override
+        public void fial(String err) {
+            mView.showToast(err);
+        }
+    };
+
 }

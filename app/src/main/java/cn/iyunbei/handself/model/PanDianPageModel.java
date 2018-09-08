@@ -7,6 +7,7 @@ import com.lzy.okgo.model.Response;
 
 import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.RequestCallback;
+import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.PanDianingBean;
 import cn.iyunbei.handself.contract.PanDianPageContract;
 import jt.kundream.utils.JsonUtils;
@@ -85,6 +86,42 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                     public void onError(Response<String> response) {
                         super.onError(response);
                         pdOkCallback.Fail("网络连接错误");
+                    }
+                });
+    }
+
+    /**
+     * 获取单个商品信息
+     * @param barCode
+     * @param token
+     * @param getGoodsCallback
+     */
+    public static void requestGoods(String barCode, String token, final RequestCallback.GetGoodsCallback getGoodsCallback) {
+        OkGo.<String>post(Constants.GET_GOODS)
+                .params("barcode", barCode)
+                .params("_token", token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String result = response.body().toString();
+                        if (JsonUtils.checkToken(result) == 200) {
+                            GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
+                            getGoodsCallback.succ(bean);
+                        } else {
+                            getGoodsCallback.fial(JsonUtils.getMsg(result));
+                        }
+                    }
+
+//                    @Override
+//                    public void onFinish() {
+//                        super.onFinish();
+//                        callback.fial("请求完成");
+//                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        getGoodsCallback.fial("网络错误");
                     }
                 });
     }

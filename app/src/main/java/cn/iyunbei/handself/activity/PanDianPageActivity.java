@@ -24,6 +24,10 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,7 @@ import cn.iyunbei.handself.bean.PanDianingBean;
 import cn.iyunbei.handself.contract.PanDianPageContract;
 import cn.iyunbei.handself.presenter.PanDianPagePresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 
@@ -72,6 +77,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
     LinearLayout llPDHead;
     private int pd_id;
     private int page = 1;
+    //盘点商品列表
     private List<PanDianingBean.DataBeanX.ListBean.DataBean> pdList = new ArrayList<>();
     private PanDianingAdapter mAdapter;
     //修改盘点数据成功之后需要先在界面中修改的集合的位置
@@ -86,6 +92,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         tvLeft.setVisibility(View.GONE);
         tvTitle.setText("添加盘点");
         tvRight.setVisibility(View.GONE);
@@ -113,6 +120,25 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         });
 
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(EventBusBean bean) {
+        /**
+         * 接受到扫码结果之后，请求商品信息。
+         */
+        if (!bean.getEvent().equals("closeAct")){
+            String authCode = bean.getEvent();
+            presenter.reqGoods(getContext(),bean.getEvent());
+        }
+
+    }
+
+
 
     @OnClick({R.id.iv_left, R.id.iv_right})
     public void onClick(View view) {
@@ -140,7 +166,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
     private void showPopWindow() {
         LayoutInflater mLayoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View contentView = mLayoutInflater.inflate(R.layout.pop, null);
-        final PopupWindow pop = new PopupWindow(contentView, ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final PopupWindow pop = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         pop.setBackgroundDrawable(new BitmapDrawable());
         pop.setFocusable(true);
 
@@ -155,7 +181,11 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         tvPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showToast("上传盘点状态信息，改为此盘点单暂停盘点");
+                if (pd_id != -1) {
+                    showToast("上传盘点状态信息，改为此盘点单暂停盘点");
+                } else {
+                    showToast("当前没有正在盘点的数据");
+                }
                 pop.dismiss();
 
             }
@@ -167,9 +197,11 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         tvEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                presenter.setPanDianOk(getContext(),pd_id);
-
+                if (pd_id == -1) {
+                    showToast("当前没有正在盘点的数据");
+                } else {
+                    presenter.setPanDianOk(getContext(), pd_id);
+                }
                 pop.dismiss();
             }
         });
@@ -264,7 +296,8 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
      * @param goods_name
      * @param barcode
      */
-    private void showPdGoodsDlg(String goods_name, final String barcode) {
+    @Override
+    public void showPdGoodsDlg(String goods_name, final String barcode) {
         ActivityUtil.backgroundAlpha(0.6f, this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final AlertDialog dialog = builder.create();
