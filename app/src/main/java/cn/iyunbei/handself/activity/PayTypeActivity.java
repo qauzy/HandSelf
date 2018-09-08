@@ -35,7 +35,7 @@ import jt.kundream.utils.ActivityUtil;
  * @e-mail: 245086168@qq.com
  * @desc:支付方式的选择
  **/
-public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypePresenter> {
+public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypePresenter> implements PayTypeContract.View {
 
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -105,7 +105,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         /**
          * 接受到扫码的用户支付码之后，请求信息。
          */
-        if (bean.getEvent().equals("closeAct")){
+        if (bean.getEvent().equals("closeAct")) {
             finish();
         }
     }
@@ -120,13 +120,14 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
                 break;
             case R.id.tv_next:
 //                presenter.payMoney(getContext(),goodsList,payMode);
-                Intent intent = new Intent();
-                intent.putExtra("tolMoney", tolMoney);
-                intent.putExtra("payMode",payMode);
-                intent.putExtra("goods", (Serializable) goodsList);
-                ActivityUtil.startActivity(getContext(),ScanPayActivity.class,intent);
-
+                if (payMode == 0) {
+                    presenter.useCashPay(getContext(), goodsList);
+                } else {
+                    userNetPay();
+                }
                 break;
+
+            // TODO: 2018/9/8 此处红恩说可以有N种支付方式，比如可以设置有多个支付宝方式，然后返回的是一个列表，点击列表，选择某种方式去支付。what fuck
             case R.id.ll_cash:
                 ivCash.setImageResource(R.mipmap.xuanze);
                 ivAli.setImageResource(R.mipmap.weixuanze);
@@ -153,9 +154,24 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
     }
 
+    private void userNetPay() {
+        Intent intent = new Intent();
+        intent.putExtra("tolMoney", tolMoney);
+        intent.putExtra("payMode", payMode);
+        intent.putExtra("goods", (Serializable) goodsList);
+        ActivityUtil.startActivity(getContext(), ScanPayActivity.class, intent);
+    }
+
     @Override
     public PayTypePresenter initPresenter() {
         return new PayTypePresenter();
     }
 
+    @Override
+    public void cashPaySucc() {
+        Intent intent = new Intent();
+        intent.putExtra("goodsNum", goodsList.size());
+        intent.putExtra("tolMon", tolMoney);
+        ActivityUtil.startActivity(this, PaySuccActivity.class, intent, true);
+    }
 }

@@ -58,5 +58,9 @@ public class Constants {
      * 支付宝支付
      */
     public static String ALI_PAY = ROOT_URL + "order/alibarpay";
+    /**
+     * 现金支付
+     */
+    public static String CASH_PAY = ROOT_URL + "order/xianjinpay";
 }
 

@@ -7,6 +7,11 @@ public interface PayTypeContract {
     }
 
     interface View extends IBaseView{
+        /**
+         * 现金支付成功
+         */
+        void cashPaySucc();
+
     }
 
     interface Presenter {

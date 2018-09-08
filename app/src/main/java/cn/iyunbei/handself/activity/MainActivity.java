@@ -310,7 +310,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 toaMon = tempOrder.getTotalMoney();
                 toaNum = tempOrder.getTotalNum();
                 for (int i = 0; i < goodsList.size(); i++) {
-                    numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoodsNum());
+                    numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
                 }
                 setAdapter();
             }

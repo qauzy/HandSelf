@@ -23,19 +23,6 @@ public class TempOrderBean implements Serializable{
 
     private List<TempGoodsBean> goodsList;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TempOrderBean)) return false;
-        TempOrderBean bean = (TempOrderBean) o;
-        return Objects.equals(getGoodsList(), bean.getGoodsList());
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(getGoodsList());
-    }
 
     public TempOrderBean() {
     }
@@ -92,7 +79,15 @@ public class TempOrderBean implements Serializable{
 
         private String barcode;
 
-        private int goodsNum;
+        public int getGoods_number() {
+            return goods_number;
+        }
+
+        public void setGoods_number(int goods_number) {
+            this.goods_number = goods_number;
+        }
+
+        private int goods_number;
 
         public int getGoods_id() {
             return goods_id;
@@ -134,32 +129,6 @@ public class TempOrderBean implements Serializable{
             this.barcode = barcode;
         }
 
-        public int getGoodsNum() {
-            return goodsNum;
-        }
 
-        public void setGoodsNum(int goodsNum) {
-            this.goodsNum = goodsNum;
-        }
-
-        @Override
-        public String toString() {
-//            return "TempGoodsBean{" +
-//                    "goods_id=" + goods_id +
-//                    ", spec='" + spec + '\'' +
-//                    ", goods_name='" + goods_name + '\'' +
-//                    ", goods_price='" + goods_price + '\'' +
-//                    ", barcode='" + barcode + '\'' +
-//                    ", goodsNum=" + goodsNum +
-//                    '}';
-            return "{" +
-                    "goods_id=" + goods_id +
-                    ", spec='" + spec + '\'' +
-                    ", goods_name='" + goods_name + '\'' +
-                    ", goods_price='" + goods_price + '\'' +
-                    ", barcode='" + barcode + '\'' +
-                    ", goodsNum=" + goodsNum +
-                    '}';
-        }
     }
 }

@@ -43,7 +43,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             goodsBean.setGoods_price(data.getGoods_price());
             goodsBean.setGoods_name(data.getGoods_name());
             goodsBean.setBarcode(data.getBarcode());
-            goodsBean.setGoodsNum(1);
+            goodsBean.setGoods_number(1);
 
             mView.manageData(goodsBean);
         }
@@ -141,7 +141,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
         for (int i = 0; i < goodsList.size(); i++) {
             TempOrderBean.TempGoodsBean bean = goodsList.get(i);
-            bean.setGoodsNum(numMap.get(bean.getGoods_id()));
+            bean.setGoods_number(numMap.get(bean.getGoods_id()));
             newGoodsList.add(bean);
         }
 

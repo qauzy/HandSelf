@@ -40,6 +40,6 @@ public class TempGoodsAdapter extends CommonAdapter<TempOrderBean.TempGoodsBean>
         TextViewUtils.setText2Tv(goodsBean.getSpec(), tvGuiGe);
         TextViewUtils.setText2Tv(String.valueOf(goodsBean.getBarcode()), tvCode);
         TextViewUtils.setText2Tv("￥" + goodsBean.getGoods_price(), tvMoney);
-        TextViewUtils.setText2Tv("X" + goodsBean.getGoodsNum(), tvNum);
+        TextViewUtils.setText2Tv("X" + goodsBean.getGoods_number(), tvNum);
     }
 }
