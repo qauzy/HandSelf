@@ -10,6 +10,7 @@ import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.bean.OrderListBean;
 import cn.iyunbei.handself.bean.PanDianBean;
 import cn.iyunbei.handself.bean.PanDianingBean;
+import cn.iyunbei.handself.bean.PayTypeBean;
 import cn.iyunbei.handself.bean.UserBean;
 
 /**
@@ -117,6 +118,11 @@ public interface RequestCallback {
 
     interface PdOkCallback extends BaseRequestCallback{
         void succ(String succ);
+    }
+
+    interface PayTypeCallback extends BaseRequestCallback{
+        void succ(PayTypeBean bean);
+
     }
 
     interface PayCallback extends BaseRequestCallback{

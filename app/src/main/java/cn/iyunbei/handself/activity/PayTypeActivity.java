@@ -19,6 +19,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.bean.PayTypeBean;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.PayTypeContract;
 import cn.iyunbei.handself.presenter.PayTypePresenter;
@@ -71,9 +72,15 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
     TextView tvPrev;
     @Bind(R.id.tv_next)
     TextView tvNext;
+    @Bind(R.id.tv_cash)
+    TextView tvCash;
+    @Bind(R.id.tv_wechat)
+    TextView tvWechat;
+    @Bind(R.id.tv_ali)
+    TextView tvAli;
     private String tolMoney;
     //支付方式的选择，默认现金
-    private int payMode = 0;
+    private int payType = 0;
     private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
 
     @Override
@@ -92,6 +99,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         tvRight.setVisibility(View.GONE);
         tvTitle.setText("结算方式");
         tvMoney.setText(tolMoney);
+        presenter.getPayType(getContext());
     }
 
     @Override
@@ -119,8 +127,8 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
                 break;
             case R.id.tv_next:
-//                presenter.payMoney(getContext(),goodsList,payMode);
-                if (payMode == 0) {
+//                presenter.payMoney(getContext(),goodsList,payType);
+                if (payType == 0) {
                     presenter.useCashPay(getContext(), goodsList);
                 } else {
                     userNetPay();
@@ -132,20 +140,20 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
                 ivCash.setImageResource(R.mipmap.xuanze);
                 ivAli.setImageResource(R.mipmap.weixuanze);
                 ivWecaht.setImageResource(R.mipmap.weixuanze);
-                payMode = 0;
+                payType = 0;
 
                 break;
             case R.id.ll_wechat:
                 ivCash.setImageResource(R.mipmap.weixuanze);
                 ivAli.setImageResource(R.mipmap.weixuanze);
                 ivWecaht.setImageResource(R.mipmap.xuanze);
-                payMode = 1;
+                payType = 1;
                 break;
             case R.id.ll_ali_pay:
                 ivCash.setImageResource(R.mipmap.weixuanze);
                 ivWecaht.setImageResource(R.mipmap.weixuanze);
                 ivAli.setImageResource(R.mipmap.xuanze);
-                payMode = 2;
+                payType = 2;
                 break;
 
             default:
@@ -157,7 +165,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
     private void userNetPay() {
         Intent intent = new Intent();
         intent.putExtra("tolMoney", tolMoney);
-        intent.putExtra("payMode", payMode);
+        intent.putExtra("payType", payType);
         intent.putExtra("goods", (Serializable) goodsList);
         ActivityUtil.startActivity(getContext(), ScanPayActivity.class, intent);
     }
@@ -174,4 +182,45 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         intent.putExtra("tolMon", tolMoney);
         ActivityUtil.startActivity(this, PaySuccActivity.class, intent, true);
     }
+
+    @Override
+    public void showPayType(int defaultPayType, List<Integer> payModeList, List<PayTypeBean.DataBean> data) {
+        if (payModeList.contains(1) && !payModeList.contains(2)) {
+            //显示现金和微信
+            llWechat.setVisibility(View.VISIBLE);
+            llAliPay.setVisibility(View.GONE);
+        } else if (!payModeList.contains(1) && payModeList.contains(2)) {
+            //现金和支付宝
+            llWechat.setVisibility(View.GONE);
+            llAliPay.setVisibility(View.VISIBLE);
+        } else if (payModeList.contains(1) && payModeList.contains(2)) {
+            //现金  微信  支付宝
+            llWechat.setVisibility(View.VISIBLE);
+            llAliPay.setVisibility(View.VISIBLE);
+        } else {
+            //只支持现金
+            llWechat.setVisibility(View.GONE);
+            llAliPay.setVisibility(View.GONE);
+        }
+
+        if (defaultPayType == 0) {
+            ivCash.setImageResource(R.mipmap.xuanze);
+            ivAli.setImageResource(R.mipmap.weixuanze);
+            ivWecaht.setImageResource(R.mipmap.weixuanze);
+            payType = 0;
+        } else if (defaultPayType == 1) {
+            ivCash.setImageResource(R.mipmap.weixuanze);
+            ivAli.setImageResource(R.mipmap.weixuanze);
+            ivWecaht.setImageResource(R.mipmap.xuanze);
+            payType = 1;
+        } else {
+            ivCash.setImageResource(R.mipmap.weixuanze);
+            ivWecaht.setImageResource(R.mipmap.weixuanze);
+            ivAli.setImageResource(R.mipmap.xuanze);
+            payType = 2;
+        }
+
+
+    }
+
 }

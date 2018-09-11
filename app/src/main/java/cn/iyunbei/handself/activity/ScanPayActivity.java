@@ -50,7 +50,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
     Button btnSelePayTypeAgain;
     private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
     private String tolMoney;
-    private int payMode;
+    private int payType;
 
 
     @Override
@@ -74,7 +74,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         tvRight.setVisibility(View.GONE);
         tolMoney = getIntent().getStringExtra("tolMoney");
         goodsList = (List<TempOrderBean.TempGoodsBean>) getIntent().getSerializableExtra("goods");
-        payMode = getIntent().getIntExtra("payMode", -1);
+        payType = getIntent().getIntExtra("payType", -1);
         tvMoney.setText(tolMoney);
         //此处需要发送一个消息，告诉主页面：你现在扫描之后接收的结果我来处理(页面会有个默认值，当主页面不onPause的时候，主页面的所有扫码结果分2个页面处理)
 //        EventBus.getDefault().post(new EventBusBean(substring));
@@ -100,7 +100,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         if (!bean.getEvent().equals("closeAct")){
             String authCode = bean.getEvent();
 
-            presenter.startPay(CommonUtil.getString(getContext(), "token"), goodsList, payMode, authCode);
+            presenter.startPay(CommonUtil.getString(getContext(), "token"), goodsList, payType, authCode);
         }
 
     }

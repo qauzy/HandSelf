@@ -89,6 +89,7 @@
                 android:src="@mipmap/xjzf" />
 
             <TextView
+                android:id="@+id/tv_cash"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -131,6 +132,7 @@
                 android:src="@mipmap/wechat" />
 
             <TextView
+                android:id="@+id/tv_wechat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -173,6 +175,7 @@
                 android:src="@mipmap/zfbzf" />
 
             <TextView
+                android:id="@+id/tv_ali"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

@@ -66,5 +66,9 @@ public class Constants {
      * 生成新的盘点单
      */
     public static String CREATE_PROFIT = ROOT_URL+"profit/createprofit";
+    /**
+     * 支付方式的列表选择
+     */
+    public static String PAY_TYPE = ROOT_URL + "payment/paylist";
 }
 
