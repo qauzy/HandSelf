@@ -29,12 +29,25 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
             mView.showToast(errMsg);
         }
     };
+    private RequestCallback.CreateParofitCallback createProfitCallback = new RequestCallback.CreateParofitCallback() {
+        @Override
+        public void succ(String profit_id, String profit_status) {
+            mView.showNewProfit(profit_id, profit_status);
+        }
+
+        @Override
+        public void Fail(String errMsg) {
+            mView.showToast(errMsg);
+        }
+    };
 
 
     @Override
     public void reqPanDianing(Context ctx, int pd_id, int page) {
         if (pd_id == -1) {
-            mView.showEmpty();
+            // TODO: 2018/9/11 当没有盘点单号的时候，需要生成一个新的盘点单
+//            mView.showEmpty();
+            new PanDianPageModel().createProfit(CommonUtil.getString(ctx, "token"), createProfitCallback);
         } else {
             new PanDianPageModel().reqPanDianing(CommonUtil.getString(ctx, "token"), pd_id, page, netCallback);
         }
@@ -108,7 +121,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
         public void succ(GoodsBean bean) {
             String goods_name = bean.getData().getGoods_name();
             String barcode = bean.getData().getBarcode();
-            mView.showPdGoodsDlg(goods_name,barcode);
+            mView.showPdGoodsDlg(goods_name, barcode);
         }
 
         @Override

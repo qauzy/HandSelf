@@ -62,5 +62,9 @@ public class Constants {
      * 现金支付
      */
     public static String CASH_PAY = ROOT_URL + "order/xianjinpay";
+    /**
+     * 生成新的盘点单
+     */
+    public static String CREATE_PROFIT = ROOT_URL+"profit/createprofit";
 }
 

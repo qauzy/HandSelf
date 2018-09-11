@@ -14,6 +14,7 @@ import cn.iyunbei.handself.presenter.UserCenterPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.utils.ActivityUtil;
+import jt.kundream.utils.CommonUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -82,6 +83,7 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
     @Override
     public void showUserMsg(UserBean bean) {
         String name = bean.getData().getMember_name();
+        CommonUtil.put(this, "username", name);
         tvName.setText(name);
         tvName1.setText(String.valueOf(name.charAt(name.length() - 1)));
         tvTel.setText(bean.getData().getMember_mobile());
@@ -102,13 +104,13 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
 
             case R.id.ll_order_list:
                 //订单列表
-                ActivityUtil.startActivity(this,OrderListActivity.class);
+                ActivityUtil.startActivity(this, OrderListActivity.class);
 
                 break;
 
             case R.id.ll_goods_count:
                 //货品盘点  进入盘点页面
-                ActivityUtil.startActivity(this,PanDianActivity.class);
+                ActivityUtil.startActivity(this, PanDianActivity.class);
                 break;
 
             case R.id.tv_sell_today:

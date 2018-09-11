@@ -120,6 +120,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         });
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -131,13 +132,12 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         /**
          * 接受到扫码结果之后，请求商品信息。
          */
-        if (!bean.getEvent().equals("closeAct")){
+        if (!bean.getEvent().equals("closeAct")) {
             String authCode = bean.getEvent();
-            presenter.reqGoods(getContext(),bean.getEvent());
+            presenter.reqGoods(getContext(), bean.getEvent());
         }
 
     }
-
 
 
     @OnClick({R.id.iv_left, R.id.iv_right})
@@ -181,11 +181,13 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
         tvPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (pd_id != -1) {
-                    showToast("上传盘点状态信息，改为此盘点单暂停盘点");
-                } else {
-                    showToast("当前没有正在盘点的数据");
-                }
+//                if (pd_id != -1) {
+//                showToast("上传盘点状态信息，改为此盘点单暂停盘点");
+                // TODO: 2018/9/11 此处暂时没有接口
+//                presenter.setProfitPause();
+//                } else {
+//                    showToast("当前没有正在盘点的数据");
+//                }
                 pop.dismiss();
 
             }
@@ -326,6 +328,13 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
             }
         });
         dialog.show();
+    }
+
+    @Override
+    public void showNewProfit(String profit_id, String profit_status) {
+        pd_id = Integer.parseInt(profit_id);
+        tvOrderId.setText("订单编号：" + pd_id);
+        tvStaff.setText("收银员：" + CommonUtil.getString(this, "username"));
     }
 
     @Override

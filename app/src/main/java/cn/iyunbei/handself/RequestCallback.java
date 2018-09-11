@@ -123,4 +123,8 @@ public interface RequestCallback {
         void succ(String succMsg);
 
     }
+
+    interface CreateParofitCallback extends BaseRequestCallback{
+        void succ(String profit_id,String profit_status);
+    }
 }

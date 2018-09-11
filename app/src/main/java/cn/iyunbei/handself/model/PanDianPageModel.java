@@ -75,9 +75,9 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String s = response.body().toString();
-                        if (JsonUtils.checkToken(s) == 200){
+                        if (JsonUtils.checkToken(s) == 200) {
                             pdOkCallback.succ(JsonUtils.getMsg(s));
-                        }else{
+                        } else {
                             pdOkCallback.Fail(JsonUtils.getMsg(s));
                         }
                     }
@@ -92,6 +92,7 @@ public class PanDianPageModel implements PanDianPageContract.Model {
 
     /**
      * 获取单个商品信息
+     *
      * @param barCode
      * @param token
      * @param getGoodsCallback
@@ -122,6 +123,34 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                     public void onError(Response<String> response) {
                         super.onError(response);
                         getGoodsCallback.fial("网络错误");
+                    }
+                });
+    }
+
+    /**
+     * 创建新的盘点单
+     *
+     * @param token
+     * @param createProfitCallback
+     */
+    public void createProfit(String token, final RequestCallback.CreateParofitCallback createProfitCallback) {
+        OkGo.<String>post(Constants.CREATE_PROFIT)
+                .params("_token", token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String s = response.body().toString();
+                        if (JsonUtils.checkToken(s) == 200) {
+                            createProfitCallback.succ(JsonUtils.getInnerStr(s, "profit_id"), JsonUtils.getInnerStr(s, "profit_status"));
+                        } else {
+                            createProfitCallback.Fail(JsonUtils.getMsg(s));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        createProfitCallback.Fail("");
                     }
                 });
     }
