@@ -34,6 +34,8 @@ public interface PanDianPageContract {
         void showPdGoodsDlg(String goods_name, String barcode);
 
         void showNewProfit(String profit_id, String profit_status);
+
+        void closeAct();
     }
 
     interface Presenter {

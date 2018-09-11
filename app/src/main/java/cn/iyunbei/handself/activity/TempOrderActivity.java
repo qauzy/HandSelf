@@ -21,6 +21,7 @@ import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.TempOrderContract;
 import cn.iyunbei.handself.presenter.TempOrderPresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.utils.CommonUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -46,6 +47,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
     RecyclerView rvTempOrders;
     private TempOrderAdapter mAdapter;
     private List<TempOrderBean> mDatas = new ArrayList<>();
+    int tempCount;
 
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
@@ -63,9 +65,10 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                 case R.id.ll_pay_again:
                     //继续支付  将点击的订单数据携带回MainActivity  继续操作
                     Intent intent = new Intent();
-                    intent.putExtra("tempOrder",mDatas.get(position));
-                    setResult(200,intent);
+                    intent.putExtra("tempOrder", mDatas.get(position));
+                    setResult(200, intent);
                     mDatas.remove(position);
+                    CommonUtil.put(getContext(), "tempCount", tempCount--);
                     finish();
                     break;
 
@@ -74,6 +77,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                     mDatas.remove(position);
                     mAdapter.notifyDataSetChanged();
                     Single.getInstance().setTempList(mDatas);
+                    CommonUtil.put(getContext(), "tempCount", tempCount--);
 
                     break;
 
@@ -97,6 +101,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
         tvLeft.setVisibility(View.GONE);
         ivRight.setVisibility(View.GONE);
         tvRight.setVisibility(View.GONE);
+        tempCount = CommonUtil.getInt(this, "tempCount");
         /**
          * 查询数据库存储的数据
          */
@@ -105,7 +110,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
     }
 
     @OnClick(R.id.iv_left)
-    public void onClick(View v){
+    public void onClick(View v) {
         finish();
     }
 

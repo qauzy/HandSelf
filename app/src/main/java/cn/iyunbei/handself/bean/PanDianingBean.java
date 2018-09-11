@@ -132,7 +132,7 @@ public class PanDianingBean {
             private String next_page_url;
             private String path;
             private int per_page;
-            private int prev_page_url;
+            private String prev_page_url;
             private int to;
             private int total;
             private List<DataBean> data;
@@ -201,11 +201,11 @@ public class PanDianingBean {
                 this.per_page = per_page;
             }
 
-            public int getPrev_page_url() {
+            public String getPrev_page_url() {
                 return prev_page_url;
             }
 
-            public void setPrev_page_url(int prev_page_url) {
+            public void setPrev_page_url(String prev_page_url) {
                 this.prev_page_url = prev_page_url;
             }
 

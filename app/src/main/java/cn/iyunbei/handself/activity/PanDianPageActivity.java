@@ -240,7 +240,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
 
         if (mAdapter == null) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-            mAdapter = new PanDianingAdapter(this, R.layout.item_order_list_detail, pdList);
+            mAdapter = new PanDianingAdapter(this, R.layout.item_temp_goods, pdList);
             rvPandianGoods.setItemAnimator(new DefaultItemAnimator());
             rvPandianGoods.setSwipeMenuCreator(mSwipeMenuCreator);
             //设置侧滑出来的菜单的删除监听
@@ -339,7 +339,14 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
 
     @Override
     public void editNumSucc() {
-        pdList.get(tempPosi).setReal_number(tempNum);
-        mAdapter.notifyDataSetChanged();
+        // TODO: 2018/9/11 此处如果列表为空，那么就是不同的选择
+        presenter.reqPanDianing(this,pd_id,1);
+//        pdList.get(tempPosi).setReal_number(tempNum);
+//        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void closeAct() {
+        finish();
     }
 }

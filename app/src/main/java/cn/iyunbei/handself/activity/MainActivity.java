@@ -219,6 +219,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     public void initView() {
 //        initConstants();
         EventBus.getDefault().register(this);
+        int tempCount = CommonUtil.getInt(this, "tempCount");
+        if (tempCount > 0) {
+            tvLeft.setText(tempCount + "");
+        } else {
+            tvLeft.setVisibility(View.GONE);
+        }
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
@@ -234,6 +240,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        CommonUtil.put(this, "tempCount", 0);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -490,9 +497,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         rvGoods.setVisibility(View.GONE);
     }
 
+
     @Override
     public void setThisOrderTemp(long count) {
         hideProgress();
+        CommonUtil.put(this, "tempCount", count);
+        tvLeft.setVisibility(View.VISIBLE);
         tvLeft.setText(count + "");
         /**
          * 将原本的数据存储在本地数据库之后  清空商品集合
@@ -583,7 +593,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //                                if (pdOrPay.equals("pd")) {
 //
 //                                } else {
-                                    EventBus.getDefault().post(new EventBusBean(substring));
+                                EventBus.getDefault().post(new EventBusBean(substring));
 //                                }
                             }
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());

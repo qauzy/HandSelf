@@ -93,12 +93,13 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
     private RequestCallback.PdOkCallback pdOkCallback = new RequestCallback.PdOkCallback() {
         @Override
         public void succ(String succ) {
-
+            mView.showToast(succ);
+            mView.closeAct();
         }
 
         @Override
         public void Fail(String errMsg) {
-
+            mView.showToast(errMsg);
         }
     };
 
