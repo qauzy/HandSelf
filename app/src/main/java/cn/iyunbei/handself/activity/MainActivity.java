@@ -626,16 +626,16 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             byte[] text = null;
             try {
                 StringBuilder sb = new StringBuilder();
-                sb.append("        收 银 凭 据                 ");
+                sb.append("          收 银 凭 据            ");
                 sb.append("\n");
                 sb.append("时间   : ");
-                sb.append(TimeUtil.stampToDate((long)TimeUtil.getNowTimestamp(),"yyyy-MM-dd HH:mm"));
+                sb.append(TimeUtil.stampToDate((long) TimeUtil.getNowTimestamp(), "yyyy-MM-dd HH:mm"));
                 sb.append("\n");
                 sb.append("操作员:" + username);
                 sb.append("\n");
 //                sb.append("收据单号：" + data1.getOrder_id() + "");
 //                sb.append("\n");
-                sb.append("    商品             单价             数量             总价");
+                sb.append("  商品   单价    数量    总价");
                 sb.append("\n");
                 sb.append("-----------------------------");
                 sb.append("\n");
@@ -645,25 +645,30 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //                        sb.append("\n");
 //                    }
                     String goods_price = datas.get(i).getGoods_price();
-                    int goods_number = datas.get(i).getGoods_number();
-                    sb.append(datas.get(i).getGoods_name()+"          "+ goods_price +"             "+ goods_number
-                    +"             "+CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
+                    int goods_number = numMap.get(datas.get(i).getGoods_id());
+                    String goods_name = datas.get(i).getGoods_name();
+                    if (goods_name.length() > 5) {
+                        sb.append(goods_name + "\n" + "        " + goods_price + "     " + goods_number
+                                + "     " + CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
+
+                    } else {
+                        sb.append(datas.get(i).getGoods_name() + "      " + goods_price + "      " + goods_number
+                                + "      " + CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
+                    }
+
                     sb.append("\n");
                 }
 
-                sb.append("----------------------------"+"\n");
-                sb.append("共计:"+toaNum+"件商品;"+"总共:"+toaMon+"元");
+                sb.append("----------------------------" + "\n");
+                sb.append("共计:" + toaNum + "件商品;" + "总共:" + toaMon + "元\n");
                 sb.append("欢迎下次光临");
                 sb.append("\n");
                 sb.append("-----------------------------");
-//                sb.append("\n");
-//                sb.append("\n");
-//                sb.append("\n");
-                sb.append("\n");
-                sb.append("\n");
-                sb.append("\n");
+                for (int i = 0; i < 6; i++) {
+                    sb.append("\n");
+                }
                 text = sb.toString().getBytes("GBK");
-                addPrintTextWithSize(1, 25,text);
+                addPrintTextWithSize(1, 25, text);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

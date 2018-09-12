@@ -73,7 +73,7 @@ public class PaySuccActivity extends AppCompatActivity {
                         tvTimeBack.setText("(" + mLastMillis / 1000 + ")");
                     } else {
                         finish();
-                        EventBus.getDefault().post(new EventBusBean("closeAct"));
+//                        EventBus.getDefault().post(new EventBusBean("closeAct"));
                     }
 
                     break;
@@ -99,6 +99,7 @@ public class PaySuccActivity extends AppCompatActivity {
         ivRight.setVisibility(View.GONE);
         tvTotal.setText("共" + goodsNum + "件商品，共支付" + tolMon + "元");
         handler.sendEmptyMessage(MSG_WHAT_START);
+        EventBus.getDefault().post(new EventBusBean("closeAct"));
     }
 
     @OnClick(R.id.rl_bottom)

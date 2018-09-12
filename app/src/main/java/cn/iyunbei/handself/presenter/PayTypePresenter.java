@@ -30,9 +30,9 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
         }
     };
 
-    public void useCashPay(Context context, List<TempOrderBean.TempGoodsBean> goodsList) {
+    public void useCashPay(Context context,int payType, List<TempOrderBean.TempGoodsBean> goodsList) {
         String s = new Gson().toJson(goodsList);
-        new PayTypeModel().useCashPay(CommonUtil.getString(context, "token"), s, payCallback);
+        new PayTypeModel().useCashPay(CommonUtil.getString(context, "token"),payType, s, payCallback);
     }
 
     /**

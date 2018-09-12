@@ -105,7 +105,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         }
     }
 
-    @OnClick({R.id.tv_next, R.id.tv_prev, R.id.ll_cash, R.id.ll_wechat, R.id.ll_ali_pay})
+    @OnClick({R.id.tv_next, R.id.tv_prev})
     public void onClick(View view) {
         switch (view.getId()) {
 
@@ -116,7 +116,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
             case R.id.tv_next:
 //                presenter.payMoney(getContext(),goodsList,payType);
                 if (payMode == 0) {
-                    presenter.useCashPay(getContext(), goodsList);
+                    presenter.useCashPay(getContext(),payType, goodsList);
                 } else {
                     userNetPay();
                 }
