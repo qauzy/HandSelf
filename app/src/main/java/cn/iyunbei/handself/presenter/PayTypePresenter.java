@@ -47,17 +47,18 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
     private RequestCallback.PayTypeCallback payTypeCallback = new RequestCallback.PayTypeCallback() {
         @Override
         public void succ(PayTypeBean bean) {
+            mView.showPayTypeList(bean.getData());
 
-            List<Integer> payModeList = new ArrayList<>();
-            int defaultPayType = 0;
-            for (int i = 0; i < bean.getData().size(); i++) {
-                payModeList.add(bean.getData().get(i).getPayment_mode());
-                int defaultX = bean.getData().get(i).getDefaultX();
-                if (defaultX == 1) {
-                    defaultPayType = bean.getData().get(i).getPayment_mode();
-                }
-            }
-            mView.showPayType(defaultPayType, payModeList, bean.getData());
+//            List<Integer> payModeList = new ArrayList<>();
+//            int defaultPayType = 0;
+//            for (int i = 0; i < bean.getData().size(); i++) {
+//                payModeList.add(bean.getData().get(i).getPayment_mode());
+//                int defaultX = bean.getData().get(i).getDefaultX();
+//                if (defaultX == 1) {
+//                    defaultPayType = bean.getData().get(i).getPayment_mode();
+//                }
+//            }
+//            mView.showPayType(defaultPayType, payModeList, bean.getData());
 
 //            if (payModeList.contains(1) && !payModeList.contains(2)) {
 //                mView.setPayModeWeChat(bean.get);
@@ -72,7 +73,7 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
 
         @Override
         public void Fail(String errMsg) {
-
+            mView.showToast(errMsg);
         }
     };
 }
