@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.posapi.PosApi;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
@@ -57,6 +55,7 @@ import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 import jt.kundream.utils.CurrencyUtils;
+import jt.kundream.utils.TimeUtil;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
@@ -249,6 +248,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
          * 接受到扫码的用户支付码之后，请求信息。
          */
         if (bean.getEvent().equals("closeAct")) {
+            print(goodsList);
             goodsList.clear();
             mAdapter.notifyDataSetChanged();
             setToalData(CurrencyUtils.toBigDecimal("0"), 0);
@@ -589,12 +589,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                             if (isMain) {
                                 presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
                             } else {
-                                // TODO: 2018/9/4 此处发出去的消息实质上是扫码得到的值 发送给支付页面
-//                                if (pdOrPay.equals("pd")) {
-//
-//                                } else {
                                 EventBus.getDefault().post(new EventBusBean(substring));
-//                                }
                             }
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
@@ -616,6 +611,100 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
         }
     };
+
+    /**
+     * 打印购物小票
+     *
+     * @param datas
+     */
+    private void print(List<TempOrderBean.TempGoodsBean> datas) {
+        String username = CommonUtil.getString(this, "username");
+
+//        Log.e("PRINT", printOver + "");
+//        Log.e("PRINT", data1.getCreated_at() + "");
+        if (datas != null) {
+            byte[] text = null;
+            try {
+                StringBuilder sb = new StringBuilder();
+                sb.append("        收 银 凭 据                 ");
+                sb.append("\n");
+                sb.append("时间   : ");
+                sb.append(TimeUtil.stampToDate((long)TimeUtil.getNowTimestamp(),"yyyy-MM-dd HH:mm"));
+                sb.append("\n");
+                sb.append("操作员:" + username);
+                sb.append("\n");
+//                sb.append("收据单号：" + data1.getOrder_id() + "");
+//                sb.append("\n");
+                sb.append("    商品             单价             数量             总价");
+                sb.append("\n");
+                sb.append("-----------------------------");
+                sb.append("\n");
+                for (int i = 0; i < datas.size(); i++) {
+//                    if (datas.get(i).getPick_num() == order_goods.get(i).getPick_num()) {
+//                        sb.append(order_goods.get(i).getGoods_name() + "             " + order_goods.get(i).getGoods_num() + "");
+//                        sb.append("\n");
+//                    }
+                    String goods_price = datas.get(i).getGoods_price();
+                    int goods_number = datas.get(i).getGoods_number();
+                    sb.append(datas.get(i).getGoods_name()+"          "+ goods_price +"             "+ goods_number
+                    +"             "+CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
+                    sb.append("\n");
+                }
+
+                sb.append("----------------------------"+"\n");
+                sb.append("共计:"+toaNum+"件商品;"+"总共:"+toaMon+"元");
+                sb.append("欢迎下次光临");
+                sb.append("\n");
+                sb.append("-----------------------------");
+//                sb.append("\n");
+//                sb.append("\n");
+//                sb.append("\n");
+                sb.append("\n");
+                sb.append("\n");
+                sb.append("\n");
+                text = sb.toString().getBytes("GBK");
+                addPrintTextWithSize(1, 25,text);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            mPrintQueue.printStart();
+        } else {
+            return;
+        }
+
+    }
+
+
+    /*
+     * 打印文字 size 1 --倍大小 2--2倍大小
+     */
+    private void addPrintTextWithSize(int size, int concentration, byte[] data) {
+        if (data == null)
+            return;
+        // 2倍字体大小
+        byte[] _2x = new byte[]{0x1b, 0x57, 0x02};
+        // 1倍字体大小
+        byte[] _1x = new byte[]{0x1b, 0x57, 0x01};
+        byte[] mData = null;
+        if (size == 1) {
+            mData = new byte[3 + data.length];
+            // 1倍字体大小 默认
+            System.arraycopy(_1x, 0, mData, 0, _1x.length);
+            System.arraycopy(data, 0, mData, _1x.length, data.length);
+
+            mPrintQueue.addText(concentration, mData);
+
+        } else if (size == 2) {
+            mData = new byte[3 + data.length];
+            // 1倍字体大小 默认
+            System.arraycopy(_2x, 0, mData, 0, _2x.length);
+            System.arraycopy(data, 0, mData, _2x.length, data.length);
+
+            mPrintQueue.addText(concentration, mData);
+
+        }
+
+    }
 
     /**
      * 在activity的生命周期中对isMain进行状态更改  如果Main是显示的  那么就让扫描接受的值在本页面处理  否则  就发送一个消息  让其它页面处理
