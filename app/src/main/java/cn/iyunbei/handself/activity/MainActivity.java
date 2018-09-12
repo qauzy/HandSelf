@@ -250,6 +250,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         if (bean.getEvent().equals("closeAct")) {
             print(goodsList);
             goodsList.clear();
+            numMap.clear();
             mAdapter.notifyDataSetChanged();
             setToalData(CurrencyUtils.toBigDecimal("0"), 0);
         }
@@ -640,10 +641,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 sb.append("-----------------------------");
                 sb.append("\n");
                 for (int i = 0; i < datas.size(); i++) {
-//                    if (datas.get(i).getPick_num() == order_goods.get(i).getPick_num()) {
-//                        sb.append(order_goods.get(i).getGoods_name() + "             " + order_goods.get(i).getGoods_num() + "");
-//                        sb.append("\n");
-//                    }
                     String goods_price = datas.get(i).getGoods_price();
                     int goods_number = numMap.get(datas.get(i).getGoods_id());
                     String goods_name = datas.get(i).getGoods_name();

@@ -284,7 +284,7 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
             int menuPosition = swipeMenuBridge.getPosition();
             // TODO: 2018/9/4 此处需要弹出编辑数量的弹窗
             tempPosi = menuPosition;
-            showPdGoodsDlg(pdList.get(tempPosi).getGoods_name(), pdList.get(tempPosi).getBarcode());
+            showPdGoodsDlg(pdList.get(adapterPosition).getGoods_name(), pdList.get(adapterPosition).getBarcode());
 //            goodsList.remove(menuPosition);
 //            mAdapter.notifyDataSetChanged();
 //            presenter.calcTotal(goodsList, numMap);
@@ -324,10 +324,11 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
                 tempNum = etNum.getText().toString();
                 presenter.saveGoodsNum(pd_id, barcode, tempNum, CommonUtil.getString(PanDianPageActivity.this, "token"));
                 dialog.dismiss();
-                ActivityUtil.backgroundAlpha(1f, PanDianPageActivity.this);
+
             }
         });
         dialog.show();
+        ActivityUtil.backgroundAlpha(1f, PanDianPageActivity.this);
     }
 
     @Override
