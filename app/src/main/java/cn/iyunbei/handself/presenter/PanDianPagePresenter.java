@@ -23,6 +23,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
             mView.showContent(bean);
         }
 
+
         @Override
         public void Fail(String errMsg) {
             mView.hideProgress();

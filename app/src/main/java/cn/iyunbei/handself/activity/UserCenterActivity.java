@@ -56,6 +56,8 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
     LinearLayout llOrderList;
     @Bind(R.id.ll_goods_count)
     LinearLayout llGoodsCount;
+    @Bind(R.id.ll_exit)
+    LinearLayout llExit;
 
     @Override
     public int getLayoutResId() {
@@ -89,7 +91,7 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvTel.setText(bean.getData().getMember_mobile());
     }
 
-    @OnClick({R.id.iv_left, R.id.ll_order_list, R.id.ll_goods_count, R.id.tv_sell_today, R.id.tv_sell_month})
+    @OnClick({R.id.iv_left, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month})
     public void onClick(View v) {
         //判断是否多次点击
         if (AntiShake.check(v.getId())) {
@@ -112,6 +114,11 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
                 //货品盘点  进入盘点页面
                 ActivityUtil.startActivity(this, PanDianActivity.class);
                 break;
+            case R.id.ll_exit:
+                //退出app
+                CommonUtil.clearSp(this);
+                ActivityUtil.startActivity(this, LoginActivity.class, true);
+                break;
 
             case R.id.tv_sell_today:
                 //今日订单情况
@@ -129,4 +136,5 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
 
         }
     }
+
 }
