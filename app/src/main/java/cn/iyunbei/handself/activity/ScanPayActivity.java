@@ -50,6 +50,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
     Button btnSelePayTypeAgain;
     private List<TempOrderBean.TempGoodsBean> goodsList = new ArrayList<>();
     private String tolMoney;
+    private String realMoney;
     private int payType;
 
 
@@ -73,6 +74,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         tvLeft.setVisibility(View.GONE);
         tvRight.setVisibility(View.GONE);
         tolMoney = getIntent().getStringExtra("tolMoney");
+        realMoney = getIntent().getStringExtra("realMoney");
         goodsList = (List<TempOrderBean.TempGoodsBean>) getIntent().getSerializableExtra("goods");
         payType = getIntent().getIntExtra("payType", -1);
         tvMoney.setText(tolMoney);
@@ -97,10 +99,11 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         /**
          * 接受到扫码的用户支付码之后，请求信息。
          */
-        if (!bean.getEvent().equals("closeAct")){
-            String authCode = bean.getEvent();
+        String event = bean.getEvent();
+        if (!event.substring(0,8).equals("closeAct")){
+            String authCode = event;
 
-            presenter.startPay(CommonUtil.getString(getContext(), "token"), goodsList, payType, authCode);
+            presenter.startPay(CommonUtil.getString(getContext(), "token"), goodsList, payType,realMoney, authCode);
         }
 
     }
@@ -109,6 +112,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
     public void paySucc() {
         Intent intent = new Intent();
         intent.putExtra("goodsNum", goodsList.size());
+        intent.putExtra("realMoney", realMoney);
         intent.putExtra("tolMon", tolMoney);
         ActivityUtil.startActivity(this, PaySuccActivity.class, intent, true);
     }

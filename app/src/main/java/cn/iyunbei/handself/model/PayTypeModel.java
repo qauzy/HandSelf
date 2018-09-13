@@ -12,11 +12,12 @@ import cn.iyunbei.handself.contract.PayTypeContract;
 import jt.kundream.utils.JsonUtils;
 
 public class PayTypeModel implements PayTypeContract.Model {
-    public void useCashPay(String token,int payType, final String s, final RequestCallback.PayCallback payCallback) {
+    public void useCashPay(String token,int payType, final String s,String realMoney, final RequestCallback.PayCallback payCallback) {
         OkGo.<String>post(Constants.CASH_PAY)
                 .params("_token", token)
                 .params("json_goods", s)
                 .params("payment_type", payType)
+                .params("total_amount", realMoney)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

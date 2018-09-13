@@ -10,12 +10,13 @@ import cn.iyunbei.handself.contract.ScanPayContract;
 import jt.kundream.utils.JsonUtils;
 
 public class ScanPayModel implements ScanPayContract.Model {
-    public void aliPay(String token, String s, int payMode, String authCode, final RequestCallback.PayCallback payCallback) {
+    public void aliPay(String token, String s, int payMode, String authCode,String realMoney, final RequestCallback.PayCallback payCallback) {
         OkGo.<String>post(Constants.ALI_PAY)
                 .params("_token", token)
                 .params("json_goods", s)
                 .params("payment_type", payMode)
                 .params("auth_code", authCode)
+                .params("total_amount", realMoney)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

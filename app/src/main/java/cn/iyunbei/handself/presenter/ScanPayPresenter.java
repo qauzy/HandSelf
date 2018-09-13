@@ -33,11 +33,11 @@ public class ScanPayPresenter extends BasePresenter<ScanPayContract.View> implem
      * @param payMode
      * @param authCode
      */
-    public void startPay(String token, List<TempOrderBean.TempGoodsBean> goodsList, int payMode, String authCode) {
+    public void startPay(String token, List<TempOrderBean.TempGoodsBean> goodsList, int payMode,String realMoney,String authCode) {
         //将集合转化为后台规定的数据格式
         String s = new Gson().toJson(goodsList);
 
-        new ScanPayModel().aliPay(token, s, payMode, authCode, payCallback);
+        new ScanPayModel().aliPay(token, s, payMode, authCode,realMoney, payCallback);
 
     }
 }

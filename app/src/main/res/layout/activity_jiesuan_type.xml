@@ -55,12 +55,14 @@
             android:textSize="@dimen/sp_14" />
 
         <EditText
+            android:id="@+id/et_realmoney"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/dp_10"
             android:layout_weight="1"
             android:background="@null"
             android:hint="@string/real_money_hint"
+            android:inputType="numberDecimal"
             android:textColor="@color/black"
             android:textColorHint="@color/color_line_drivier"
             android:textSize="@dimen/sp_14" />
@@ -75,139 +77,6 @@
         android:layout_marginTop="@dimen/dp_28"
         android:scrollbars="none" />
 
-    <!--<LinearLayout-->
-    <!--android:id="@+id/ll_pay_type"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_below="@id/ll_real_money"-->
-    <!--android:layout_marginTop="@dimen/dp_28"-->
-    <!--android:background="@color/white"-->
-    <!--android:orientation="vertical">-->
-
-    <!--<LinearLayout-->
-    <!--android:id="@+id/ll_cash"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_48"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:src="@mipmap/xjzf" />-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/tv_cash"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:text="@string/cash"-->
-    <!--android:textColor="@color/black"-->
-    <!--android:textSize="@dimen/sp_14" />-->
-
-    <!--<View-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_weight="1" />-->
-
-    <!--<ImageView-->
-    <!--android:id="@+id/iv_cash"-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginRight="@dimen/dp_10"-->
-    <!--android:src="@mipmap/xuanze" />-->
-
-    <!--</LinearLayout>-->
-
-    <!--<View-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_1"-->
-    <!--android:background="@color/gray_8" />-->
-
-    <!--<LinearLayout-->
-    <!--android:id="@+id/ll_wechat"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_48"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:src="@mipmap/wechat" />-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/tv_wechat"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:text="@string/wechat_pay"-->
-    <!--android:textColor="@color/black"-->
-    <!--android:textSize="@dimen/sp_14" />-->
-
-    <!--<View-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_weight="1" />-->
-
-    <!--<ImageView-->
-    <!--android:id="@+id/iv_wecaht"-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginRight="@dimen/dp_10"-->
-    <!--android:src="@mipmap/weixuanze" />-->
-
-    <!--</LinearLayout>-->
-
-    <!--<View-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_1"-->
-    <!--android:background="@color/gray_8" />-->
-
-    <!--<LinearLayout-->
-    <!--android:id="@+id/ll_ali_pay"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_48"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:src="@mipmap/zfbzf" />-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/tv_ali"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginLeft="@dimen/dp_10"-->
-    <!--android:text="@string/ali_pay"-->
-    <!--android:textColor="@color/black"-->
-    <!--android:textSize="@dimen/sp_14" />-->
-
-    <!--<View-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_weight="1" />-->
-
-    <!--<ImageView-->
-    <!--android:id="@+id/iv_ali"-->
-    <!--android:layout_width="@dimen/dp_25"-->
-    <!--android:layout_height="@dimen/dp_25"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_marginRight="@dimen/dp_10"-->
-    <!--android:src="@mipmap/weixuanze" />-->
-
-    <!--</LinearLayout>-->
-    <!--</LinearLayout>-->
 
     <LinearLayout
         android:layout_width="match_parent"

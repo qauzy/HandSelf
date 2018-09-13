@@ -68,7 +68,8 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                     intent.putExtra("tempOrder", mDatas.get(position));
                     setResult(200, intent);
                     mDatas.remove(position);
-                    CommonUtil.put(getContext(), "tempCount", tempCount--);
+                    Single.getInstance().setTempList(mDatas);
+                    CommonUtil.put(getContext(), "tempCount", --tempCount);
                     finish();
                     break;
 
@@ -77,7 +78,7 @@ public class TempOrderActivity extends BaseActivity<TempOrderContract.View, Temp
                     mDatas.remove(position);
                     mAdapter.notifyDataSetChanged();
                     Single.getInstance().setTempList(mDatas);
-                    CommonUtil.put(getContext(), "tempCount", tempCount--);
+                    CommonUtil.put(getContext(), "tempCount", --tempCount);
 
                     break;
 

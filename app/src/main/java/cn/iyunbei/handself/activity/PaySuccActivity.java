@@ -49,6 +49,7 @@ public class PaySuccActivity extends AppCompatActivity {
     RelativeLayout rl_bottom;
     private int goodsNum;
     private String tolMon;
+    private String realMoney;
 
     private final int MSG_WHAT_START = 1;
 
@@ -88,6 +89,7 @@ public class PaySuccActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         goodsNum = getIntent().getIntExtra("goodsNum", -1);
         tolMon = getIntent().getStringExtra("tolMon");
+        realMoney = getIntent().getStringExtra("realMoney");
         initView();
     }
 
@@ -97,9 +99,9 @@ public class PaySuccActivity extends AppCompatActivity {
         tvRight.setVisibility(View.GONE);
         ivLeft.setVisibility(View.GONE);
         ivRight.setVisibility(View.GONE);
-        tvTotal.setText("共" + goodsNum + "件商品，共支付" + tolMon + "元");
+        tvTotal.setText("共" + goodsNum + "件商品，共支付" + realMoney + "元");
         handler.sendEmptyMessage(MSG_WHAT_START);
-        EventBus.getDefault().post(new EventBusBean("closeAct"));
+        EventBus.getDefault().post(new EventBusBean("closeAct"+realMoney));
     }
 
     @OnClick(R.id.rl_bottom)

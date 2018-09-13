@@ -170,7 +170,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             // 菜单在RecyclerView的Item中的Position。
             int menuPosition = swipeMenuBridge.getPosition();
             // TODO: 2018/8/23   删除某一条目  刷新列表
-            goodsList.remove(menuPosition);
+            numMap.remove(goodsList.get(adapterPosition).getGoods_id());
+            goodsList.remove(adapterPosition);
             mAdapter.notifyDataSetChanged();
             presenter.calcTotal(goodsList, numMap);
 //            presenter.setSingleGood(goodsList, adapterPosition, AndroidUtil.getUniqueId(mContext));
@@ -218,12 +219,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     public void initView() {
 //        initConstants();
         EventBus.getDefault().register(this);
-        int tempCount = CommonUtil.getInt(this, "tempCount");
-        if (tempCount > 0) {
-            tvLeft.setText(tempCount + "");
-        } else {
-            tvLeft.setVisibility(View.GONE);
-        }
+//        int tempCount = CommonUtil.getInt(this, "tempCount");
+//        if (tempCount > 0) {
+//            tvLeft.setText(tempCount + "");
+//        } else {
+//            tvLeft.setVisibility(View.GONE);
+//        }
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
@@ -234,6 +235,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         initPrintQueue();
         registerListener();
     }
+
 
     @Override
     protected void onDestroy() {
@@ -247,8 +249,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         /**
          * 接受到扫码的用户支付码之后，请求信息。
          */
-        if (bean.getEvent().equals("closeAct")) {
-            print(goodsList);
+        String event = bean.getEvent();
+        if (event.substring(0,8).equals("closeAct")) {
+            String realMoney = event.substring(8,event.length());
+            print(goodsList,realMoney);
             goodsList.clear();
             numMap.clear();
             mAdapter.notifyDataSetChanged();
@@ -500,7 +504,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
 
     @Override
-    public void setThisOrderTemp(long count) {
+    public void setThisOrderTemp(int count) {
         hideProgress();
         CommonUtil.put(this, "tempCount", count);
         tvLeft.setVisibility(View.VISIBLE);
@@ -512,6 +516,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         numMap.clear();
         toaMon = 0;
         toaNum = 0;
+        setToalData(BigDecimal.valueOf(toaMon), toaNum);
         rlMiddle.setVisibility(View.VISIBLE);
         rvGoods.setVisibility(View.GONE);
     }
@@ -618,7 +623,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      *
      * @param datas
      */
-    private void print(List<TempOrderBean.TempGoodsBean> datas) {
+    private void print(List<TempOrderBean.TempGoodsBean> datas,String realMoney) {
         String username = CommonUtil.getString(this, "username");
 
 //        Log.e("PRINT", printOver + "");
@@ -657,7 +662,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 }
 
                 sb.append("----------------------------" + "\n");
-                sb.append("共计:" + toaNum + "件商品;" + "总共:" + toaMon + "元\n");
+                sb.append("共计:" + toaNum + "件商品;" + "应收:" + toaMon + "元\n");
+                sb.append("实收:" + realMoney + "元\n");
                 sb.append("欢迎下次光临");
                 sb.append("\n");
                 sb.append("-----------------------------");
@@ -710,11 +716,18 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     /**
      * 在activity的生命周期中对isMain进行状态更改  如果Main是显示的  那么就让扫描接受的值在本页面处理  否则  就发送一个消息  让其它页面处理
+     * 30669 - 11971 = 18698 -4955 - 9987  -
      */
 
     @Override
     protected void onStart() {
         super.onStart();
+        int tempCount = CommonUtil.getInt(this, "tempCount");
+        if (tempCount > 0) {
+            tvLeft.setText(tempCount + "");
+        } else {
+            tvLeft.setVisibility(View.GONE);
+        }
         isMain = true;
     }
 
