@@ -5,6 +5,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.Bind;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
@@ -13,6 +15,7 @@ import cn.iyunbei.handself.contract.UserCenterContract;
 import cn.iyunbei.handself.presenter.UserCenterPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 
@@ -117,6 +120,7 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
             case R.id.ll_exit:
                 //退出app
                 CommonUtil.clearSp(this);
+                EventBus.getDefault().post(new EventBusBean("Main"));
                 ActivityUtil.startActivity(this, LoginActivity.class, true);
                 break;
 

@@ -250,13 +250,17 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
          * 接受到扫码的用户支付码之后，请求信息。
          */
         String event = bean.getEvent();
-        if (event.substring(0,8).equals("closeAct")) {
-            String realMoney = event.substring(8,event.length());
-            print(goodsList,realMoney);
-            goodsList.clear();
-            numMap.clear();
-            mAdapter.notifyDataSetChanged();
-            setToalData(CurrencyUtils.toBigDecimal("0"), 0);
+        if (event.length() > 4) {
+            if (event.substring(0, 8).equals("closeAct")) {
+                String realMoney = event.substring(8, event.length());
+                print(goodsList, realMoney);
+                goodsList.clear();
+                numMap.clear();
+                mAdapter.notifyDataSetChanged();
+                setToalData(CurrencyUtils.toBigDecimal("0"), 0);
+            }
+        } else {
+            finish();
         }
     }
 
@@ -623,7 +627,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      *
      * @param datas
      */
-    private void print(List<TempOrderBean.TempGoodsBean> datas,String realMoney) {
+    private void print(List<TempOrderBean.TempGoodsBean> datas, String realMoney) {
         String username = CommonUtil.getString(this, "username");
 
 //        Log.e("PRINT", printOver + "");

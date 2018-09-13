@@ -158,6 +158,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
     public void cashPaySucc() {
         Intent intent = new Intent();
         intent.putExtra("goodsNum", goodsList.size());
+        intent.putExtra("realMoney", realMoney);
         intent.putExtra("tolMon", tolMoney);
         ActivityUtil.startActivity(this, PaySuccActivity.class, intent, true);
     }

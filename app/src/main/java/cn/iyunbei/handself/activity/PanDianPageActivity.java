@@ -341,7 +341,8 @@ public class PanDianPageActivity extends BaseActivity<PanDianPageContract.View, 
     @Override
     public void editNumSucc() {
         // TODO: 2018/9/11 此处如果列表为空，那么就是不同的选择
-        presenter.reqPanDianing(this,pd_id,1);
+        page = 1;
+        presenter.reqPanDianing(this,pd_id,page);
 //        pdList.get(tempPosi).setReal_number(tempNum);
 //        mAdapter.notifyDataSetChanged();
     }
