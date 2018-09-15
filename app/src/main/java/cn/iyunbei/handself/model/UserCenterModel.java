@@ -30,10 +30,10 @@ public class UserCenterModel implements UserCenterContract.Model {
                     public void onSuccess(Response<String> response) {
                         String s = response.body().toString();
 
-                        if (JsonUtils.checkToken(s) == 200){
+                        if (JsonUtils.checkToken(s) == 200) {
                             UserBean userBean = new Gson().fromJson(s, UserBean.class);
                             callback.getUserMsgSucc(userBean);
-                        }else{
+                        } else {
                             callback.getUserMsgFail(JsonUtils.getMsg(s));
                         }
                     }
@@ -42,6 +42,56 @@ public class UserCenterModel implements UserCenterContract.Model {
                     public void onError(Response<String> response) {
                         super.onError(response);
                         callback.getUserMsgFail("网络错误");
+                    }
+                });
+    }
+
+    public void reqDaySell(String token, final RequestCallback.SellCallback sellCallback) {
+        OkGo.<String>post(Constants.DAY_SELL)
+                .params("_token", token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String s = response.body().toString();
+                        if (JsonUtils.checkToken(s) == 200){
+                            String total_amount = JsonUtils.getInnerStr(s, "total_amount");
+                            String order_num = JsonUtils.getInnerStr(s, "order_num");
+                            String goods_num = JsonUtils.getInnerStr(s, "goods_num");
+                            sellCallback.succ(total_amount,order_num,goods_num);
+                        }else{
+                            sellCallback.Fail(JsonUtils.getMsg(s));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sellCallback.Fail("网络连接错误");
+                    }
+                });
+    }
+
+    public void reqMonthSell(String token, final RequestCallback.SellCallback sellCallback) {
+        OkGo.<String>post(Constants.MONTH_SELL)
+                .params("_token", token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String s = response.body().toString();
+                        if (JsonUtils.checkToken(s) == 200){
+                            String total_amount = JsonUtils.getInnerStr(s, "total_amount");
+                            String order_num = JsonUtils.getInnerStr(s, "order_num");
+                            String goods_num = JsonUtils.getInnerStr(s, "goods_num");
+                            sellCallback.succ(total_amount,order_num,goods_num);
+                        }else{
+                            sellCallback.Fail(JsonUtils.getMsg(s));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sellCallback.Fail("网络连接错误");
                     }
                 });
     }

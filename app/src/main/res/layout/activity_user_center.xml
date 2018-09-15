@@ -119,7 +119,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:text="10笔"
+                        android:text="？笔"
                         android:textColor="@color/gray"
                         android:textSize="@dimen/sp_14" />
 
@@ -150,7 +150,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:text="100件"
+                        android:text="？件"
                         android:textColor="@color/gray"
                         android:textSize="@dimen/sp_14" />
 
@@ -182,7 +182,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/dp_5"
-                        android:text="2000.00元"
+                        android:text="？元"
                         android:textColor="@color/gray"
                         android:textSize="@dimen/sp_14" />
 

@@ -74,5 +74,13 @@ public class Constants {
      * 订单列表中的订单分页
      */
     public static String LIST_NEXT = ROOT_URL + "order/orderpage";
+    /**
+     * 当日销售统计
+     */
+    public static String DAY_SELL = ROOT_URL + "order/daysell";
+    /**
+     * 当月销售数据统计
+     */
+    public static String MONTH_SELL = ROOT_URL + "order/monthsell";
 }
 

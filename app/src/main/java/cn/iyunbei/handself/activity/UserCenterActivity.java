@@ -74,10 +74,12 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvRight.setVisibility(View.GONE);
 
         tvTitle.setText("个人中心");
+        tvSellToday.setSelected(true);
+        tvSellMonth.setSelected(false);
 
         showProgress();
         presenter.getUserMsg(this);
-        presenter.getUserOrderData(this);
+        presenter.getDayOrderData(this);
     }
 
     @Override
@@ -92,6 +94,13 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvName.setText(name);
         tvName1.setText(String.valueOf(name.charAt(name.length() - 1)));
         tvTel.setText(bean.getData().getMember_mobile());
+    }
+
+    @Override
+    public void showSellData(String total_amount, String order_num, String goods_num) {
+        tvOrderNum.setText(order_num + "笔");
+        tvGoodsNum.setText(goods_num + "件");
+        tvSellMoney.setText(total_amount + "元");
     }
 
     @OnClick({R.id.iv_left, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month})
@@ -126,12 +135,17 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
 
             case R.id.tv_sell_today:
                 //今日订单情况
+                tvSellToday.setSelected(true);
+                tvSellMonth.setSelected(false);
+                presenter.getDayOrderData(this);
 
                 break;
 
             case R.id.tv_sell_month:
                 //本月订单情况
-
+                tvSellToday.setSelected(false);
+                tvSellMonth.setSelected(true);
+                presenter.getMonthOrderData(this);
                 break;
 
             default:

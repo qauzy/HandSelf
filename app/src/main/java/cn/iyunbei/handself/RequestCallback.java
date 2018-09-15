@@ -139,4 +139,9 @@ public interface RequestCallback {
 
         void succ(List<DayOrder> data);
     }
+
+    interface SellCallback extends BaseRequestCallback{
+
+        void succ(String total_amount,String order_num,String goods_num);
+    }
 }

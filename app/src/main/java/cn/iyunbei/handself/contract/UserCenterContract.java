@@ -25,6 +25,8 @@ public interface UserCenterContract {
          * @param bean
          */
         void showUserMsg(UserBean bean);
+
+        void showSellData(String total_amount, String order_num, String goods_num);
     }
 
 
@@ -37,9 +39,14 @@ public interface UserCenterContract {
         void getUserMsg(Context ctx);
 
         /**
-         * 获取用户销售数据
+         * 获取当日销售数据
          * @param ctx
          */
-        void getUserOrderData(Context ctx);
+        void getDayOrderData(Context ctx);
+        /**
+         * 获取本月销售数据
+         * @param ctx
+         */
+        void getMonthOrderData(Context ctx);
     }
 }
