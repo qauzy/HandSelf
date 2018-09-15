@@ -65,10 +65,14 @@ public class Constants {
     /**
      * 生成新的盘点单
      */
-    public static String CREATE_PROFIT = ROOT_URL+"profit/createprofit";
+    public static String CREATE_PROFIT = ROOT_URL + "profit/createprofit";
     /**
      * 支付方式的列表选择
      */
     public static String PAY_TYPE = ROOT_URL + "payment/paylist";
+    /**
+     * 订单列表中的订单分页
+     */
+    public static String LIST_NEXT = ROOT_URL + "order/orderpage";
 }
 

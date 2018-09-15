@@ -7,6 +7,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.bean.DayOrder;
 import cn.iyunbei.handself.bean.OrderListBean;
 import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
@@ -21,15 +22,15 @@ import jt.kundream.utils.TextViewUtils;
  * @e-mail: 245086168@qq.com
  * @desc:订单列表内部的每个订单的大概内容
  **/
-public class OrderListDetailAdapter extends CommonAdapter<OrderListBean.DataBean.DayOrder> {
+public class OrderListDetailAdapter extends CommonAdapter<DayOrder> {
 
 
-    public OrderListDetailAdapter(Context context, int layoutId, List<OrderListBean.DataBean.DayOrder> datas) {
+    public OrderListDetailAdapter(Context context, int layoutId, List<DayOrder> datas) {
         super(context, layoutId, datas);
     }
 
     @Override
-    protected void convert(ViewHolder holder, OrderListBean.DataBean.DayOrder dayOrder, int position) {
+    protected void convert(ViewHolder holder, DayOrder dayOrder, int position) {
         TextView tvOrderId = holder.getView(R.id.tv_order_id);
         TextView tvOrderTime = holder.getView(R.id.tv_order_time);
         TextView tvMoney = holder.getView(R.id.tv_money);

@@ -4,6 +4,7 @@ import android.view.View;
 
 import java.util.List;
 
+import cn.iyunbei.handself.bean.DayOrder;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.OrderDetailBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
@@ -132,5 +133,10 @@ public interface RequestCallback {
 
     interface CreateParofitCallback extends BaseRequestCallback{
         void succ(String profit_id,String profit_status);
+    }
+
+    interface MoreListCallback extends BaseRequestCallback{
+
+        void succ(List<DayOrder> data);
     }
 }

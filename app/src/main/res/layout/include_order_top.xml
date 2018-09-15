@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_18"
+        android:text=" ?年?月?日"
+        android:textColor="@color/black_dark"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_sell_money"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/tv_date"
+        android:layout_below="@id/tv_date"
+        android:layout_marginTop="@dimen/dp_5"
+        android:text="销售总额 ￥ 120.00"
+        android:textColor="@color/btn_start"
+        android:textSize="@dimen/sp_14" />
+
+    <TextView
+        android:id="@+id/tv_sell_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_date"
+        android:layout_marginBottom="@dimen/dp_14"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_toRightOf="@id/tv_sell_money"
+        android:text="销售笔数 22单"
+        android:textColor="@color/color_line_drivier"
+        android:textSize="@dimen/sp_14" />
+
+</RelativeLayout>

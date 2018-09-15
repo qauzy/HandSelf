@@ -32,6 +32,7 @@
         <activity android:name=".activity.PayTypeActivity" />
         <activity android:name=".activity.PaySuccActivity" />
         <activity android:name=".activity.ScanPayActivity" />
+        <activity android:name=".activity.MoreOrderListActivity" />
     </application>
 
 </manifest>

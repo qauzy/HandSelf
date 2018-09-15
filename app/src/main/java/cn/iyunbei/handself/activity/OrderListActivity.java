@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.activity;
 
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +14,7 @@ import com.codbking.widget.DatePickDialog;
 import com.codbking.widget.OnSureLisener;
 import com.codbking.widget.bean.DateType;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +29,7 @@ import cn.iyunbei.handself.bean.OrderListBean;
 import cn.iyunbei.handself.contract.OrderListContract;
 import cn.iyunbei.handself.presenter.OrderListPresenter;
 import jt.kundream.base.BaseActivity;
+import jt.kundream.utils.ActivityUtil;
 
 /**
  * 版权所有，违法必究！！！
@@ -61,7 +64,11 @@ public class OrderListActivity extends BaseActivity<OrderListContract.View, Orde
             int position = (int) view.getTag();
             switch (view.getId()) {
                 case R.id.ll_bottom:
-                    mAdapter.setOrderIsOpen(position);
+//                    mAdapter.setOrderIsOpen(position);
+                    // TODO: 2018/9/15 个人操作  不在使用列表套列表方案写了 太尼玛恶心了，直接跳页面，谁都拦不住
+                    Intent intent = new Intent();
+                    intent.putExtra("dateList", orderList.get(position));
+                    ActivityUtil.startActivity(getContext(),MoreOrderListActivity.class,intent);
                     break;
 
                 default:
