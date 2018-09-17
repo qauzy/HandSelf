@@ -41,6 +41,8 @@
         android:layout_below="@id/ll_money"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_20"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_marginTop="@dimen/dp_12"
         android:background="@drawable/shape_input_goods_code"
         android:orientation="horizontal">
