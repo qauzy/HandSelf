@@ -101,6 +101,8 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
 //                isShowAllMap.put(tempOrderBean.getOrderId(), !aBoolean);
 //                setGoodsAdapter(tempOrderBean,rvGoods,llBottom1);
 //            }
+
+//        7160249472      100   黄什么英
 //        });
 //        order = dataBean.getOrder();
         final List<DayOrder> order = new ArrayList<>();
@@ -110,6 +112,7 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
                 rvOrders.setVisibility(View.VISIBLE);
                 // TODO: 2018/8/31 进入这个判断，直接显示所有的数据
                 llBottom.setVisibility(View.GONE);
+                order.addAll(dataBean.getOrder());
 
             } else {
                 llBottom.setVisibility(View.GONE);

@@ -106,6 +106,7 @@ public class PaySuccActivity extends AppCompatActivity {
 
     @OnClick(R.id.rl_bottom)
     public void onClick(View view) {
+        handler.removeCallbacksAndMessages(null);
         finish();
     }
 
