@@ -58,7 +58,7 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
 
     public void setMapFalse(List<OrderListBean.DataBean> datas) {
         for (int i = 0; i < datas.size(); i++) {
-            orderIsOpen.put(datas.get(i).getDate(), false);
+            orderIsOpen.put(datas.get(i).getDate(), false); 
         }
     }
 
@@ -87,6 +87,8 @@ public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> impl
             ivZhankai.setImageResource(R.mipmap.zhankai);
             TextViewUtils.setText2Tv("点击查看全部订单", tvSeeAll);
         }
+
+
 
 
 //        llBottom.setOnClickListener(new View.OnClickListener() {
