@@ -43,6 +43,7 @@ import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
@@ -124,12 +125,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 如果是false,看下一个变量
      */
     private boolean isMain = true;
-    /**
-     * 默认当主页面onPause的时候，所有的扫码处理给盘点界面接收，当然 如果用户进入了扫码支付的界面，
-     * 这时主页面会接收一个值，改变这个变量为pay
-     */
-    private String pdOrPay = "pd";
-
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
         @Override
@@ -217,23 +212,24 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     @Override
     public void initView() {
-//        initConstants();
         EventBus.getDefault().register(this);
-//        int tempCount = CommonUtil.getInt(this, "tempCount");
-//        if (tempCount > 0) {
-//            tvLeft.setText(tempCount + "");
-//        } else {
-//            tvLeft.setVisibility(View.GONE);
-//        }
         tvTitle.setText("结算");
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
         ivRight.setImageResource(R.mipmap.person);
-        mPosApi = PosApi.getInstance(this);
-        openScan();
+        mPosApi = MyApp.getInstance().getPosApi();
+        registerListener();
+        //延迟一秒打开串口，这个为了初始化扫描头，必须延迟一秒执行，否则会出现延迟打印或者打印不出的现象，需注意
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                //打开扫描串口
+                openScan();
+            }
+        }, 1000);
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
         initPrintQueue();
-        registerListener();
     }
 
 
@@ -242,6 +238,18 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         CommonUtil.put(this, "tempCount", 0);
+        //注销获取扫描数据的广播
+        this.unregisterReceiver(receiver_);
+        //注销物理scan按键的接受广播
+        this.unregisterReceiver(scanBroadcastReceiver);
+        //关闭打印队列
+        if (mPrintQueue != null) {
+            mPrintQueue.close();
+        }
+        //关闭下层串口以及打印机
+        mPosApi.closeDev();
+        System.exit(0);
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -758,7 +766,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 presenter.saveOrderDatas(goodsList, numMap, this, toaMon, toaNum);
             }
         }
-
         return true;
     }
 }

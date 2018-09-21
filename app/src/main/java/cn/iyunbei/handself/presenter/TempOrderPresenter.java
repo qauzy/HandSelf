@@ -21,22 +21,6 @@ import jt.kundream.base.BasePresenter;
 public class TempOrderPresenter extends BasePresenter<TempOrderContract.View> implements TempOrderContract.Presenter {
 
 
-//    private RequestCallback.QuarySqlCallback callback = new RequestCallback.QuarySqlCallback() {
-//        @Override
-//        public void quarySqlOrderIdSucc(List<OrderIdDao> orderIdList) {
-//            mView.showTempOrder(orderIdList);
-//        }
-//
-//        @Override
-//        public void quarySqlFail(String errMsg) {
-//
-//        }
-//    };
-
-//    @Override
-//    public void queryData(Context ctx) {
-//        new TempOrderModel().quaryOrderIdList(ctx, callback);
-//    }
 
     /**
      * 这里实质上是需要拿到保存的数据

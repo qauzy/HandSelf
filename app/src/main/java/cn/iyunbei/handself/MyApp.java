@@ -27,17 +27,33 @@ import okhttp3.OkHttpClient;
  * @desc:
  **/
 public class MyApp extends BaseApplication {
-    PosApi mPosApi = null;
 
+    PosApi mPosApi = null;
+    static MyApp instance = null;
+    private static String mCurDev1 = "";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = getApplicationContext();
+//        instance = getApplicationContext();
         initPosapi();
         initOkGo();
-        initDatabase();
+//        initDatabase();
     }
+
+    public MyApp() {
+        super.onCreate();
+        instance = this;
+    }
+
+    public static  MyApp getInstance(){
+        if(instance==null){
+            instance =new MyApp();
+        }
+        return instance;
+    }
+
+
 
     private void initOkGo() {
 
@@ -59,12 +75,6 @@ public class MyApp extends BaseApplication {
 //                .addCommonParams();
     }
 
-    private static Context instance;
-
-    public static Context getInstance() {
-
-        return instance;
-    }
 
     private void initPosapi() {
         //posap初始化
@@ -74,11 +84,15 @@ public class MyApp extends BaseApplication {
                 android.os.Build.DISPLAY.contains("403") ||
                 android.os.Build.DISPLAY.contains("35S09")) {
             mPosApi.initPosDev("ima35s09");
+            setCurDevice("ima35s09");
         } else if (Build.MODEL.contains("5501")) {
             mPosApi.initPosDev("ima35s12");
+            setCurDevice("ima35s12");
         } else {
             mPosApi.initPosDev(PosApi.PRODUCT_MODEL_IMA80M01);
+            setCurDevice(PosApi.PRODUCT_MODEL_IMA80M01);
         }
+
         mPosApi.setOnComEventListener(new PosApi.OnCommEventListener() {
             @Override
             public void onCommState(int i, int i1, byte[] bytes, int i2) {
@@ -97,30 +111,17 @@ public class MyApp extends BaseApplication {
 
     }
 
-
-    private static DaoMaster.DevOpenHelper devOpenHelper;
-    private static SQLiteDatabase database;
-    private static DaoMaster daoMaster;
-    private static DaoSession daoSession;
-
-    public static void initDatabase() {
-        // 通过 DaoMaster 的内部类 DevOpenHelper，你可以得到一个便利的 SQLiteOpenHelper 对象。
-        // 可能你已经注意到了，你并不需要去编写「CREATE TABLE」这样的 SQL 语句，因为 greenDAO 已经帮你做了。
-        // 注意：默认的 DaoMaster.DevOpenHelper 会在数据库升级时，删除所有的表，意味着这将导致数据的丢失。
-        // 所以，在正式的项目中，你还应该做一层封装，来实现数据库的安全升级。
-        devOpenHelper = new DaoMaster.DevOpenHelper(MyApp.getInstance(), "temp-order_db", null);//数据库名  临时订单存储数据库
-        database = devOpenHelper.getWritableDatabase();
-        // 注意：该数据库连接属于 DaoMaster，所以多个 Session 指的是相同的数据库连接。
-        daoMaster = new DaoMaster(database);
-        daoSession = daoMaster.newSession();
+    public String getCurDevice() {
+        return mCurDev1;
     }
 
-    public static DaoSession getDaoSession() {
-        return daoSession;
+    public static void setCurDevice(String mCurDev) {
+        mCurDev1 = mCurDev;
     }
 
-    public static SQLiteDatabase getDb() {
-        return database;
+    //其他地方引用mPosApi变量
+    public PosApi getPosApi() {
+        return mPosApi;
     }
 
 }
