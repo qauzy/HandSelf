@@ -26,6 +26,7 @@ import cn.iyunbei.handself.bean.PayTypeBean;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.PayTypeContract;
 import cn.iyunbei.handself.presenter.PayTypePresenter;
+import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.adapter.rviewadapter.MultiItemTypeAdapter;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
@@ -107,15 +108,20 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
          * 接受到扫码的用户支付码之后，请求信息。
          */
         String event = bean.getEvent();
-        if (event.substring(0,8).equals("closeAct")) {
+        if (event.substring(0, 8).equals("closeAct")) {
             finish();
         }
     }
 
     @OnClick({R.id.tv_next, R.id.tv_prev})
     public void onClick(View view) {
-        switch (view.getId()) {
 
+        //判断是否多次点击
+        if (AntiShake.check(view.getId())) {
+            showToast("你已经是第二次点击了");
+            return;
+        }
+        switch (view.getId()) {
             case R.id.tv_prev:
                 finish();
 
@@ -128,7 +134,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
                     realMoney = tolMoney;
                 }
                 if (payMode == 0) {
-                    presenter.useCashPay(getContext(), payType, goodsList,realMoney);
+                    presenter.useCashPay(getContext(), payType, goodsList, realMoney);
                 } else {
                     userNetPay(realMoney);
                 }

@@ -77,7 +77,7 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
         realMoney = getIntent().getStringExtra("realMoney");
         goodsList = (List<TempOrderBean.TempGoodsBean>) getIntent().getSerializableExtra("goods");
         payType = getIntent().getIntExtra("payType", -1);
-        tvMoney.setText(tolMoney);
+        tvMoney.setText(realMoney);
         //此处需要发送一个消息，告诉主页面：你现在扫描之后接收的结果我来处理(页面会有个默认值，当主页面不onPause的时候，主页面的所有扫码结果分2个页面处理)
 //        EventBus.getDefault().post(new EventBusBean(substring));
 

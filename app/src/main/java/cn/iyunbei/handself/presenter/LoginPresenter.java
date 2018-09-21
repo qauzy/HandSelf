@@ -23,7 +23,6 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
     private RequestCallback.LoginCallback loginCallback = new RequestCallback.LoginCallback() {
         @Override
         public void succ(String token) {
-            mView.showToast("登陆成功");
             mView.loginSucc(token);
         }
 
@@ -44,7 +43,7 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
 
     @Override
     public void checkToken(Context ctx) {
-        if (!TextUtils.isEmpty(CommonUtil.getString(ctx,"token"))){
+        if (!TextUtils.isEmpty(CommonUtil.getString(ctx, "token"))) {
             mView.skipLogin();
         }
     }

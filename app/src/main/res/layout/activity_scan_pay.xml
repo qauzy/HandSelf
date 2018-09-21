@@ -29,7 +29,7 @@
             android:id="@+id/tv_money"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="522.00"
+            android:text=""
             android:textColor="@color/yunbei_bg"
             android:textSize="@dimen/sp_24" />
     </LinearLayout>

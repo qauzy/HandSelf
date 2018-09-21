@@ -223,8 +223,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // TODO Auto-generated method stub
-                //打开扫描串口
+                //打开扫描串口  但是延迟1秒执行的话，会出现进入之后立即点扫码无法实现功能的问题
                 openScan();
             }
         }, 1000);
