@@ -23,7 +23,7 @@ public class PayTypeModel implements PayTypeContract.Model {
                     public void onSuccess(Response<String> response) {
                         String s1 = response.body().toString();
                         if (JsonUtils.checkToken(s1) == 200) {
-                            payCallback.succ(JsonUtils.getMsg(s1));
+                            payCallback.succ("支付成功");
                         } else {
                             payCallback.Fail(JsonUtils.getMsg(s1));
                         }

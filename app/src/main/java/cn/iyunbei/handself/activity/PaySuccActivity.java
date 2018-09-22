@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.activity;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -86,6 +87,7 @@ public class PaySuccActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jiesuan_succ);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         ButterKnife.bind(this);
         goodsNum = getIntent().getIntExtra("goodsNum", -1);
         tolMon = getIntent().getStringExtra("tolMon");

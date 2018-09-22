@@ -93,6 +93,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         tvRight.setVisibility(View.GONE);
         tvTitle.setText("结算方式");
         tvMoney.setText(tolMoney);
+        showProgress();
         presenter.getPayType(getContext());
     }
 
@@ -127,6 +128,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
                 break;
             case R.id.tv_next:
+                showProgress();
                 String str = etRealMoney.getText().toString();
                 if (!TextUtils.isEmpty(str) && CurrencyUtils.toBigDecimal(str).doubleValue() > 0) {
                     realMoney = str;
@@ -162,6 +164,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
     @Override
     public void cashPaySucc() {
+        hideProgress();
         Intent intent = new Intent();
         intent.putExtra("goodsNum", goodsList.size());
         intent.putExtra("realMoney", realMoney);

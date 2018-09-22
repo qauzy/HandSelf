@@ -44,12 +44,13 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             goodsBean.setGoods_name(data.getGoods_name());
             goodsBean.setBarcode(data.getBarcode());
             goodsBean.setGoods_number(1);
-
+            mView.hideProgress();
             mView.manageData(goodsBean);
         }
 
         @Override
         public void fial(String err) {
+            mView.hideProgress();
             mView.showToast(err);
         }
     };
@@ -70,6 +71,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
         if (TextUtils.isEmpty(s)) {
             mView.showToast("条码不正确");
         } else {
+            mView.showProgress();
             MainModel.requestGoods(s, token, getGoodsCallback);
         }
     }

@@ -20,19 +20,20 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
     private RequestCallback.PayCallback payCallback = new RequestCallback.PayCallback() {
         @Override
         public void succ(String succMsg) {
-            mView.showToast(succMsg);
+//            mView.showToast(succMsg);
             mView.cashPaySucc();
         }
 
         @Override
         public void Fail(String errMsg) {
+            mView.hideProgress();
             mView.showToast(errMsg);
         }
     };
 
-    public void useCashPay(Context context,int payType, List<TempOrderBean.TempGoodsBean> goodsList,String realMoney) {
+    public void useCashPay(Context context, int payType, List<TempOrderBean.TempGoodsBean> goodsList, String realMoney) {
         String s = new Gson().toJson(goodsList);
-        new PayTypeModel().useCashPay(CommonUtil.getString(context, "token"),payType, s,realMoney, payCallback);
+        new PayTypeModel().useCashPay(CommonUtil.getString(context, "token"), payType, s, realMoney, payCallback);
     }
 
     /**
@@ -47,6 +48,7 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
     private RequestCallback.PayTypeCallback payTypeCallback = new RequestCallback.PayTypeCallback() {
         @Override
         public void succ(PayTypeBean bean) {
+            mView.hideProgress();
             mView.showPayTypeList(bean.getData());
 
 //            List<Integer> payModeList = new ArrayList<>();
@@ -73,6 +75,7 @@ public class PayTypePresenter extends BasePresenter<PayTypeContract.View> implem
 
         @Override
         public void Fail(String errMsg) {
+            mView.hideProgress();
             mView.showToast(errMsg);
         }
     };
