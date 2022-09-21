@@ -11,6 +11,7 @@ import com.lzy.okgo.model.Response;
 
 import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.RequestCallback;
+import cn.iyunbei.handself.activity.MainActivity;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
@@ -26,7 +27,7 @@ import jt.kundream.utils.JsonUtils;
  * @desc:
  **/
 public class MainModel implements MainContract.Model {
-
+    private static final String TAG = MainModel.class.getSimpleName();
     public static void requestGoods(String s, String token, final RequestCallback.GetGoodsCallback callback) {
         Cursor cursor =  GreenDaoHelper.getDb().rawQuery("select * from goods where barcode=?",new String[]{s});
         if (cursor.getCount() != 0) {
@@ -36,7 +37,7 @@ public class MainModel implements MainContract.Model {
             dataBean.setBarcode(s);
             dataBean.setGoodsId(cursor.getInt(cursor.getColumnIndex("id")));
             dataBean.setGoodsName(cursor.getString(cursor.getColumnIndex("goods_name")));
-            dataBean.setStandard(cursor.getString(cursor.getColumnIndex("spec")));
+            dataBean.setSpec(cursor.getString(cursor.getColumnIndex("spec")));
             dataBean.setPrice(cursor.getString(cursor.getColumnIndex("price")));
             dataBean.setSupplier(cursor.getString(cursor.getColumnIndex("supplier")));
 //            dataBean.setBrand(cursor.getString(cursor.getColumnIndex("brand")));
@@ -45,7 +46,7 @@ public class MainModel implements MainContract.Model {
             callback.succ(goodsBean);
             return;
         }
-        OkGo.<String>post(Constants.GET_GOODS)
+        OkGo.<String>get(Constants.GET_GOODS)
                 .params("barcode", s)
                 .params("app_id", "pcf0owtplsld1tlk")
                 .params("app_secret", "VHI1dGxFZE1OOU16OFRVeS8yWEhFZz09")
@@ -53,7 +54,7 @@ public class MainModel implements MainContract.Model {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String result = response.body().toString();
-                        if (JsonUtils.checkToken(result) == 1) {
+                        if (JsonUtils.checkToken(result) == 0) {
                             GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
                             GoodsBean.DataBean data = bean.getData();
                             //实例化常量值
@@ -62,7 +63,7 @@ public class MainModel implements MainContract.Model {
                             cValue.put("goods_name",data.getGoodsName());
                             cValue.put("barcode",data.getBarcode());
                             cValue.put("price",data.getPrice());
-                            cValue.put("spec",data.getStandard());
+                            cValue.put("spec",data.getSpec());
                             cValue.put("supplier",data.getSupplier());
                             int _id = (int)GreenDaoHelper.getDb().insert("goods",null,cValue);
                             data.setGoodsId(Integer.valueOf(_id));
@@ -82,7 +83,8 @@ public class MainModel implements MainContract.Model {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        callback.fial("网络错误");
+                        Log.e(TAG,response.message());
+                        callback.fial(" 获取商品属性信息时发生网络错误");
                     }
                 });
     }

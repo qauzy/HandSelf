@@ -36,7 +36,7 @@ public class JsonUtils {
         if (s != null) {
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                msg = (String) jsonObject.get("msg");
+                msg = (String) jsonObject.get("message");
             } catch (JSONException e) {
                 e.printStackTrace();
             }

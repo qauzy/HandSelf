@@ -94,12 +94,12 @@ public class GoodsBean {
             this.supplier = supplier;
         }
 
-        public String getStandard() {
-            return standard;
+        public String getSpec() {
+            return spec;
         }
 
-        public void setStandard(String standard) {
-            this.standard = standard;
+        public void setSpec(String spec) {
+            this.spec = spec;
         }
 
         /**
@@ -116,7 +116,7 @@ public class GoodsBean {
         private String price;
         private String brand;
         private String supplier;
-        private String standard;
+        private String spec;
 
     }
 }

@@ -41,7 +41,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             GoodsBean.DataBean data = bean.getData();
 
             goodsBean.setGoods_id(data.getGoodsId());
-            goodsBean.setSpec(data.getStandard());
+            goodsBean.setSpec(data.getSpec());
             goodsBean.setGoods_price(data.getPrice());
             goodsBean.setGoods_name(data.getGoodsName());
             goodsBean.setBarcode(data.getBarcode());

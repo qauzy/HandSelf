@@ -11,7 +11,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.posapi.PosApi;
-import android.posapi.PrintQueue;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -58,10 +57,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.OnClick;
-import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
@@ -87,7 +87,6 @@ import androidx.camera.view.PreviewView;
 
 public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View,CameraScan.OnScanResultCallback<List<Barcode>>{
     private static final String TAG = MainActivity.class.getSimpleName();
-    private ZXingView mZXingView;
     public static final int REQUEST_CAMERA = 100;
 
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 0X86;
@@ -153,8 +152,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         @Override
         public void run() {
             //到一定时间后拉低扫描头电压，关掉扫描光
-//            mPosApi.gpioControl(mGpioTrig, 0, 1);
-//            isScan = false;
         }
     };
     private MediaPlayer player;
@@ -240,14 +237,13 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
         ivRight.setImageResource(R.mipmap.person);
-//        mPosApi = MyApp.getInstance().getPosApi();
         registerListener();
         //延迟一秒打开串口，这个为了初始化扫描头，必须延迟一秒执行，否则会出现延迟打印或者打印不出的现象，需注意
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 //打开扫描串口  但是延迟1秒执行的话，会出现进入之后立即点扫码无法实现功能的问题
-//                openScan();
+
             }
         }, 1000);
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
@@ -259,16 +255,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         CommonUtil.put(this, "tempCount", 0);
-        //注销获取扫描数据的广播
-        this.unregisterReceiver(receiver_);
         //注销物理scan按键的接受广播
         this.unregisterReceiver(scanBroadcastReceiver);
-        //关闭打印队列
-        if (mPrintQueue != null) {
-            mPrintQueue.close();
-        }
-        //关闭下层串口以及打印机
-//        mPosApi.closeDev();
+        //释放相机
+        releaseCamera();
         System.exit(0);
 
     }
@@ -405,10 +395,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 注册广播接收器
      */
     private void registerListener() {
-        //注册扫描信息的接收器
-        IntentFilter mFilter = new IntentFilter();
-        mFilter.addAction(PosApi.ACTION_POS_COMM_STATUS);
-        registerReceiver(receiver_, mFilter);
         //SCAN按键按下时候广播的接收器
         scanBroadcastReceiver = new ScanBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -416,15 +402,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         this.registerReceiver(scanBroadcastReceiver, intentFilter);
     }
 
-    private PrintQueue mPrintQueue = null;
-
 
     private Map<Integer, Integer> numMap = new HashMap<>();
 
     @Override
     public void manageData(TempOrderBean.TempGoodsBean bean) {
         // TODO: 2018/8/23 如果这里是相同的goodsId，那么需要的是更改数量就行  如果不是相同的goodsId，那么做的就是集合中添加一个新数据
-//        goodsList.add(bean);
         presenter.checkGoodsIsSame(numMap, goodsList, bean);
     }
 
@@ -518,55 +501,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-    /**
-     * 扫描头扫描信息接收器
-     */
-    BroadcastReceiver receiver_ = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equalsIgnoreCase(PosApi.ACTION_POS_COMM_STATUS)) {
-                int cmdFlag = intent.getIntExtra(PosApi.KEY_CMD_FLAG, -1);
-                byte[] buffer = intent
-                        .getByteArrayExtra(PosApi.KEY_CMD_DATA_BUFFER);
-                switch (cmdFlag) {
-                    // 传输扫描信息的串口
-                    case PosApi.POS_EXPAND_SERIAL3:
-                        //如果为空，返回
-                        if (buffer == null) {
-                            return;
-                        }
-                        //播放扫描音，提示已经扫描到信息
-                        player.start();
-                        try {
 
-                            //把扫描头传过来的byte字节转成字符串
-                            String str = new String(buffer, "GBK");
-                            String substring = str.substring(0, str.length() - 2);
-                            if (isMain) {
-                                presenter.addGoods(substring, CommonUtil.getString(MainActivity.this, "token"));
-                            } else {
-                                EventBus.getDefault().post(new EventBusBean(substring));
-                            }
-//                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
-                            //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
-                            //拉低扫描头电压，使扫描头熄灭
-                            //  mPosApi.gpioControl(mGpioTrig, 0, 1);
-                            //移除扫描头熄灭线程
-                            handler.removeCallbacks(run);
-                            ;
-
-                        } catch (UnsupportedEncodingException e) {
-
-                            e.printStackTrace();
-                        }
-                        break;
-                }
-                buffer = null;
-            }
-
-        }
-    };
 
 
     /**
@@ -628,20 +563,35 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //执行SQL语句
         db.execSQL(stu_table);
     }
+    public boolean isNumeric(String str){
+        Pattern pattern = Pattern.compile("[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        if( !isNum.matches() ){
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void onScanResultCallback(@NonNull AnalyzeResult<List<Barcode>> result) {
         mCameraScan.setAnalyzeImage(false);
 
         for(Barcode it : result.getResult()){
-
-//            setTitle("扫描结果为：" + it.getRawValue());
-            //播放扫描音，提示已经扫描到信息
-//            player.start();
-
+            //过滤不全是数字的结果
+           if(!isNumeric(it.getRawValue())){
+               continue;
+           }
             presenter.addGoods(it.getRawValue(), CommonUtil.getString(MainActivity.this, "token"));
-            mCameraScan.setAnalyzeImage(true);
+
         }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //延迟重新打开扫码识别
+                mCameraScan.setAnalyzeImage(true);
+            }
+        }, 1000);
+
 
 
     }

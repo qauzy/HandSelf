@@ -45,7 +45,7 @@ public class OrderListModel implements OrderListContract.Model {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        callback.Fail("网络错误");
+                        callback.Fail("获取用户订单列表时发生网络错误");
                     }
                 });
 
