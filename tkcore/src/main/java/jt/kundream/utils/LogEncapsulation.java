@@ -1,8 +1,9 @@
 package jt.kundream.utils;
 
 
-import android.support.v7.appcompat.BuildConfig;
 import android.util.Log;
+
+import jt.kundream.BuildConfig;
 
 /**
  * Desc:日志封装 -- 对日志做隔离封装

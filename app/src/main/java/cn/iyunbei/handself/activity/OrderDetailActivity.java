@@ -1,8 +1,8 @@
 package cn.iyunbei.handself.activity;
 
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,7 +11,6 @@ import butterknife.Bind;
 import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.adapter.OrderDetailAdapter;
-import cn.iyunbei.handself.adapter.OrderListAdapter;
 import cn.iyunbei.handself.bean.OrderDetailBean;
 import cn.iyunbei.handself.contract.OrderDetailContract;
 import cn.iyunbei.handself.presenter.OrderDetailPresenter;

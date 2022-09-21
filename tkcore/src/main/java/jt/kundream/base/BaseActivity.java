@@ -4,14 +4,12 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.widget.Toast;
 
 import com.gyf.barlibrary.ImmersionBar;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.ButterKnife;
 import jt.kundream.R;

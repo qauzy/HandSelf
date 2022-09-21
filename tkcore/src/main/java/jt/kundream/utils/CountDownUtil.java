@@ -2,8 +2,8 @@ package jt.kundream.utils;
 
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.ColorRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.ColorRes;
+import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 

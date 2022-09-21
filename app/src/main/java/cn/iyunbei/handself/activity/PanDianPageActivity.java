@@ -2,8 +2,8 @@ package cn.iyunbei.handself.activity;
 
 import android.app.AlertDialog;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

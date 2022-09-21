@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_10"
         android:layout_marginTop="@dimen/dp_18"
-        android:text=" ?年?月?日"
         android:textColor="@color/black_dark"
         android:textSize="@dimen/sp_14" />
 

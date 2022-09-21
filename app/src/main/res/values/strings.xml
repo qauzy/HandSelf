@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">HandSelf</string>
     <string name="hand_input">手动输入</string>
+    <string name="scan_input">扫码</string>
     <string name="add_goods">添加商品</string>
     <string name="input_code">请输入商品条形码</string>
     <string name="real_money">实付金额</string>

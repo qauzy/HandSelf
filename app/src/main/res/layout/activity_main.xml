@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -77,6 +78,7 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
+
         <RelativeLayout
             android:id="@+id/rl_input"
             android:layout_width="0dp"
@@ -144,12 +146,36 @@
 
     </LinearLayout>
 
-    <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
-        android:id="@+id/rv_goods"
+    <LinearLayout
+        android:id="@+id/goods_line"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/ll_bottom"
-        android:layout_below="@id/head" />
+        android:layout_below="@id/head"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/rl_scan_rl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_150"/>
+
+            <com.king.mlkit.vision.barcode.ViewfinderView
+                android:id="@+id/viewfinderView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_150" />
+        </RelativeLayout>
+
+        <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
+            android:id="@+id/rv_goods"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+
 
     <!--<android.support.v7.widget.RecyclerView-->
     <!--android:id="@+id/rv_goods"-->
@@ -158,5 +184,12 @@
     <!--android:layout_above="@id/ll_bottom"-->
     <!--android:layout_below="@id/head" />-->
 
+<!--    <ImageView-->
+<!--        android:id="@+id/ivFlashlight"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:src="@drawable/ml_flashlight_selector"-->
+<!--        android:layout_marginTop="@dimen/ml_flashlight_margin_top" />-->
 
 </RelativeLayout>

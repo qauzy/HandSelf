@@ -46,34 +46,20 @@ public class GoodsBean {
     }
 
     public static class DataBean {
-        /**
-         * goods_id : 1
-         * goods_name : 土豆
-         * barcode : 12312312
-         * goods_price : 1.00
-         * spec : 规格
-         */
-
-        private int goods_id;
-        private String goods_name;
-        private String barcode;
-        private String goods_price;
-        private String spec;
-
-        public int getGoods_id() {
-            return goods_id;
+        public Integer getGoodsId() {
+            return goodsId;
         }
 
-        public void setGoods_id(int goods_id) {
-            this.goods_id = goods_id;
+        public void setGoodsId(Integer goodsId) {
+            this.goodsId = goodsId;
         }
 
-        public String getGoods_name() {
-            return goods_name;
+        public String getGoodsName() {
+            return goodsName;
         }
 
-        public void setGoods_name(String goods_name) {
-            this.goods_name = goods_name;
+        public void setGoodsName(String goodsName) {
+            this.goodsName = goodsName;
         }
 
         public String getBarcode() {
@@ -84,20 +70,53 @@ public class GoodsBean {
             this.barcode = barcode;
         }
 
-        public String getGoods_price() {
-            return goods_price;
+        public String getPrice() {
+            return price;
         }
 
-        public void setGoods_price(String goods_price) {
-            this.goods_price = goods_price;
+        public void setPrice(String price) {
+            this.price = price;
         }
 
-        public String getSpec() {
-            return spec;
+        public String getBrand() {
+            return brand;
         }
 
-        public void setSpec(String spec) {
-            this.spec = spec;
+        public void setBrand(String brand) {
+            this.brand = brand;
         }
+
+        public String getSupplier() {
+            return supplier;
+        }
+
+        public void setSupplier(String supplier) {
+            this.supplier = supplier;
+        }
+
+        public String getStandard() {
+            return standard;
+        }
+
+        public void setStandard(String standard) {
+            this.standard = standard;
+        }
+
+        /**
+         * goods_id : 1
+         * goods_name : 土豆
+         * barcode : 12312312
+         * goods_price : 1.00
+         * spec : 规格
+         */
+
+        private Integer goodsId;
+        private String goodsName;
+        private String barcode;
+        private String price;
+        private String brand;
+        private String supplier;
+        private String standard;
+
     }
 }

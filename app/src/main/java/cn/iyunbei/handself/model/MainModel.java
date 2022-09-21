@@ -1,5 +1,9 @@
 package cn.iyunbei.handself.model;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
@@ -9,6 +13,7 @@ import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
+import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import jt.kundream.utils.JsonUtils;
 
 /**
@@ -23,17 +28,47 @@ import jt.kundream.utils.JsonUtils;
 public class MainModel implements MainContract.Model {
 
     public static void requestGoods(String s, String token, final RequestCallback.GetGoodsCallback callback) {
+        Cursor cursor =  GreenDaoHelper.getDb().rawQuery("select * from goods where barcode=?",new String[]{s});
+        if (cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            GoodsBean goodsBean = new GoodsBean();
+            GoodsBean.DataBean dataBean = new GoodsBean.DataBean();
+            dataBean.setBarcode(s);
+            dataBean.setGoodsId(cursor.getInt(cursor.getColumnIndex("id")));
+            dataBean.setGoodsName(cursor.getString(cursor.getColumnIndex("goods_name")));
+            dataBean.setStandard(cursor.getString(cursor.getColumnIndex("spec")));
+            dataBean.setPrice(cursor.getString(cursor.getColumnIndex("price")));
+            dataBean.setSupplier(cursor.getString(cursor.getColumnIndex("supplier")));
+//            dataBean.setBrand(cursor.getString(cursor.getColumnIndex("brand")));
+            Log.i("MainModel","=================="+dataBean.getGoodsId()+dataBean.getGoodsName());
+            goodsBean.setData(dataBean);
+            callback.succ(goodsBean);
+            return;
+        }
         OkGo.<String>post(Constants.GET_GOODS)
                 .params("barcode", s)
-                .params("_token", token)
+                .params("app_id", "pcf0owtplsld1tlk")
+                .params("app_secret", "VHI1dGxFZE1OOU16OFRVeS8yWEhFZz09")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String result = response.body().toString();
-                        if (JsonUtils.checkToken(result) == 200) {
+                        if (JsonUtils.checkToken(result) == 1) {
                             GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
+                            GoodsBean.DataBean data = bean.getData();
+                            //实例化常量值
+                            ContentValues cValue = new ContentValues();
+
+                            cValue.put("goods_name",data.getGoodsName());
+                            cValue.put("barcode",data.getBarcode());
+                            cValue.put("price",data.getPrice());
+                            cValue.put("spec",data.getStandard());
+                            cValue.put("supplier",data.getSupplier());
+                            int _id = (int)GreenDaoHelper.getDb().insert("goods",null,cValue);
+                            data.setGoodsId(Integer.valueOf(_id));
                             callback.succ(bean);
                         } else {
+
                             callback.fial(JsonUtils.getMsg(result));
                         }
                     }

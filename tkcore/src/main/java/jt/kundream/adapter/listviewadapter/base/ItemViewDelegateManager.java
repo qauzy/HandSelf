@@ -1,6 +1,6 @@
 package jt.kundream.adapter.listviewadapter.base;
 
-import android.support.v4.util.SparseArrayCompat;
+import androidx.collection.SparseArrayCompat;
 
 import jt.kundream.adapter.listviewadapter.ViewHolder;
 

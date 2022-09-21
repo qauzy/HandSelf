@@ -37,7 +37,8 @@ public class LoginPresenter extends BasePresenter<LoginContract.View> implements
         if (TextUtils.isEmpty(phone) || TextUtils.isEmpty(pswd)) {
             mView.showToast("请输入手机号和密码");
         } else {
-            LoginModel.login(phone, pswd, loginCallback);
+            mView.loginSucc("1111111111");
+//            LoginModel.login(phone, pswd, loginCallback);
         }
     }
 

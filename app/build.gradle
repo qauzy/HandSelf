@@ -2,17 +2,26 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 29
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "cn.iyunbei.handself"
-        minSdkVersion 16
-        targetSdkVersion 25
+        minSdkVersion 21
+        targetSdkVersion 24
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        // 显式声明支持注解
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true    //加上这行即可
+            }
+        }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     greendao {
         schemaVersion 1 // 数据库版本号
         daoPackage 'cn.iyunbei.handself.greendao'//greenDao 自动生成的代码保存的包名
@@ -35,21 +44,24 @@ android {
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
-
 }
 
 dependencies {
     //noinspection GradleCompatible
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    api 'androidx.appcompat:appcompat:1.0.0'
+    api fileTree(include: ['*.jar'], dir: 'libs')
     //    testImplementation 'junit:junit:4.12'
     //    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    compile project(':tkcore')
-    compile files('libs/zypos1.8.jar')
-    compile 'org.greenrobot:greendao:3.2.2'
-    compile 'org.greenrobot:greendao-generator:3.2.2'
-    compile  'com.yanzhenjie:recyclerview-swipe:1.1.4'
+    api project(':tkcore')
+    api files('libs/zypos1.8.jar')
+    api 'org.greenrobot:greendao:3.2.2'
+    api 'org.greenrobot:greendao-generator:3.2.2'
+    api  'com.yanzhenjie:recyclerview-swipe:1.1.4'
     //滚轮日期选择器
-    compile 'com.github.codbking:PickTime:v1.0.1'
+    api 'com.github.codbking:PickTime:v1.0.1'
+    // Supports Android 4.0.3 and later (API level 15）
+
+    implementation project(':mlkit-camera-core')
+    implementation project(':mlkit-barcode-scanning')
 }

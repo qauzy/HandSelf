@@ -1,17 +1,25 @@
 package cn.iyunbei.handself.activity;
-
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.posapi.PosApi;
 import android.posapi.PrintQueue;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +28,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.king.mlkit.vision.barcode.analyze.BarcodeScanningAnalyzer;
+import com.king.mlkit.vision.camera.AnalyzeResult;
+import com.king.mlkit.vision.camera.BaseCameraScan;
+import com.king.mlkit.vision.camera.CameraScan;
+import com.king.mlkit.vision.camera.analyze.Analyzer;
+import com.king.mlkit.vision.camera.util.LogUtils;
+import com.king.mlkit.vision.camera.util.PermissionUtils;
+import com.king.mlkit.vision.camera.config.ResolutionCameraConfig;
+
 
 import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
@@ -43,12 +61,13 @@ import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.OnClick;
-import cn.iyunbei.handself.MyApp;
+import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
+import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
@@ -56,15 +75,27 @@ import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 import jt.kundream.utils.CurrencyUtils;
-import jt.kundream.utils.TimeUtil;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
+
+import androidx.annotation.NonNull;
+import androidx.camera.view.PreviewView;
 
 /**
  * @author YangTianKun
  */
-public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View {
 
+public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View,CameraScan.OnScanResultCallback<List<Barcode>>{
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private ZXingView mZXingView;
+    public static final int REQUEST_CAMERA = 100;
+
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 0X86;
+
+    protected PreviewView previewView;
+    private CameraScan<List<Barcode>> mCameraScan;
+
+//    com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_title)
@@ -103,19 +134,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private double toaMon = 0;
     private int toaNum = 0;
 
-    private PosApi mPosApi = null;
-    //GPIO电源的控制
-    private static byte mGpioPower = 0x1E;// PB14
-    private static byte mGpioTrig = 0x29;// PC9
     /**
      * SCAN 按键
      */
     private ScanBroadcastReceiver scanBroadcastReceiver;
-    // usart3
-    private static int mCurSerialNo = 3;
-    // 9600
-    private static int mBaudrate = 4;
-    private boolean isScan = false;
+
     /**
      * 要展示的商品列表集合
      */
@@ -130,8 +153,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         @Override
         public void run() {
             //到一定时间后拉低扫描头电压，关掉扫描光
-            mPosApi.gpioControl(mGpioTrig, 0, 1);
-            isScan = false;
+//            mPosApi.gpioControl(mGpioTrig, 0, 1);
+//            isScan = false;
         }
     };
     private MediaPlayer player;
@@ -217,18 +240,17 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         tvRight.setVisibility(View.GONE);
         ivLeft.setImageResource(R.mipmap.time);
         ivRight.setImageResource(R.mipmap.person);
-        mPosApi = MyApp.getInstance().getPosApi();
+//        mPosApi = MyApp.getInstance().getPosApi();
         registerListener();
         //延迟一秒打开串口，这个为了初始化扫描头，必须延迟一秒执行，否则会出现延迟打印或者打印不出的现象，需注意
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 //打开扫描串口  但是延迟1秒执行的话，会出现进入之后立即点扫码无法实现功能的问题
-                openScan();
+//                openScan();
             }
         }, 1000);
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
-        initPrintQueue();
     }
 
 
@@ -246,7 +268,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             mPrintQueue.close();
         }
         //关闭下层串口以及打印机
-        mPosApi.closeDev();
+//        mPosApi.closeDev();
         System.exit(0);
 
     }
@@ -260,7 +282,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         if (event.length() > 4) {
             if (event.substring(0, 8).equals("closeAct")) {
                 String realMoney = event.substring(8, event.length());
-                print(goodsList, realMoney);
                 goodsList.clear();
                 numMap.clear();
                 mAdapter.notifyDataSetChanged();
@@ -379,15 +400,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         dialog.show();
     }
 
-    /**
-     * 扫码复上电位
-     */
-    private void openScan() {
-        // GPIO控制器初始化
-        mPosApi.gpioControl(mGpioPower, 0, 1);
-        //扫描串口初始化
-        mPosApi.extendSerialInit(mCurSerialNo, mBaudrate, 1, 1, 1, 1);
-    }
 
     /**
      * 注册广播接收器
@@ -406,78 +418,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     private PrintQueue mPrintQueue = null;
 
-    private void initPrintQueue() {
-        //打印队列赋值
-        mPrintQueue = new PrintQueue(getApplicationContext(), mPosApi);
-        //打印队列初始化
-        mPrintQueue.init();
-        //打印队列设置监听
-        mPrintQueue.setOnPrintListener(new PrintQueue.OnPrintListener() {
-            //打印完成
-            @Override
-            public void onFinish() {
-                //打印完成
-                new Thread() {
-
-                    @Override
-                    public void run() {
-                        //...你的业务逻辑；
-                        Message message = new Message();//发送一个消息，该消息用于在handleMessage中区分是谁发过来的消息；
-                        message.what = 1;
-//                        handlerui.sendMessage(message);
-                    }
-                }.start();
-
-                Toast.makeText(getApplicationContext(), "打印完成", Toast.LENGTH_SHORT).show();
-            }
-
-            //打印失败
-            @Override
-            public void onFailed(int state) {
-
-                switch (state) {
-                    case PosApi.ERR_POS_PRINT_NO_PAPER:
-                        // 打印缺纸
-                        Toast.makeText(getApplicationContext(), "打印缺纸", Toast.LENGTH_SHORT).show();
-                        break;
-                    case PosApi.ERR_POS_PRINT_FAILED:
-                        // 打印失败
-                        Toast.makeText(getApplicationContext(), "打印失败", Toast.LENGTH_SHORT).show();
-                        break;
-                    case PosApi.ERR_POS_PRINT_VOLTAGE_LOW:
-                        // 电压过低
-                        Toast.makeText(getApplicationContext(), "电压过低", Toast.LENGTH_SHORT).show();
-                        break;
-                    case PosApi.ERR_POS_PRINT_VOLTAGE_HIGH:
-                        // 电压过高
-                        Toast.makeText(getApplicationContext(), "电压过高", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-
-            @Override
-            public void onGetState(int arg0) {
-            }
-
-            //打印设置
-            @Override
-            public void onPrinterSetting(int state) {
-                switch (state) {
-                    case 0:
-                        Toast.makeText(getApplicationContext(), "持续有纸", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 1:
-                        //缺纸
-                        Toast.makeText(getApplicationContext(), "缺纸", Toast.LENGTH_SHORT).show();
-                        break;
-                    case 2:
-                        Toast.makeText(getApplicationContext(), "检测到黑标", Toast.LENGTH_SHORT).show();
-                        //检测到黑标
-                        break;
-                }
-            }
-        });
-    }
 
     private Map<Integer, Integer> numMap = new HashMap<>();
 
@@ -558,22 +498,22 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     class ScanBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!isScan) {
-                //扫描头未处于扫描状态
-                //打开扫描头
-                mPosApi.gpioControl(mGpioTrig, 0, 0);
-                isScan = true;
-                handler.removeCallbacks(run);
-                handler.postDelayed(run, 1000);
-            } else {
-                //扫描头处于扫描头状态，先关掉扫描头光
-                mPosApi.gpioControl(mGpioTrig, 0, 1);
-                //打开扫描头
-                mPosApi.gpioControl(mGpioTrig, 0, 0);
-                isScan = true;
-                handler.removeCallbacks(run);
-                handler.postDelayed(run, 1000);
-            }
+//            if (!isScan) {
+//                //扫描头未处于扫描状态
+//                //打开扫描头
+//                mPosApi.gpioControl(mGpioTrig, 0, 0);
+//                isScan = true;
+//                handler.removeCallbacks(run);
+//                handler.postDelayed(run, 1000);
+//            } else {
+//                //扫描头处于扫描头状态，先关掉扫描头光
+//                mPosApi.gpioControl(mGpioTrig, 0, 1);
+//                //打开扫描头
+//                mPosApi.gpioControl(mGpioTrig, 0, 0);
+//                isScan = true;
+//                handler.removeCallbacks(run);
+//                handler.postDelayed(run, 1000);
+//            }
         }
     }
 
@@ -610,7 +550,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                             }
 //                            presenter.getPickGoods(tuid, token, toid_cotent + "", str.trim());
                             //准备通过广播发送扫描信息，如果是集成进自己项目，此段可忽略
-                            isScan = false;
                             //拉低扫描头电压，使扫描头熄灭
                             //  mPosApi.gpioControl(mGpioTrig, 0, 1);
                             //移除扫描头熄灭线程
@@ -629,101 +568,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
     };
 
-    /**
-     * 打印购物小票
-     *
-     * @param datas
-     */
-    private void print(List<TempOrderBean.TempGoodsBean> datas, String realMoney) {
-        String username = CommonUtil.getString(this, "username");
-
-//        Log.e("PRINT", printOver + "");
-//        Log.e("PRINT", data1.getCreated_at() + "");
-        if (datas != null) {
-            byte[] text = null;
-            try {
-                StringBuilder sb = new StringBuilder();
-                sb.append("          收 银 凭 据            ");
-                sb.append("\n");
-                sb.append("时间   : ");
-                sb.append(TimeUtil.stampToDate((long) TimeUtil.getNowTimestamp(), "yyyy-MM-dd HH:mm"));
-                sb.append("\n");
-                sb.append("操作员:" + username);
-                sb.append("\n");
-//                sb.append("收据单号：" + data1.getOrder_id() + "");
-//                sb.append("\n");
-                sb.append("  商品   单价    数量    总价");
-                sb.append("\n");
-                sb.append("-----------------------------");
-                sb.append("\n");
-                for (int i = 0; i < datas.size(); i++) {
-                    String goods_price = datas.get(i).getGoods_price();
-                    int goods_number = numMap.get(datas.get(i).getGoods_id());
-                    String goods_name = datas.get(i).getGoods_name();
-                    if (goods_name.length() > 5) {
-                        sb.append(goods_name + "\n" + "        " + goods_price + "     " + goods_number
-                                + "     " + CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
-
-                    } else {
-                        sb.append(datas.get(i).getGoods_name() + "      " + goods_price + "      " + goods_number
-                                + "      " + CurrencyUtils.multiply(CurrencyUtils.toBigDecimal(goods_price), BigDecimal.valueOf(goods_number)));
-                    }
-
-                    sb.append("\n");
-                }
-
-                sb.append("----------------------------" + "\n");
-                sb.append("共计:" + toaNum + "件商品;" + "应收:" + toaMon + "元\n");
-                sb.append("实收:" + realMoney + "元\n");
-                sb.append("欢迎下次光临");
-                sb.append("\n");
-                sb.append("-----------------------------");
-                for (int i = 0; i < 6; i++) {
-                    sb.append("\n");
-                }
-                text = sb.toString().getBytes("GBK");
-                addPrintTextWithSize(1, 25, text);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            mPrintQueue.printStart();
-        } else {
-            return;
-        }
-
-    }
-
-
-    /*
-     * 打印文字 size 1 --倍大小 2--2倍大小
-     */
-    private void addPrintTextWithSize(int size, int concentration, byte[] data) {
-        if (data == null)
-            return;
-        // 2倍字体大小
-        byte[] _2x = new byte[]{0x1b, 0x57, 0x02};
-        // 1倍字体大小
-        byte[] _1x = new byte[]{0x1b, 0x57, 0x01};
-        byte[] mData = null;
-        if (size == 1) {
-            mData = new byte[3 + data.length];
-            // 1倍字体大小 默认
-            System.arraycopy(_1x, 0, mData, 0, _1x.length);
-            System.arraycopy(data, 0, mData, _1x.length, data.length);
-
-            mPrintQueue.addText(concentration, mData);
-
-        } else if (size == 2) {
-            mData = new byte[3 + data.length];
-            // 1倍字体大小 默认
-            System.arraycopy(_2x, 0, mData, 0, _2x.length);
-            System.arraycopy(data, 0, mData, _2x.length, data.length);
-
-            mPrintQueue.addText(concentration, mData);
-
-        }
-
-    }
 
     /**
      * 在activity的生命周期中对isMain进行状态更改  如果Main是显示的  那么就让扫描接受的值在本页面处理  否则  就发送一个消息  让其它页面处理
@@ -767,4 +611,127 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
         return true;
     }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED)
+        {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA);
+        }
+    }
+    private void createTable(SQLiteDatabase db){
+//创建表SQL语句
+        String stu_table="create table IF NOT EXISTS goods(id integer primary key autoincrement,goods_name text,barcode text,price text,spec text,supplier text)";
+//执行SQL语句
+        db.execSQL(stu_table);
+    }
+
+    @Override
+    public void onScanResultCallback(@NonNull AnalyzeResult<List<Barcode>> result) {
+        mCameraScan.setAnalyzeImage(false);
+
+        for(Barcode it : result.getResult()){
+
+//            setTitle("扫描结果为：" + it.getRawValue());
+            //播放扫描音，提示已经扫描到信息
+//            player.start();
+
+            presenter.addGoods(it.getRawValue(), CommonUtil.getString(MainActivity.this, "token"));
+            mCameraScan.setAnalyzeImage(true);
+        }
+
+
+    }
+
+
+    @Override
+    public void onScanResultFailure() {
+
+    }
+
+//   com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
+    /**
+     * Get {@link CameraScan}
+     * @return
+     */
+    public CameraScan<List<Barcode>> getCameraScan(){
+        return mCameraScan;
+    }
+
+    /**
+     * 创建{@link CameraScan}
+     * @param previewView
+     * @return
+     */
+    public CameraScan<List<Barcode>> createCameraScan(PreviewView previewView){
+        return new BaseCameraScan<>(this,previewView);
+    }
+
+    /**
+     * 创建分析器，默认分析所有条码格式
+     * @return
+     */
+    @Nullable
+    public Analyzer<List<Barcode>> createAnalyzer(){
+        return new BarcodeScanningAnalyzer(Barcode.FORMAT_ALL_FORMATS);
+    }
+    /**
+     * 初始化
+     */
+    public void initUI(){
+        previewView = findViewById(R.id.previewView);
+
+        initCameraScan();
+        startCamera();
+    }
+
+    /**
+     * 初始化CameraScan
+     */
+    public void initCameraScan(){
+        mCameraScan = createCameraScan(previewView)
+                .setDarkLightLux(45f)//设置光线足够暗的阈值（单位：lux），需要通过{@link #bindFlashlightView(View)}绑定手电筒才有效
+                .setBrightLightLux(100f)//设置光线足够明亮的阈值（单位：lux），需要通过{@link #bindFlashlightView(View)}绑定手电筒才有效
+                .setAnalyzer(createAnalyzer())
+                .setPlayBeep(true)
+                .setVibrate(true)
+                .setCameraConfig(new ResolutionCameraConfig(this))//设置CameraConfig
+                .setOnScanResultCallback(this);
+    }
+
+
+    /**
+     * 启动相机预览
+     */
+    public void startCamera(){
+        if(mCameraScan != null){
+            if(PermissionUtils.checkPermission(this,Manifest.permission.CAMERA)){
+                mCameraScan.startCamera();
+            }else{
+                LogUtils.d("checkPermissionResult != PERMISSION_GRANTED");
+                PermissionUtils.requestPermission(this,Manifest.permission.CAMERA,CAMERA_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+
+    /**
+     * 释放相机
+     */
+    private void releaseCamera(){
+        if(mCameraScan != null){
+            mCameraScan.release();
+        }
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        GreenDaoHelper.initDatabase();
+        createTable(GreenDaoHelper.getDb());
+        initUI();
+    }
+
 }

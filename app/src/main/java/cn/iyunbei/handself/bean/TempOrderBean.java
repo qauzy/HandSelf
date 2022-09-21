@@ -69,7 +69,7 @@ public class TempOrderBean implements Serializable{
 
     public static class TempGoodsBean implements Serializable{
 
-        private int goods_id;
+        private Integer goods_id;
 
         private String spec;
 
@@ -89,11 +89,11 @@ public class TempOrderBean implements Serializable{
 
         private int goods_number;
 
-        public int getGoods_id() {
+        public Integer getGoods_id() {
             return goods_id;
         }
 
-        public void setGoods_id(int goods_id) {
+        public void setGoods_id(Integer goods_id) {
             this.goods_id = goods_id;
         }
 

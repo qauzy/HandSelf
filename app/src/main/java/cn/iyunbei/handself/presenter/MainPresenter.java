@@ -1,5 +1,6 @@
 package cn.iyunbei.handself.presenter;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -13,6 +14,7 @@ import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
+import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.model.MainModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CurrencyUtils;
@@ -38,10 +40,10 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
             GoodsBean.DataBean data = bean.getData();
 
-            goodsBean.setGoods_id(data.getGoods_id());
-            goodsBean.setSpec(data.getSpec());
-            goodsBean.setGoods_price(data.getGoods_price());
-            goodsBean.setGoods_name(data.getGoods_name());
+            goodsBean.setGoods_id(data.getGoodsId());
+            goodsBean.setSpec(data.getStandard());
+            goodsBean.setGoods_price(data.getPrice());
+            goodsBean.setGoods_name(data.getGoodsName());
             goodsBean.setBarcode(data.getBarcode());
             goodsBean.setGoods_number(1);
             mView.hideProgress();
@@ -64,9 +66,8 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //        bean.setGoods_name("河南胡辣汤");
 //        bean.setGoods_price("12.44");
 //        bean.setSpec("/张");
-//        bean.setGoodsNum(1);
+//        bean.setGoods_number(1);
 //        mView.manageData(bean);
-
         // TODO: 2018/8/23   以下是正确逻辑
         if (TextUtils.isEmpty(s)) {
             mView.showToast("条码不正确");
@@ -78,7 +79,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
     @Override
     public void checkGoodsIsSame(Map<Integer, Integer> numMap, List<TempOrderBean.TempGoodsBean> list, TempOrderBean.TempGoodsBean bean) {
-        int goodsId = bean.getGoods_id();
+        Integer goodsId = bean.getGoods_id();
         int num;
         if (numMap.get(goodsId) != null) {
             num = numMap.get(goodsId) + 1;
@@ -328,4 +329,6 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //        asyncSession.loadAll(OrderIdDao.class);
 //        asyncSession.loadAll(OrderBeanDao.class);
 //    }
+
+
 }

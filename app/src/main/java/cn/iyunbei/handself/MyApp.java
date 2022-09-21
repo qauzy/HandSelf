@@ -36,7 +36,7 @@ public class MyApp extends BaseApplication {
     public void onCreate() {
         super.onCreate();
 //        instance = getApplicationContext();
-        initPosapi();
+//        initPosapi();
         initOkGo();
 //        initDatabase();
     }

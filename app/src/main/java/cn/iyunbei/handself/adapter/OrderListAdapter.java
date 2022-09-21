@@ -2,44 +2,28 @@ package cn.iyunbei.handself.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
-import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnRefreshLoadmoreListener;
-
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.activity.OrderDetailActivity;
 import cn.iyunbei.handself.bean.DayOrder;
 import cn.iyunbei.handself.bean.OrderListBean;
-import cn.iyunbei.handself.bean.OrderListPageBean;
 import jt.kundream.adapter.rviewadapter.CommonAdapter;
 import jt.kundream.adapter.rviewadapter.base.ViewHolder;
 import jt.kundream.utils.ActivityUtil;
-import jt.kundream.utils.CommonUtil;
-import jt.kundream.utils.JsonUtils;
 import jt.kundream.utils.TextViewUtils;
-import jt.kundream.utils.ToastUtils;
 
 public class OrderListAdapter extends CommonAdapter<OrderListBean.DataBean> implements View.OnClickListener {
 

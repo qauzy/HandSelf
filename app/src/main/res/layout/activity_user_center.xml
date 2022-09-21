@@ -219,7 +219,7 @@
                     android:text="订单列表"
                     />
 
-                <android.support.v4.widget.Space
+                <androidx.core.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -261,7 +261,7 @@
                     android:text="货品盘点"
                     />
 
-                <android.support.v4.widget.Space
+                <androidx.core.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -303,7 +303,7 @@
                     android:text="退出app"
                     />
 
-                <android.support.v4.widget.Space
+                <androidx.core.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

@@ -1,3 +1,5 @@
 include ':app'
 include ':immersion'
 include ':tkcore'
+include ':mlkit-barcode-scanning'
+include ':mlkit-camera-core'

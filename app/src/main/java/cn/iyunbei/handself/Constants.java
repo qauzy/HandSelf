@@ -21,7 +21,7 @@ public class Constants {
     /**
      * 获取商品属性信息
      */
-    public static String GET_GOODS = ROOT_URL + "goods/getgoods";
+    public static String GET_GOODS = "https://www.mxnzp.com/api/barcode/goods/details";
 
     /**
      * 获取用户信息

@@ -16,7 +16,10 @@
         <item name="android:windowAnimationStyle">@style/activityAnimation</item>
     </style>
 
-
+    <style name="MatchMatch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
 
     <!-- activity动画animation 样式 -->
     <style name="activityAnimation" parent="@android:style/Animation">

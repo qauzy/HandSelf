@@ -121,7 +121,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
     private RequestCallback.GetGoodsCallback getGoodsCallback = new RequestCallback.GetGoodsCallback() {
         @Override
         public void succ(GoodsBean bean) {
-            String goods_name = bean.getData().getGoods_name();
+            String goods_name = bean.getData().getGoodsName();
             String barcode = bean.getData().getBarcode();
             mView.showPdGoodsDlg(goods_name, barcode);
         }
