@@ -16,14 +16,16 @@
             android:name=".activity.LoginActivity"
             >
             <!--android:windowSoftInputMode="adjustResize|stateHidden"-->
+
+        </activity>
+
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.MainActivity" />
 
         <activity android:name=".activity.TempOrderActivity" />
         <activity android:name=".activity.UserCenterActivity" />

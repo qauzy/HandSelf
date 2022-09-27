@@ -58,7 +58,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
     };
 
     @Override
-    public void addGoods(String s, String token) {
+    public void addGoods(String s, SpeechUtils spk) {
 
 //        TempOrderBean.TempGoodsBean bean = new TempOrderBean.TempGoodsBean();
 //        bean.setBarcode(s);
@@ -73,7 +73,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             mView.showToast("条码不正确");
         } else {
             mView.showProgress();
-            MainModel.requestGoods(s, token, getGoodsCallback);
+            MainModel.requestGoods(s, spk, getGoodsCallback);
         }
     }
 

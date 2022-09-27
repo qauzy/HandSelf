@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">HandSelf</string>
-    <string name="hand_input">手动输入</string>
-    <string name="scan_input">扫码</string>
+    <string name="hand_input">手动添加</string>
+    <string name="scan_input">扫码添加</string>
     <string name="add_goods">添加商品</string>
     <string name="input_code">请输入商品条形码</string>
     <string name="real_money">实付金额</string>
@@ -17,4 +17,64 @@
     <string name="pd">盘点库存</string>
     <string name="save">保存</string>
     <string name="input_pd">请输入实际库存数量</string>
+
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit0">0</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit1">1</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit2">2</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit3">3</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit4">4</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit5">5</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit6">6</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit7">7</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit8">8</string>
+    <!-- Displayed numbers for the digit buttons -->
+    <string name="digit9">9</string>
+
+    <!-- Button name on screen to delete the last entered digit or operator -->
+    <string name="del">删除</string>
+    <!-- Button name on screen to clear the entire calculation field. [CHAR LIMIT=6] -->
+    <string name="clear">CLR</string>
+    <!-- Do not translate. Unicode division sign; don't translate. Displayed as button on screen. -->
+    <string name="div">\u00f7</string>
+    <!-- Do not translate. Unicode multiplication sign; don't translate. Displayed as button on screen. -->
+    <string name="mul">\u00d7</string>
+    <!-- Do not translate. Plus sign, displayed as button on screen -->
+    <string name="plus">+</string>
+    <!-- Do not translate. Unicode minus sign; don't translate. Displayed as button on screen. -->
+    <string name="minus">\u2212</string>
+    <!-- Do not translate. Decimal point; don't translate. Displayed as button on screen. -->
+    <string name="dot">.</string>
+    <!-- Do not translate. Equal sign; don't translate. Displayed as button on screen. -->
+    <string name="equal">=</string>
+
+    <string name="leftParenDesc">left parenthesis</string>
+    <string name="rightParenDesc">right parenthesis</string>
+    <string name="factorialDesc">factorial</string>
+    <string name="lnDesc">natural logarithm</string>
+    <string name="lgDesc">logarithm</string>
+    <string name="sqrtDesc">square root</string>
+    <string name="divDesc">divide</string>
+    <string name="mulDesc">multiply</string>
+    <string name="plusDesc">plus</string>
+    <string name="minusDesc">minus</string>
+    <string name="dotDesc">point</string>
+    <string name="powerDesc">power</string>
+    <string name="delDesc">delete</string>
+    <string name="clearDesc">clear</string>
+    <string name="tanDesc">tangent</string>
+    <string name="sinDesc">sine</string>
+    <string name="cosDesc">cosine</string>
+    <string name="eDesc">Euler\'s number</string>
+    <string name="piDesc">pi</string>
+    <string name="equalDesc">equals</string>
+    <string name="rightParen">)</string>
 </resources>

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.iyunbei.handself.bean.TempOrderBean;
+import cn.iyunbei.handself.presenter.SpeechUtils;
 import jt.kundream.base.IBaseView;
 
 /**
@@ -62,7 +63,7 @@ public interface MainContract {
          *
          * @param s
          */
-        void addGoods(String s, String token);
+        void addGoods(String s, SpeechUtils token);
 
         void checkGoodsIsSame(Map<Integer, Integer> numMap, List<TempOrderBean.TempGoodsBean> list, TempOrderBean.TempGoodsBean bean);
 

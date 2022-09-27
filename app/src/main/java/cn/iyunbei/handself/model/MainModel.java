@@ -15,6 +15,7 @@ import cn.iyunbei.handself.activity.MainActivity;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
+import cn.iyunbei.handself.presenter.SpeechUtils;
 import jt.kundream.utils.JsonUtils;
 
 /**
@@ -28,7 +29,7 @@ import jt.kundream.utils.JsonUtils;
  **/
 public class MainModel implements MainContract.Model {
     private static final String TAG = MainModel.class.getSimpleName();
-    public static void requestGoods(String s, String token, final RequestCallback.GetGoodsCallback callback) {
+    public static void requestGoods(String s, SpeechUtils spk, final RequestCallback.GetGoodsCallback callback) {
         Cursor cursor =  GreenDaoHelper.getDb().rawQuery("select * from goods where barcode=?",new String[]{s});
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
@@ -42,6 +43,7 @@ public class MainModel implements MainContract.Model {
             dataBean.setSupplier(cursor.getString(cursor.getColumnIndex("supplier")));
 //            dataBean.setBrand(cursor.getString(cursor.getColumnIndex("brand")));
             Log.i("MainModel","=================="+dataBean.getGoodsId()+dataBean.getGoodsName());
+            spk.speak(dataBean.getGoodsName());
             goodsBean.setData(dataBean);
             callback.succ(goodsBean);
             return;

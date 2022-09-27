@@ -5,12 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.posapi.PosApi;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -18,7 +20,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -51,7 +52,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +69,7 @@ import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.presenter.MainPresenter;
+import cn.iyunbei.handself.presenter.SpeechUtils;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
@@ -92,8 +93,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 0X86;
 
     protected PreviewView previewView;
+    private boolean mHasCamera;
+    private boolean mHasDot;
     private CameraScan<List<Barcode>> mCameraScan;
-
+    private SpeechUtils spk;
 //    com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -109,8 +112,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     TextView tv1;
     @Bind(R.id.rl_middle)
     RelativeLayout rlMiddle;
+    @Bind(R.id.tv_digit_price)
+    TextView tvDigitPrice;
     @Bind(R.id.tv_hand_input)
     TextView tvHandInput;
+    @Bind(R.id.rl_scan)
+    RelativeLayout rlScan;
     @Bind(R.id.iv_jiesuan)
     ImageView ivJiesuan;
     @Bind(R.id.tv_jiesuan)
@@ -127,6 +134,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     TextView tvLeft;
     @Bind(R.id.rl_input)
     RelativeLayout rlInput;
+    @Bind(R.id.ly_digit_keyboard)        //手动输入数字键盘
+    LinearLayout lyDigitKeyboard;
     @Bind(R.id.rl_jiesuan)
     RelativeLayout rlJiesuan;
 
@@ -155,6 +164,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
     };
     private MediaPlayer player;
+    private MediaPlayer di;
     private GoodsAdapter mAdapter = null;
     private SwipeMenuItem deleteItem;
     private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
@@ -247,6 +257,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             }
         }, 1000);
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
+        di = MediaPlayer.create(getApplicationContext(), R.raw.di);
     }
 
 
@@ -258,8 +269,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         //注销物理scan按键的接受广播
         this.unregisterReceiver(scanBroadcastReceiver);
         //释放相机
-        releaseCamera();
-        System.exit(0);
+//        releaseCamera();
+//        System.exit(0);
 
     }
 
@@ -288,7 +299,75 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         return new MainPresenter();
     }
 
-    @OnClick({R.id.iv_left, R.id.iv_right, R.id.rl_input, R.id.rl_jiesuan})
+    @OnClick({R.id.rl_input,R.id.digit0,R.id.digit1,R.id.digit2,R.id.digit3,R.id.digit4,R.id.digit5,R.id.digit6,R.id.digit7,R.id.digit8,R.id.digit9,R.id.dot,R.id.del})
+    public void onDigitClick(View view) {
+        String viewText = tvDigitPrice.getText().toString();
+        switch (view.getId()) {
+
+            case R.id.digit0:
+            case R.id.digit1:
+            case R.id.digit2:
+            case R.id.digit3:
+            case R.id.digit4:
+            case R.id.digit5:
+            case R.id.digit6:
+            case R.id.digit7:
+            case R.id.digit8:
+            case R.id.digit9:
+            case R.id.dot:
+                if(view.getId() == R.id.dot){
+                    if(viewText.length()<=0 || viewText.indexOf(".") != -1){
+                        break;
+                    }
+                }
+                String inputText = ((TextView)view).getText().toString();
+
+                //判断输入是否合法(最多两位小数)
+                if(!isStandardNumeric(tvDigitPrice.getText().toString() + inputText)){
+                    break;
+                }
+
+
+                if(viewText.length()>16){
+                    break;
+                }
+                di.start();
+                tvDigitPrice.setText(tvDigitPrice.getText().toString() + inputText);
+                break;
+            case R.id.del:
+
+                if(viewText.length()<=0){
+                    break;
+                }
+                tvDigitPrice.setText(viewText.substring(0,viewText.length()-1));
+                break;
+            case R.id.rl_input:
+                //点击显示手动输入界面
+                //切换扫码添加和手动添加(无码商品)
+                if(View.VISIBLE == lyDigitKeyboard.getVisibility()) {
+                    if(mHasCamera){
+                        rlScan.setVisibility(View.VISIBLE);//隐藏摄像头扫描
+                    }
+                    lyDigitKeyboard.setVisibility(View.GONE);
+
+                    tvHandInput.setText(getString(R.string.hand_input));
+                }else{
+                    if(mHasCamera){
+                        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+                    }
+                    lyDigitKeyboard.setVisibility(View.VISIBLE);
+                    lyDigitKeyboard.bringToFront();
+                    tvHandInput.setText(getString(R.string.scan_input));
+                }
+
+                break;
+
+        }
+
+
+    }
+
+    @OnClick({R.id.iv_left, R.id.iv_right, R.id.rl_input, R.id.rl_jiesuan,R.id.plus})
     public void onClick(View view) {
         //判断是否多次点击
         if (AntiShake.check(view.getId())) {
@@ -296,6 +375,33 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
 
         switch (view.getId()) {
+            case R.id.plus:
+                String priceText = tvDigitPrice.getText().toString();
+
+                if(!isStandardNumeric(priceText) || new BigDecimal(priceText).compareTo(BigDecimal.valueOf(0.0))<=0){
+                    spk.speak("请输入正确的商品价格");
+                    break;
+                }
+
+                //点结尾的，去掉点
+                if(priceText.endsWith(".")){
+                    priceText = priceText.substring(0,priceText.length()-1);
+                }
+
+                //此处的逻辑处理，应该是将单个商品，放进集合中，将集合返给页面，在页面中展示
+                TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
+                int random = (int) ((Math.random() * 9 + 1) * (6));
+                goodsBean.setGoods_id(-random);
+                goodsBean.setSpec("件");
+                goodsBean.setGoods_price(priceText);
+                goodsBean.setGoods_name("无码商品");
+                goodsBean.setBarcode("无条形码");
+                goodsBean.setGoods_number(1);
+                manageData(goodsBean);
+                spk.speak(priceText+"元商品添加成功");
+                //清空价款
+                tvDigitPrice.setText("");
+                break;
             case R.id.iv_left:
 //                showToast("临时订单");
 
@@ -306,17 +412,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 }
 
                 break;
-
             case R.id.iv_right:
                 ActivityUtil.startActivity(this, UserCenterActivity.class);
-
-                break;
-
-            case R.id.rl_input:
-                //点击弹出输入框
-                ActivityUtil.backgroundAlpha(0.6f, this);
-                showInputDialog();
-
                 break;
 
             case R.id.rl_jiesuan:
@@ -382,7 +479,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             @Override
             public void onClick(View v) {
                 String s = etCode.getText().toString();
-                presenter.addGoods(s, CommonUtil.getString(MainActivity.this, "token"));
+                presenter.addGoods(s, spk);
                 dialog.dismiss();
             }
         });
@@ -581,7 +678,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
            if(!isNumeric(it.getRawValue())){
                continue;
            }
-            presenter.addGoods(it.getRawValue(), CommonUtil.getString(MainActivity.this, "token"));
+            presenter.addGoods(it.getRawValue(), spk);
 
         }
         new Handler().postDelayed(new Runnable() {
@@ -631,11 +728,39 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     /**
      * 初始化
      */
-    public void initUI(){
+    public void initUI()  {
         previewView = findViewById(R.id.previewView);
 
         initCameraScan();
-        startCamera();
+
+        //TODO 这里判断下，如果没有摄像头就影藏扫描框，设置成横屏--说明是在智能音箱上运行的
+
+
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        String[] cameraIdList = new String[0];
+        try {
+            cameraIdList = cameraManager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        if (cameraIdList.length>0) {
+            mHasCamera = true;
+            rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
+            startCamera();
+
+        }else{
+            mHasCamera = false;
+            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
+        }
+
+
+
+
+//
+
+
     }
 
     /**
@@ -676,12 +801,33 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             mCameraScan.release();
         }
     }
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GreenDaoHelper.initDatabase();
         createTable(GreenDaoHelper.getDb());
         initUI();
+        Context ctx =  getApplicationContext();
+        spk = new SpeechUtils(ctx);
+
     }
+
+    //判断是否合法数据
+    public  boolean isStandardNumeric(String str) {
+        Pattern pattern = Pattern.compile("-?[0-9]+(\\.[0-9]{1,2})?");
+        String bigStr;
+        try {
+            bigStr = new BigDecimal(str).toString();
+        } catch (Exception e) {
+            return false;
+        }
+
+        Matcher isNum = pattern.matcher(bigStr);
+        if (!isNum.matches()) {
+            return false;
+        }
+        return true;
+    }
+
 
 }
