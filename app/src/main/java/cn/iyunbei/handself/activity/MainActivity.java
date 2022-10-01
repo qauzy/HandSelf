@@ -1,6 +1,8 @@
 package cn.iyunbei.handself.activity;
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,16 +12,25 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -54,9 +65,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +83,9 @@ import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.presenter.SpeechUtils;
+import cn.iyunbei.handself.service.LiveService;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
+import com.fiberhome.duotellib.HumidityControlUtil;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
@@ -97,6 +112,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private boolean mHasDot;
     private CameraScan<List<Barcode>> mCameraScan;
     private SpeechUtils spk;
+    private int readBytes=0, writtenBytes=0;
+    private HumidityControlUtil humidityControlUtil;
+
+
+    private AlarmManager mAlarmManager;
+    private PendingIntent mPendingIntent;
+
+    private static final int INTERVAL = 1000 * 60;
+    private static final int DELAY = 5000;
 //    com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -142,6 +166,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private double toaMon = 0;
     private int toaNum = 0;
 
+    //variables
+    private int audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
+    private int samplingRate = 44100; /* in Hz*/
+    private int channelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
+    private int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+    private int bufferSize = AudioRecord.getMinBufferSize(samplingRate, channelConfig, audioFormat);
+    private int sampleNumBits = 16;
+    private int numChannels = 1;
+
     /**
      * SCAN 按键
      */
@@ -156,11 +189,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 如果是false,看下一个变量
      */
     private boolean isMain = true;
+
+    private Thread newThread; //声明一个子线程
+
+
     private Handler handler = new Handler();
     Runnable run = new Runnable() {
         @Override
         public void run() {
-            //到一定时间后拉低扫描头电压，关掉扫描光
+
         }
     };
     private MediaPlayer player;
@@ -398,7 +435,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 goodsBean.setBarcode("无条形码");
                 goodsBean.setGoods_number(1);
                 manageData(goodsBean);
-                spk.speak(priceText+"元商品添加成功");
+//                spk.speak(priceText+"元商品添加成功");
+                spk.speak("现在温度是"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
                 //清空价款
                 tvDigitPrice.setText("");
                 break;
@@ -755,12 +793,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
         }
 
-
-
-
-//
-
-
     }
 
     /**
@@ -810,6 +842,46 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         Context ctx =  getApplicationContext();
         spk = new SpeechUtils(ctx);
 
+        Intent intent = new Intent(this, LiveService.class);
+        if (Build.VERSION.SDK_INT>=26) {
+            startForegroundService(intent);
+        }else startService(intent);
+
+        humidityControlUtil = new HumidityControlUtil();
+
+
+        bufferSize += 2048;
+        newThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AudioRecord recorder = new AudioRecord(audioSource, samplingRate, channelConfig, audioFormat, bufferSize);
+                recorder.startRecording();
+
+                AudioTrack audioPlayer = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+
+                if(audioPlayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING)
+                    audioPlayer.play();
+
+//capture data and record to file
+                byte[] data = new byte[bufferSize];
+
+                do{
+                    readBytes = recorder.read(data, 0, bufferSize);
+
+                    if(AudioRecord.ERROR_INVALID_OPERATION != readBytes){
+                        writtenBytes += audioPlayer.write(data, 0, readBytes);
+                    }
+
+                }
+                while(true);
+            }
+        });
+
+//        newThread.start(); //启动线程
+
+
+
     }
 
     //判断是否合法数据
@@ -828,6 +900,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
         return true;
     }
+
 
 
 }

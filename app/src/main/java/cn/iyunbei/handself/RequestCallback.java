@@ -6,6 +6,7 @@ import java.util.List;
 
 import cn.iyunbei.handself.bean.DayOrder;
 import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.GoodsListBean;
 import cn.iyunbei.handself.bean.OrderDetailBean;
 import cn.iyunbei.handself.bean.OrderIdDao;
 import cn.iyunbei.handself.bean.OrderListBean;
@@ -103,6 +104,9 @@ public interface RequestCallback {
     interface GetOrderDetailCallback extends BaseRequestCallback {
 
         void getOrderDetailSucc(OrderDetailBean bean);
+    }
+    interface GetGoodsListCallback extends BaseRequestCallback {
+        void succ(List<GoodsListBean.DataBean> list);
     }
 
     interface GetPanDianListCallback extends BaseRequestCallback {

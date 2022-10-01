@@ -24,7 +24,7 @@
             android:textColor="@color/gray"
             android:textSize="@dimen/sp_14" />
 
-        <androidx.core.widget.Space
+        <android.widget.Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />

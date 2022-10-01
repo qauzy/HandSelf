@@ -4,6 +4,28 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
+
+    <uses-feature android:name="android.hardware.camera2.full" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <!-- AUX -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <application
         android:name=".MyApp"
         android:allowBackup="true"
@@ -29,6 +51,9 @@
 
         <activity android:name=".activity.TempOrderActivity" />
         <activity android:name=".activity.UserCenterActivity" />
+        <activity android:name=".activity.GoodsPageActivity" >
+
+        </activity>
         <activity android:name=".activity.OrderListActivity" />
         <activity android:name=".activity.PanDianActivity" />
         <activity android:name=".activity.OrderDetailActivity" />
@@ -37,6 +62,13 @@
         <activity android:name=".activity.PaySuccActivity" />
         <activity android:name=".activity.ScanPayActivity" />
         <activity android:name=".activity.MoreOrderListActivity" />
+
+        <service
+            android:name=".service.LiveService"
+            android:enabled="true"
+            android:priority="1000"
+            android:exported="true"
+            android:process=":keepalive"/>
     </application>
 
 </manifest>

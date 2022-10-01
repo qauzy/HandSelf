@@ -55,6 +55,8 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
     TextView tvGoodsNum;
     @Bind(R.id.tv_sell_money)
     TextView tvSellMoney;
+    @Bind(R.id.ll_goods_list)
+    LinearLayout llGoodsList;
     @Bind(R.id.ll_order_list)
     LinearLayout llOrderList;
     @Bind(R.id.ll_goods_count)
@@ -103,7 +105,7 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvSellMoney.setText(total_amount + "元");
     }
 
-    @OnClick({R.id.iv_left, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month})
+    @OnClick({R.id.iv_left,R.id.ll_goods_list, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month})
     public void onClick(View v) {
         //判断是否多次点击
         if (AntiShake.check(v.getId())) {
@@ -115,7 +117,11 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
             case R.id.iv_left:
                 finish();
                 break;
+            case R.id.ll_goods_list:
+                //商品列表
+                ActivityUtil.startActivity(this, GoodsPageActivity.class);
 
+                break;
             case R.id.ll_order_list:
                 //订单列表
                 ActivityUtil.startActivity(this, OrderListActivity.class);

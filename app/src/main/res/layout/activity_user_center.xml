@@ -191,9 +191,8 @@
 
 
             </LinearLayout>
-
             <LinearLayout
-                android:id="@+id/ll_order_list"
+                android:id="@+id/ll_goods_list"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_50"
                 android:orientation="horizontal"
@@ -216,10 +215,50 @@
                     android:layout_marginLeft="@dimen/dp_10"
                     android:layout_gravity="center"
                     android:textSize="@dimen/sp_16"
+                    android:text="货品列表"
+                    />
+
+                <android.widget.Space
+                    android:layout_width="@dimen/dp_0"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    />
+
+                <ImageView
+                    android:layout_width="@dimen/dp_25"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:layout_gravity="center"
+                    android:src="@mipmap/jt"
+                    />
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_order_list"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_50"
+                android:orientation="horizontal"
+                android:background="@color/white"
+                >
+                <ImageView
+                    android:layout_width="@dimen/dp_30"
+                    android:layout_height="@dimen/dp_30"
+                    android:src="@mipmap/ddlb"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/sp_16"
                     android:text="订单列表"
                     />
 
-                <androidx.core.widget.Space
+                <android.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -261,7 +300,7 @@
                     android:text="货品盘点"
                     />
 
-                <androidx.core.widget.Space
+                <android.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -303,7 +342,7 @@
                     android:text="退出app"
                     />
 
-                <androidx.core.widget.Space
+                <android.widget.Space
                     android:layout_width="@dimen/dp_0"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

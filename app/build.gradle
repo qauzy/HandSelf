@@ -41,7 +41,7 @@ android {
     sourceSets {
         main {
             jni.srcDirs = []
-            jniLibs.srcDirs = ['src/main/jniLibs']
+            jniLibs.srcDirs = ['src/main/duotellibs']
         }
     }
 }
@@ -64,4 +64,6 @@ dependencies {
 
     implementation project(':mlkit-camera-core')
     implementation project(':mlkit-barcode-scanning')
+
+    implementation "org.java-websocket:Java-WebSocket:1.3.9"
 }
