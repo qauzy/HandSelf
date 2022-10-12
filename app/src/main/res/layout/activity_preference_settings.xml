@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.yarolegovich.mp.MaterialPreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preference_screen"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".activity.SettingActivity">
+
+    <include layout="@layout/include_head" />
+
+    <com.yarolegovich.mp.MaterialPreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:mpc_title="系统设置"
+        app:mpc_title_color="@color/colorPrimary">
+
+        <com.yarolegovich.mp.MaterialSwitchPreference
+            android:id="@+id/pref_use_connecting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:mp_default_value="true"
+            app:mp_key="@string/use_connecting_key"
+            app:mp_title="开启联动" />
+        <com.yarolegovich.mp.MaterialSwitchPreference
+            android:id="@+id/pref_enable_scan_only"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            app:mp_default_value="false"
+            app:mp_key="@string/enable_scan_only_key"
+            app:mp_title="只作为扫描设备" />
+
+
+
+    </com.yarolegovich.mp.MaterialPreferenceCategory>
+
+    <com.yarolegovich.mp.MaterialPreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:mpc_title="时间播报设置"
+        app:mpc_title_color="@color/colorPrimary">
+
+        <com.yarolegovich.mp.MaterialEditTextPreference
+            android:id="@+id/pref_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mp_cv_color="@color/white"
+            app:mp_default_value="默认值"
+            app:mp_key="key3"
+            app:mp_show_value="onRight"
+            app:mp_title="可编辑配置" />
+
+        <com.yarolegovich.mp.MaterialSwitchPreference
+            android:id="@+id/pref_time_notice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#2196F3"
+            app:mp_default_value="true"
+            app:mp_key="time_notice"
+            app:mp_title="时间播报" />
+
+        <com.yarolegovich.mp.MaterialChoicePreference
+            android:id="@+id/pref_internal_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mp_default_value="24 hours"
+            app:mp_entry_values="@array/update_intervals"
+            app:mp_key="time_notice_item"
+            app:mp_show_value="onRight"
+            app:mp_title="报时间隔" />
+
+
+    </com.yarolegovich.mp.MaterialPreferenceCategory>
+
+    <com.yarolegovich.mp.MaterialPreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:mpc_title="温度播报设置"
+        app:mpc_title_color="@color/colorPrimary">
+
+        <com.yarolegovich.mp.MaterialSwitchPreference
+            android:id="@+id/pref_temperature_notice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mp_default_value="true"
+            app:mp_key="temperature_notice"
+            app:mp_title="温湿度播报" />
+
+        <com.yarolegovich.mp.MaterialChoicePreference
+            android:id="@+id/pref_temperature_internal_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mp_default_value="24 hours"
+            app:mp_entry_values="@array/update_intervals"
+            app:mp_key="temperature_notice_item"
+            app:mp_show_value="onRight"
+            app:mp_title="温度播报间隔" />
+
+    </com.yarolegovich.mp.MaterialPreferenceCategory>
+
+</com.yarolegovich.mp.MaterialPreferenceScreen>

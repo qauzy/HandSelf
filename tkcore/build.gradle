@@ -35,33 +35,33 @@ android {
 
 
 dependencies {
-//    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('androidx.test.espresso:espresso-core:3.1.0', {
+//    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //noinspection GradleCompatible
-    compile 'androidx.appcompat:appcompat:1.0.0'
-    compile 'com.google.android.material:material:1.0.0'
-    compile 'androidx.legacy:legacy-support-v4:1.0.0'
-    testCompile 'junit:junit:4.12'
+    api 'androidx.appcompat:appcompat:1.0.0'
+    api 'com.google.android.material:material:1.0.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.12'
     /*
      ButterKnife依赖注入
      */
-    compile 'com.jakewharton:butterknife:7.0.1'
+    api 'com.jakewharton:butterknife:7.0.1'
     annotationProcessor 'com.jakewharton:butterknife:7.0.1'
     /*
                     EventBus线程间通信
                  */
-    compile 'org.greenrobot:eventbus:3.0.0'
+    api 'org.greenrobot:eventbus:3.0.0'
 
     /*
                     OKGO联网
                  */
-    compile 'com.lzy.net:okgo:3.0.4'
+    api 'com.lzy.net:okgo:3.0.4'
     /*
                     Gson解析json数据
                  */
-    compile 'com.google.code.gson:gson:2.8.2'
+    api 'com.google.code.gson:gson:2.8.2'
     /*
                     Glide 图片加载框架
                  */
@@ -69,7 +69,7 @@ dependencies {
     /*
                       沉浸式状态栏
                      */
-    compile project(':immersion')
+    api project(':immersion')
     /*
         二维码方面依赖
      */
@@ -85,20 +85,20 @@ dependencies {
     /*
     smartRefreshLayout框架
      */
-    compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.4-7'
+    api 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.4-7'
 //    compile 'com.scwang.smartrefresh:SmartRefreshHeader:1.0.4-7'//没有使用特殊Header，可以不加这行
     /*
      * 加入微信支付、分享、登录依赖
      */
-    compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
+    api 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
     /*
         加入zxing二维码扫描依赖
      */
-    compile 'cn.bingoogolapple:bga-qrcode-zbar:1.2.1'
-    compile 'cn.bingoogolapple:bga-qrcode-zxing:1.2.1'
+    api 'cn.bingoogolapple:bga-qrcode-zbar:1.2.1'
+    api 'cn.bingoogolapple:bga-qrcode-zxing:1.2.1'
     /*
     一个强大的RecyclerAdapter框架
      */
-    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
+    api 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
 
 }

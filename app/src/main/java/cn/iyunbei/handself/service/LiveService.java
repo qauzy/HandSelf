@@ -8,7 +8,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
@@ -38,7 +37,9 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
+import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.presenter.SpeechUtils;
+import cn.iyunbei.handself.utils.ToolKit;
 
 /**
  * 描述:
@@ -52,6 +53,7 @@ public class LiveService extends Service {
 
     private HumidityControlUtil humidityControlUtil;
     private WebSocketClient client;
+    private Boolean mRunFiberHome;
 
     /* 用于 udpReceiveAndTcpSend 的3个变量 */
     Socket socket = null;
@@ -100,7 +102,24 @@ public class LiveService extends Service {
             reconnectWs();//进入页面发现断开开启重连
         }
 
-        humidityControlUtil = new HumidityControlUtil();
+        String uuid = ToolKit.getUniqueID(this);
+
+        if(uuid.compareToIgnoreCase(Constants.FiberHomeUUID) == 0){
+            Log.d(TAG, uuid);
+            mRunFiberHome = true;
+            try {
+                Log.d(TAG, "温湿度测量服务初始化...");
+                humidityControlUtil = new HumidityControlUtil();
+                Log.d(TAG, "温湿度测量服务初始化成功");
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
+        }else{
+            Log.d(TAG, uuid);
+        }
+
+
+
 //
 //        /* 开一个线程 接收udp多播*/
 //        new LiveService.udpReceive().start();
@@ -290,11 +309,14 @@ public class LiveService extends Service {
                         Log.i(TAG, "websocket收到Heartbeat消息");
 
                     }else if (message.equals("clock")){
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
                         String t=format.format(new Date());
-                        spk.speak("现在时间"+t+",实时温度"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
-                        Log.i(TAG, "websocket收到消息：" + message);
+                        if(mRunFiberHome){
+                            spk.speak("现在时间"+t+",实时温度"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
+                        }else{
+                            spk.speak("现在时间"+t);
+                        }
+
                     }else{
                                               spk.speak(message);
                         Log.i(TAG, "websocket收到消息：" + message);
@@ -385,6 +407,7 @@ public class LiveService extends Service {
                 client = null;
             }
         }
+
 
         //    -------------------------------------websocket心跳检测------------------------------------------------
         private static final long HEART_BEAT_RATE = 60 * 1000;//每隔10秒进行一次对长连接的心跳检测

@@ -13,6 +13,7 @@ import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.activity.MainActivity;
 import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.presenter.SpeechUtils;
@@ -34,7 +35,7 @@ public class MainModel implements MainContract.Model {
         if (cursor.getCount() != 0) {
             cursor.moveToFirst();
             GoodsBean goodsBean = new GoodsBean();
-            GoodsBean.DataBean dataBean = new GoodsBean.DataBean();
+            GoodsDataBean dataBean = new GoodsDataBean();
             dataBean.setBarcode(s);
             dataBean.setGoodsId(cursor.getInt(cursor.getColumnIndex("id")));
             dataBean.setGoodsName(cursor.getString(cursor.getColumnIndex("goods_name")));
@@ -50,18 +51,15 @@ public class MainModel implements MainContract.Model {
         }
         OkGo.<String>get(Constants.GET_GOODS)
                 .params("barcode", s)
-                .params("app_id", "pcf0owtplsld1tlk")
-                .params("app_secret", "VHI1dGxFZE1OOU16OFRVeS8yWEhFZz09")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String result = response.body().toString();
                         if (JsonUtils.checkToken(result) == 0) {
                             GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
-                            GoodsBean.DataBean data = bean.getData();
+                            GoodsDataBean data = bean.getData();
                             //实例化常量值
                             ContentValues cValue = new ContentValues();
-
                             cValue.put("goods_name",data.getGoodsName());
                             cValue.put("barcode",data.getBarcode());
                             cValue.put("price",data.getPrice());
@@ -76,16 +74,10 @@ public class MainModel implements MainContract.Model {
                         }
                     }
 
-//                    @Override
-//                    public void onFinish() {
-//                        super.onFinish();
-//                        callback.fial("请求完成");
-//                    }
 
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        Log.e(TAG,response.message());
                         callback.fial(" 获取商品属性信息时发生网络错误");
                     }
                 });

@@ -103,6 +103,13 @@
         <item name="android:background">@drawable/btn_function</item>
         <item name="android:textSize">@dimen/btn_digit_text_size</item>
     </style>
+    <style name="btn_long_scan">
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/btn_scan</item>
+        <item name="android:textSize">20sp</item>
+    </style>
 
     <style name="btn_clear">
         <item name="android:background">?android:attr/selectableItemBackground</item>

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.iyunbei.handself">
     <uses-permission android:name="android.permission.CAMERA"/>
+
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -26,7 +27,30 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <!-- LE Beacons位置相关权限-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <!--Android12 的蓝牙权限 如果您的应用使当前设备可被其他蓝牙设备检测到-->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <!--Android12 的蓝牙权限 如果您的应用与已配对的蓝牙设备通信或者获取当前手机蓝牙是否打开-->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!--Android12 的蓝牙权限 如果您的应用查找蓝牙设备（如蓝牙低功耗 (BLE) 外围设备）-->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+
+    <uses-feature android:name="android.hardware.camera2.full" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+
+
+<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE"  />-->
+
     <application
+        android:networkSecurityConfig="@xml/network_config"
         android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -41,12 +65,36 @@
 
         </activity>
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".activity.SettingActivity">
+
+
+
+        </activity>
+
+
+        <activity
+            android:name=".activity.BluetoothChat"
+            android:exported="true">
+
+
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+
+        </activity>
+
+        <activity android:name=".activity.DeviceList">
+
         </activity>
 
         <activity android:name=".activity.TempOrderActivity" />

@@ -1,12 +1,16 @@
 package cn.iyunbei.handself.activity;
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,16 +33,21 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Message;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.king.mlkit.vision.barcode.analyze.BarcodeScanningAnalyzer;
@@ -75,6 +84,8 @@ import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import butterknife.OnTouch;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
@@ -85,13 +96,13 @@ import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.presenter.SpeechUtils;
 import cn.iyunbei.handself.service.LiveService;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
-import com.fiberhome.duotellib.HumidityControlUtil;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 import jt.kundream.utils.CurrencyUtils;
 
+import static android.content.ContentValues.TAG;
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 import androidx.annotation.NonNull;
@@ -113,7 +124,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private CameraScan<List<Barcode>> mCameraScan;
     private SpeechUtils spk;
     private int readBytes=0, writtenBytes=0;
-    private HumidityControlUtil humidityControlUtil;
 
 
     private AlarmManager mAlarmManager;
@@ -121,6 +131,35 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     private static final int INTERVAL = 1000 * 60;
     private static final int DELAY = 5000;
+
+    //蓝牙通信服务
+    private ChatService mChatService = null;
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+    public static final String DEVICE_NAME = "device_name";
+    private String mConnectedDeviceName = null;
+    private static final int REQUEST_CONNECT_DEVICE = 300;  //请求连接设备
+    private static final int REQUEST_ENABLE_BLUETOOTH = 301;  //请求打开蓝牙
+
+    //Check Permissions
+    private static final int REQUEST_CODE_PERMISSION = 800;
+    private static String[] PERMISSIONS_REQ = {
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH_PRIVILEGED,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+
+    private BluetoothAdapter mBluetoothAdapter = null;
+
 //    com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -174,6 +213,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private int bufferSize = AudioRecord.getMinBufferSize(samplingRate, channelConfig, audioFormat);
     private int sampleNumBits = 16;
     private int numChannels = 1;
+    private boolean isLink = false;
 
     /**
      * SCAN 按键
@@ -298,18 +338,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-        CommonUtil.put(this, "tempCount", 0);
-        //注销物理scan按键的接受广播
-        this.unregisterReceiver(scanBroadcastReceiver);
-        //释放相机
-//        releaseCamera();
-//        System.exit(0);
 
-    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(EventBusBean bean) {
@@ -335,6 +364,44 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     public MainPresenter initPresenter() {
         return new MainPresenter();
     }
+    @OnTouch({R.id.btn_scan})
+    public boolean onTouch(View view, MotionEvent event) {
+        switch (view.getId()) {
+            case R.id.btn_scan:
+
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    Log.d("test", "cansal button ---> cancel");
+                    if(mHasCamera){
+                        releaseCamera();
+                        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+                        mCameraScan.setAnalyzeImage(false);
+                    }
+
+                }
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    //如果开启联动模式，未连接设备
+                    if(MyApp.getInstance().mUseConnecting && mChatService.getState() != ChatService.STATE_CONNECTED){
+                        spk.speak("联动模式已开启，请连接从设备");
+                        Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+                        ActivityUtil.startActivityForResult(this, DeviceList.class, REQUEST_CONNECT_DEVICE);
+                        return false;
+                    }
+
+                    Log.d("test", "cansal button ---> down");
+                    if(mHasCamera){
+                        startCamera();
+                        rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
+                        mCameraScan.setAnalyzeImage(true);
+                    }
+
+                }
+
+
+        }
+
+        return false;
+    }
+
 
     @OnClick({R.id.rl_input,R.id.digit0,R.id.digit1,R.id.digit2,R.id.digit3,R.id.digit4,R.id.digit5,R.id.digit6,R.id.digit7,R.id.digit8,R.id.digit9,R.id.dot,R.id.del})
     public void onDigitClick(View view) {
@@ -382,16 +449,16 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 //点击显示手动输入界面
                 //切换扫码添加和手动添加(无码商品)
                 if(View.VISIBLE == lyDigitKeyboard.getVisibility()) {
-                    if(mHasCamera){
-                        rlScan.setVisibility(View.VISIBLE);//隐藏摄像头扫描
-                    }
+//                    if(mHasCamera){
+//                        rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
+//                    }
                     lyDigitKeyboard.setVisibility(View.GONE);
 
                     tvHandInput.setText(getString(R.string.hand_input));
                 }else{
-                    if(mHasCamera){
-                        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
-                    }
+//                    if(mHasCamera){
+//                        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+//                    }
                     lyDigitKeyboard.setVisibility(View.VISIBLE);
                     lyDigitKeyboard.bringToFront();
                     tvHandInput.setText(getString(R.string.scan_input));
@@ -435,8 +502,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 goodsBean.setBarcode("无条形码");
                 goodsBean.setGoods_number(1);
                 manageData(goodsBean);
-//                spk.speak(priceText+"元商品添加成功");
-                spk.speak("现在温度是"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
+                spk.speak(priceText+"元商品添加成功");
                 //清空价款
                 tvDigitPrice.setText("");
                 break;
@@ -492,38 +558,24 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 }
                 setAdapter();
             }
+        }else if (requestCode == REQUEST_CONNECT_DEVICE) {
+
+            if (resultCode == Activity.RESULT_OK) {
+                String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
+                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                mChatService.connect(device);
+                showProgress();
+
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(this, "未选择任何设备！", Toast.LENGTH_SHORT).show();
+            }
+        //请求打开蓝牙
+        }else if(requestCode == REQUEST_ENABLE_BLUETOOTH){
+                setupChat();
         }
 
     }
 
-    /**
-     * 输入商品条码的dialog
-     */
-    private void showInputDialog() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final AlertDialog dialog = builder.create();
-
-        View view = View.inflate(this, R.layout.dialog_input, null);
-        // dialog.setView(view);// 将自定义的布局文件设置给dialog
-        // 设置边距为0,保证在2.x的版本上运行没问题
-        dialog.setView(view, 0, 0, 0, 0);
-
-        final EditText etCode = (EditText) view.findViewById(R.id.et_goods_code);
-        Button btnAdd = (Button) view.findViewById(R.id.btn_add_goods);
-
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                String s = etCode.getText().toString();
-                presenter.addGoods(s, spk);
-                dialog.dismiss();
-            }
-        });
-        ActivityUtil.backgroundAlpha(1f, this);
-        dialog.show();
-    }
 
 
     /**
@@ -691,6 +743,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA);
         }
+
+        if (mChatService != null) {
+            if (mChatService.getState() == ChatService.STATE_NONE) {
+                mChatService.start();
+            }
+        }
+
+
     }
     private void createTable(SQLiteDatabase db){
 //创建表SQL语句
@@ -716,7 +776,12 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
            if(!isNumeric(it.getRawValue())){
                continue;
            }
-            presenter.addGoods(it.getRawValue(), spk);
+
+           //如果只作为扫描设备，则只发送扫码信息
+            if(sendMessage(it.getRawValue()) && !MyApp.getInstance().mEnableScanOnly){
+                presenter.addGoods(it.getRawValue(), spk);
+            }
+
 
         }
         new Handler().postDelayed(new Runnable() {
@@ -736,8 +801,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     public void onScanResultFailure() {
 
     }
-
-//   com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     /**
      * Get {@link CameraScan}
      * @return
@@ -783,13 +846,13 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
         if (cameraIdList.length>0) {
             mHasCamera = true;
-            rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
+//            rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
-            startCamera();
+//            startCamera();
 
         }else{
             mHasCamera = false;
-            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+//            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
         }
 
@@ -833,27 +896,194 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             mCameraScan.release();
         }
     }
+
+
+    //判断是否合法数据
+    public  boolean isStandardNumeric(String str) {
+        Pattern pattern = Pattern.compile("-?[0-9]+(\\.[0-9]{1,2})?");
+        String bigStr;
+        try {
+            bigStr = new BigDecimal(str).toString();
+        } catch (Exception e) {
+            return false;
+        }
+
+        Matcher isNum = pattern.matcher(bigStr);
+        if (!isNum.matches()) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private void setupChat() {
+        // 得到本地蓝牙适配器
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "蓝牙不可用", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        // 询问打开蓝牙
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            ActivityUtil.startActivityForResult(this,enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
+            return;
+        }
+
+        //创建服务对象
+        mChatService = new ChatService(this, mHandler);
+
+    }
+    //使用Handler对象在UI主线程与子线程之间传递消息
+    private final Handler mHandler = new Handler() {   //消息处理
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case ChatService.STATE_CONNECTED:
+                            tvTitle.setText("结算(连接到"+mConnectedDeviceName+")");
+                            spk.speak("连接到"+mConnectedDeviceName);
+                            hideProgress();
+                            break;
+                        case ChatService.STATE_CONNECTING:
+                            spk.speak("设备连接中");
+                            break;
+                        case ChatService.STATE_LISTEN:
+                        case ChatService.STATE_NONE:
+                            spk.speak("设备连接丢失");
+                            tvTitle.setText("结算(未连接)");
+                            break;
+                    }
+                    break;
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    presenter.addGoods(readMessage, spk);
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    break;
+
+            }
+        }
+    };
+    private boolean sendMessage(String message) {
+        //如果不是开启联动模式，直接返回true
+        if(!MyApp.getInstance().mUseConnecting){
+            return true;
+        }
+//        if (mChatService.getState() != ChatService.STATE_CONNECTED) {
+//            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+//
+//            ActivityUtil.startActivityForResult(this, DeviceList.class, REQUEST_CONNECT_DEVICE);
+//
+//            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+//            releaseCamera();
+//            return false;
+//        }
+        if (message.length() > 0) {
+            byte[] send = message.getBytes();
+            mChatService.write(send);
+            return true;
+        }
+        return false;
+    }
+
+    private void showPermissionDenyDialog() {
+        PermissionDialog dialog = new PermissionDialog();
+        dialog.show(getSupportFragmentManager(), "PermissionDeny");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == Permission.REQUEST_CODE) {
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    showPermissionDenyDialog();
+                    return;
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Checks if the app has permission to write to device storage or open camera
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    private static boolean verifyPermissions(Activity activity) {
+        // Check if we have write permission
+
+        int internet_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.INTERNET);
+        int bluetooth_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH);
+        int location_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int bluetooth_a_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_ADMIN);
+        int bluetooth_p_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_PRIVILEGED);
+        int write_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int read_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int camera_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
+        int phone_state_permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE);
+
+        if (write_permission != PackageManager.PERMISSION_GRANTED ||
+                read_permission != PackageManager.PERMISSION_GRANTED ||
+                bluetooth_permission !=PackageManager.PERMISSION_GRANTED ||
+                bluetooth_a_permission !=PackageManager.PERMISSION_GRANTED ||
+                bluetooth_p_permission !=PackageManager.PERMISSION_GRANTED ||
+                phone_state_permission != PackageManager.PERMISSION_GRANTED ||
+                internet_permission != PackageManager.PERMISSION_GRANTED ||
+                location_permission != PackageManager.PERMISSION_GRANTED ||
+                camera_permission != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "JNI read_permission" );
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_REQ,
+                    REQUEST_CODE_PERMISSION
+            );
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Context ctx =  getApplicationContext();
+        spk = new SpeechUtils(ctx);
+
+        setupChat();
+
         GreenDaoHelper.initDatabase();
         createTable(GreenDaoHelper.getDb());
         initUI();
-        Context ctx =  getApplicationContext();
-        spk = new SpeechUtils(ctx);
+
 
         Intent intent = new Intent(this, LiveService.class);
         if (Build.VERSION.SDK_INT>=26) {
             startForegroundService(intent);
         }else startService(intent);
 
-        humidityControlUtil = new HumidityControlUtil();
-
-
         bufferSize += 2048;
         newThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 AudioRecord recorder = new AudioRecord(audioSource, samplingRate, channelConfig, audioFormat, bufferSize);
                 recorder.startRecording();
 
@@ -877,30 +1107,26 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 while(true);
             }
         });
-
 //        newThread.start(); //启动线程
 
+        verifyPermissions(this);
+
 
 
     }
 
-    //判断是否合法数据
-    public  boolean isStandardNumeric(String str) {
-        Pattern pattern = Pattern.compile("-?[0-9]+(\\.[0-9]{1,2})?");
-        String bigStr;
-        try {
-            bigStr = new BigDecimal(str).toString();
-        } catch (Exception e) {
-            return false;
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+        CommonUtil.put(this, "tempCount", 0);
+        //注销物理scan按键的接受广播
+        this.unregisterReceiver(scanBroadcastReceiver);
+        //释放相机
+//        releaseCamera();
+//        System.exit(0);
 
-        Matcher isNum = pattern.matcher(bigStr);
-        if (!isNum.matches()) {
-            return false;
-        }
-        return true;
+
     }
-
-
 
 }

@@ -1,9 +1,11 @@
 package cn.iyunbei.handself;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.posapi.PosApi;
+import android.preference.PreferenceManager;
 
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
@@ -26,17 +28,23 @@ import okhttp3.OkHttpClient;
  * @e-mail: 245086168@qq.com
  * @desc:
  **/
-public class MyApp extends BaseApplication {
+public class MyApp extends BaseApplication implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     PosApi mPosApi = null;
     static MyApp instance = null;
     private static String mCurDev1 = "";
-
+    public Boolean mUseConnecting;
+    public Boolean mEnableScanOnly;
     @Override
     public void onCreate() {
         super.onCreate();
-//        instance = getApplicationContext();
-//        initPosapi();
+        //初始化配置
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+
+        mUseConnecting = prefs.getBoolean(getString(R.string.use_connecting_key),false);
+        mEnableScanOnly = prefs.getBoolean(getString(R.string.enable_scan_only_key),false);
+
         initOkGo();
 //        initDatabase();
     }
@@ -124,4 +132,13 @@ public class MyApp extends BaseApplication {
         return mPosApi;
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key == getString(R.string.use_connecting_key)){
+            mUseConnecting = sharedPreferences.getBoolean(key,false);
+        }else if(key == getString(R.string.enable_scan_only_key)){
+            mEnableScanOnly = sharedPreferences.getBoolean(key,false);
+        }
+
+    }
 }

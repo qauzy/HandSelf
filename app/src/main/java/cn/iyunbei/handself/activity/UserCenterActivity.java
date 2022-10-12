@@ -79,9 +79,9 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvSellToday.setSelected(true);
         tvSellMonth.setSelected(false);
 
-        showProgress();
-        presenter.getUserMsg(this);
-        presenter.getDayOrderData(this);
+//        showProgress();
+//        presenter.getUserMsg(this);
+//        presenter.getDayOrderData(this);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
         tvSellMoney.setText(total_amount + "元");
     }
 
-    @OnClick({R.id.iv_left,R.id.ll_goods_list, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month})
+    @OnClick({R.id.iv_left,R.id.ll_goods_list, R.id.ll_order_list, R.id.ll_goods_count, R.id.ll_exit, R.id.tv_sell_today, R.id.tv_sell_month,R.id.ll_settings})
     public void onClick(View v) {
         //判断是否多次点击
         if (AntiShake.check(v.getId())) {
@@ -131,6 +131,9 @@ public class UserCenterActivity extends BaseActivity<UserCenterContract.View, Us
             case R.id.ll_goods_count:
                 //货品盘点  进入盘点页面
                 ActivityUtil.startActivity(this, PanDianActivity.class);
+                break;
+            case R.id.ll_settings:
+                ActivityUtil.startActivity(this, SettingActivity.class);
                 break;
             case R.id.ll_exit:
                 //退出app

@@ -14,25 +14,93 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="@string/add_goods"
+            android:text="@string/modify_goods"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_18" />
     </RelativeLayout>
-
-    <EditText
-        android:id="@+id/et_goods_code"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_50"
-        android:layout_marginLeft="@dimen/dp_25"
-        android:layout_marginRight="@dimen/dp_25"
-        android:layout_marginTop="@dimen/dp_45"
-        android:background="@drawable/shape_input_goods_code"
-        android:gravity="center"
-        android:inputType="number"
-        android:hint="@string/input_code"
-        android:textColor="@color/black"
-        android:textColorHint="@color/color_line_drivier"
-        android:textSize="@dimen/sp_18" />
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/black_white" />
+
+        <EditText
+            android:id="@+id/et_goods_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="山西老陈醋"
+            android:hint="输入商品名称"
+            android:textColorHint="@color/color_line_drivier"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_14" />
+
+        <EditText
+            android:id="@+id/et_goods_guige"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/et_goods_name"
+            android:layout_below="@id/et_goods_name"
+            android:layout_marginTop="@dimen/dp_5"
+            android:text="规格:500ML"
+            android:hint="输入规格"
+            android:textColorHint="@color/color_line_drivier"
+            android:textColor="@color/color_line_drivier"
+            android:textSize="@dimen/sp_14" />
+
+        <TextView
+            android:id="@+id/tv_goods_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/et_goods_name"
+            android:layout_below="@id/et_goods_guige"
+            android:layout_marginBottom="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_5"
+            android:background="@drawable/shape_goods_num"
+            android:padding="@dimen/dp_5"
+            android:text="214354345643"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_14" />
+
+        <cn.iyunbei.handself.utils.EditTextWithText
+            android:id="@+id/et_money"
+            android:minWidth="@dimen/dp_5"
+            android:hint="输入价格"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/et_goods_name"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="￥12.00"
+            android:textColorHint="@color/color_line_drivier"
+            android:textColor="@color/yunbei_bg"
+            android:textSize="@dimen/sp_14" />
+
+        <EditText
+            android:id="@+id/et_supplier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/et_money"
+            android:layout_below="@id/et_goods_name"
+            android:layout_marginTop="@dimen/dp_5"
+            android:text="xxxxxxxxx公司"
+            android:hint="输入生厂商"
+            android:textColorHint="@color/color_line_drivier"
+            android:textColor="@color/color_line_drivier"
+            android:textSize="@dimen/sp_14" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:layout_below="@id/tv_goods_code"
+            android:background="@color/gray_8" />
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/btn_add_goods"
@@ -40,11 +108,11 @@
         android:layout_height="@dimen/dp_48"
         android:layout_marginLeft="@dimen/dp_25"
         android:layout_marginRight="@dimen/dp_25"
-        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_5"
         android:background="@drawable/shape_button_add"
-        android:layout_marginBottom="@dimen/dp_40"
-        android:text="@string/add_goods"
-        android:textSize="@dimen/sp_18"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:text="@string/modify_confirm"
+        android:textSize="@dimen/sp_14"
         />
 
 </LinearLayout>

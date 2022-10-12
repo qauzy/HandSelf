@@ -11,6 +11,7 @@ import java.util.Map;
 
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
@@ -38,7 +39,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
         public void succ(GoodsBean bean) {
             //此处的逻辑处理，应该是将单个商品，放进集合中，将集合返给页面，在页面中展示
             TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
-            GoodsBean.DataBean data = bean.getData();
+            GoodsDataBean data = bean.getData();
 
             goodsBean.setGoods_id(data.getGoodsId());
             goodsBean.setSpec(data.getSpec());
@@ -183,7 +184,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 
 
 //    @Override
-//    public void saveOrderDatas(final List<GoodsBean.DataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
+//    public void saveOrderDatas(final List<GoodsDataBean> goodsList, final Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum) {
 //
 //        DaoSession daoSession = MyApp.getDaoSession();
 //
@@ -215,7 +216,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //        asyncSession.insert(new OrderIdDao(null, nowTimestamp, tolNum, tolMon));
 //    }
 //
-//    private void insertOrderBeanDao(int nowTimestamp, final List<GoodsBean.DataBean> goodsList, Map<Integer, Integer> numMap) {
+//    private void insertOrderBeanDao(int nowTimestamp, final List<GoodsDataBean> goodsList, Map<Integer, Integer> numMap) {
 //        DaoSession daoSession = MyApp.getDaoSession();
 //        final AsyncSession asyncSession = daoSession.startAsyncSession();
 //
@@ -231,7 +232,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //
 //        for (int i = 0; i < goodsList.size(); i++) {
 //            //订单表中  存入订单号码(时间戳),
-//            GoodsBean.DataBean dataBean = goodsList.get(i);
+//            GoodsDataBean dataBean = goodsList.get(i);
 //
 //
 //            asyncSession.insert(new OrderBeanDao(null, nowTimestamp, dataBean.getGoods_id(),
@@ -246,7 +247,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //     *
 //     * @param goodsList
 //     */
-//    private void insertGoodsProperties(List<GoodsBean.DataBean> goodsList) {
+//    private void insertGoodsProperties(List<GoodsDataBean> goodsList) {
 //        DaoSession daoSession = MyApp.getDaoSession();
 //        final AsyncSession asyncSession = daoSession.startAsyncSession();
 //
@@ -279,7 +280,7 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
 //            if (newGoodsIdList.contains(goodsList.get(i).getGoods_id())) {
 //                continue;
 //            } else {
-//                GoodsBean.DataBean dataBean = goodsList.get(i);
+//                GoodsDataBean dataBean = goodsList.get(i);
 //                asyncSession.insert(new GoodsBeanDao(null, dataBean.getGoods_id(), dataBean.getSpec(),
 //                        dataBean.getGoods_name(), Double.parseDouble(dataBean.getGoods_price()), Integer.parseInt(dataBean.getBarcode())));
 //            }

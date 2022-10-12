@@ -10,6 +10,7 @@ package cn.iyunbei.handself;
  * @desc:
  **/
 public class Constants {
+    public  static String FiberHomeUUID = "00000000-47fe-b93e-0033-c5870033c587";
 
     public static final String ROOT_URL = "http://pda.iyunbei.cn/api/pda/v1/";
 
@@ -28,6 +29,12 @@ public class Constants {
      * 获取商品列表
      */
     public static String GET_GOODS_LIST = "http://47.115.166.195:9999/api/v1/goods/list";
+
+    /**
+     * 盘点时候的单品数量录入
+     */
+    public static String GOODS_SAVE = "http://47.115.166.195:9999/api/v1/goods/update";
+
     /**
      * 获取用户信息
      */

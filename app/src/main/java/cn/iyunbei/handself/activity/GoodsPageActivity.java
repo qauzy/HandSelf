@@ -2,9 +2,12 @@ package cn.iyunbei.handself.activity;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,15 +28,15 @@ import butterknife.OnClick;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsListAdapter;
-import cn.iyunbei.handself.adapter.PanDianAdapter;
+import cn.iyunbei.handself.bean.GoodsBean;
+import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.GoodsListBean;
-import cn.iyunbei.handself.bean.PanDianBean;
 import cn.iyunbei.handself.contract.GoodsContract;
-import cn.iyunbei.handself.contract.PanDianContract;
 import cn.iyunbei.handself.presenter.GoodsPresenter;
-import cn.iyunbei.handself.presenter.PanDianPresenter;
+import cn.iyunbei.handself.utils.EditTextWithText;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.utils.ActivityUtil;
+import jt.kundream.utils.ToastUtils;
 
 /**
  * 版权所有，违法必究！！！
@@ -45,6 +48,7 @@ import jt.kundream.utils.ActivityUtil;
  * @desc:盘点页面
  **/
 public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPresenter> implements GoodsContract.View {
+    final String TAG = "GoodsPageActivity";
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_left)
@@ -61,19 +65,24 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     private SwipeMenuItem deleteItem;
 
     private GoodsListAdapter mAdapter;
-    private List<GoodsListBean.DataBean> mDatas = new ArrayList<>();
+    private List<GoodsDataBean> mDatas = new ArrayList<>();
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
         public void itemViewClick(View view) {
-            int position = (int) view.getTag();
-            switch (view.getId()) {
-                case R.id.ll_counting:
-                    // TODO: 2018/9/3 点击之后  跳入新的界面
-//                    ActivityUtil.startActivity(GoodsPageActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_id", mDatas.get(position).getProfit_id()), false);
+            //
 
+            switch (view.getId()) {
+
+                //点击修改商品信息
+                case R.id.rl_goods_item:
+                    int position =  (int)view.getTag();
+                    GoodsDataBean data = mDatas.get(position);
+                    data.setPosition(position);
+                    showInputDialog(data);
                     break;
 
                 default:
+
                     break;
 
             }
@@ -158,17 +167,78 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     }
 
     @Override
-    public void showData(List<GoodsListBean.DataBean> list) {
+    public void showData(List<GoodsDataBean> list) {
 //        mDatas.clear();
         mDatas.addAll(list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvGoodsList.setLayoutManager(linearLayoutManager);
         rvGoodsList.setItemAnimator(new DefaultItemAnimator());
-        //数据和空间之前的映射
+        //数据和控件之前的映射
         mAdapter = new GoodsListAdapter(this, R.layout.item_goods, mDatas, itemClickListener);
 
         rvGoodsList.setAdapter(mAdapter);
 
     }
+    @Override
+    public void showResult(GoodsDataBean data) {
+        mDatas.set(data.getPosition(),data);
+        mAdapter.notifyItemChanged(data.getPosition());
+        ToastUtils.showShort(getApplicationContext(), "信息更新成功");
+    }
+
+    /**
+     * 更新商品信息dialog
+     */
+    private void showInputDialog(GoodsDataBean data) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+
+        View view = View.inflate(this, R.layout.dialog_input, null);
+        // dialog.setView(view);// 将自定义的布局文件设置给dialog
+        // 设置边距为0,保证在2.x的版本上运行没问题
+        dialog.setView(view, 0, 0, 0, 0);
+
+        TextView etCode = (TextView) view.findViewById(R.id.tv_goods_code);
+        etCode.setText(data.getBarcode());
+        EditText etGuide = (EditText) view.findViewById(R.id.et_goods_guige);
+        etGuide.setText(data.getSpec());
+        EditText etName = (EditText) view.findViewById(R.id.et_goods_name);
+        etName.setText(data.getGoodsName());
+        EditTextWithText etMoney = (EditTextWithText) view.findViewById(R.id.et_money);
+        if(data.getPrice().isEmpty()){
+            etMoney.setLeadText("￥");
+            etMoney.setText("");
+        }else{
+            etMoney.setLeadText("￥");
+            etMoney.setText(data.getPrice());
+        }
+
+        EditText etSupplier = (EditText) view.findViewById(R.id.et_supplier);
+        etSupplier.setText(data.getSupplier());
+
+
+        Log.d(TAG,"商品position="+data.getPosition());
+        Button btnModify = (Button) view.findViewById(R.id.btn_add_goods);
+
+        btnModify.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String barcode = etCode.getText().toString();
+                String goodsName = etName.getText().toString();
+                String supplier = etSupplier.getText().toString();
+                String price = etMoney.getText().toString();
+                String psec = etGuide.getText().toString();
+
+                presenter.saveGoodsInfo(data.getPosition(),barcode,goodsName,supplier,price,psec,GoodsPageActivity.this);
+
+                dialog.dismiss();
+            }
+        });
+        ActivityUtil.backgroundAlpha(1f, this);
+        dialog.show();
+    }
+
 
 }
