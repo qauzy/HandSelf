@@ -1,7 +1,10 @@
-package cn.iyunbei.handself.activity;
+package cn.iyunbei.handself.service;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.AdvertiseCallback;
@@ -14,23 +17,39 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import cn.iyunbei.handself.activity.BluetoothChat;
+
 /*
     本程序ChatService是蓝牙会话的服务程序
     定义了3个内部类：AcceptThread（接受新连接）、ConnectThread（发出连接）和ConnectedThread （已连接）
 */
-public class ChatService {
-    private static final String TAG = ChatService.class.getSimpleName();
+public class BleService {
+    private static final String TAG = BleService.class.getSimpleName();
     //本应用的主Activity组件名称
-    private static final String NAME = "BluetoothChat";
+    private static final String NAME = "BleService";
     // UUID：通用唯一识别码,是一个128位长的数字，一般用十六进制表示
     //算法的核心思想是结合机器的网卡、当地时间、一个随机数来生成
     //在创建蓝牙连接
+
+
+    //服务 UUID
+    private static final UUID  UUID_SERVICE = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb");
+    private static final UUID  UUID_BARCODE = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
+
+    //特征 UUID
+    private static final UUID  UUID_CHARACTERISTIC = UUID.fromString("0000ff11-0000-1000-8000-00805f9b34fb");
+    private static final UUID  UUID_CHARACTERISTIC2 = UUID.fromString("0000ff12-0000-1000-8000-00805f9b34fb");
+
+    //描述 UUID
+    private static final UUID  UUID_DESCRIPTOR = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
     private static final UUID MY_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     private static final ParcelUuid parcelUuid = ParcelUuid.fromString("00002902-0000-1000-8000-00805f9b34fb");
     private final BluetoothAdapter mBluetoothAdapter;
@@ -52,44 +71,47 @@ public class ChatService {
 
 
     public void startAction(){
+
+        //广播设置(必须)
+        AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY) //广播模式: 低功耗,平衡,低延迟
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH) //发射功率级别: 极低,低,中,高
+                .setTimeout(0)
+                .setConnectable(true) //能否连接,广播分为可连接广播和不可连接广播
+                .build();
+
         byte[] broadcastData ={0x34,0x56};
+        //广播数据(必须，广播启动就会发送)
+        AdvertiseData advertiseData = new AdvertiseData.Builder()
+                .setIncludeDeviceName(true) //包含蓝牙名称
+//                .setIncludeTxPowerLevel(true) //包含发射功率级别
+                .addManufacturerData(0x01AC, broadcastData) //设备厂商数据，自定义
+                .build();
+
+
+        //扫描响应数据(可选，当客户端扫描时才发送)
+        AdvertiseData scanResponse = new AdvertiseData.Builder()
+                .addManufacturerData(2, new byte[]{66, 66}) //设备厂商数据，自定义
+                .addServiceUuid(parcelUuid) //服务UUID
+//                .addServiceData(new ParcelUuid(UUID_SERVICE), new byte[]{2}) //服务数据，自定义
+                .build();
+
+
+
+
+
         //设置设备蓝牙名称
-//        mBluetoothAdapter.setName("机灵猫");
+        mBluetoothAdapter.setName("机灵猫");
         mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         //true,标识可以被连接
         //设为0时，代表无时间限制会一直广播
-        mBluetoothLeAdvertiser.startAdvertising(createAdvSettings(true, 0), createAdvertiseData(broadcastData), mAdvertiseCallback);
+        mBluetoothLeAdvertiser.startAdvertising(settings, advertiseData,scanResponse, mAdvertiseCallback);
         Log.d(TAG,"开始广播...");
     }
     public void stopAction() {
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
     }
 
-    public AdvertiseSettings createAdvSettings(boolean connectable, int timeoutMillis) {
-        AdvertiseSettings.Builder mSettingsbuilder = new AdvertiseSettings.Builder();
-
-        mSettingsbuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER);
-        //设置是否可以连接
-        mSettingsbuilder.setConnectable(connectable);
-        mSettingsbuilder.setTimeout(timeoutMillis);
-
-        mSettingsbuilder.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH);
-        AdvertiseSettings mAdvertiseSettings = mSettingsbuilder.build();
-        return mAdvertiseSettings;
-    }
-
-    public AdvertiseData createAdvertiseData(byte[] data) {
-        AdvertiseData.Builder mDataBuilder = new AdvertiseData.Builder();
-        //设置广播设备名称
-        mDataBuilder.setIncludeDeviceName(true);
-//        mDataBuilder.addServiceUuid(parcelUuid);
-
-//        mDataBuilder.addServiceData(parcelUuid,new byte[]{1,2});
-        //第一个是厂商ID，后面应该是设备相关的ID，类似与MAC地址前缀+xxx
-        mDataBuilder.addManufacturerData(0x01AC, data);
-        AdvertiseData mAdvertiseData = mDataBuilder.build();
-        return mAdvertiseData;
-    }
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
@@ -106,7 +128,7 @@ public class ChatService {
     };
 
     //构造方法，接收UI主线程传递的对象
-    public ChatService(Context context, Handler handler) {
+    public BleService(Context context, Handler handler) {
         //构造方法完成蓝牙对象的创建
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         startAction();
@@ -258,7 +280,7 @@ public class ChatService {
                     break;
                 }
                 if (socket != null) {
-                    synchronized (ChatService.this) {
+                    synchronized (BleService.this) {
                         switch (mState) {
                             case STATE_LISTEN:
                             case STATE_CONNECTING:
@@ -322,10 +344,10 @@ public class ChatService {
                 } catch (IOException e2) {
                     e.printStackTrace();
                 }
-                ChatService.this.start();
+                BleService.this.start();
                 return;
             }
-            synchronized (ChatService.this) {
+            synchronized (BleService.this) {
                 mConnectThread = null;
             }
             connected(mmSocket, mmDevice);

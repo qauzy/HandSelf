@@ -69,49 +69,5 @@ public class GoodsListModel implements GoodsContract.Model {
                 });
     }
 
-    /**
-     * 获取更新商品信息
-     *
-     * @param barcode
-     * @param goodsName
-     * @param supplier
-     * @param price
-     * @param psec
-     */
-    public void saveGoodsInfo(Integer position, String barcode, String goodsName, String supplier, String price,String psec,final RequestCallback.UpdateInfoCallback updateInfoCallback) {
-        JSONObject jsonObj = new JSONObject();
-        try {
-            jsonObj.put("position", position);
-            jsonObj.put("barcode", barcode);
-            jsonObj.put("goodsName",goodsName);
-            jsonObj.put("supplier",supplier);
-            jsonObj.put("price",price);
-            jsonObj.put("psec",psec);
-        }catch (JSONException e){
-            updateInfoCallback.Fail("参数错误");
-        }
 
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, jsonObj.toString());
-        OkGo.<String>post(Constants.GOODS_SAVE)
-                .upRequestBody(body)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String s = response.body();
-                        if (JsonUtils.checkToken(s) == 200) {
-                            GoodsBean bean = new Gson().fromJson(s, GoodsBean.class);
-                            updateInfoCallback.succ(bean.getData());
-                        } else {
-                            updateInfoCallback.Fail(JsonUtils.getMsg(s));
-                        }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        updateInfoCallback.Fail("网络请求失败");
-                    }
-                });
-    }
 }

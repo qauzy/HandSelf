@@ -10,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,20 +26,17 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -74,35 +70,41 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.OnClick;
 import butterknife.OnTouch;
+import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsAdapter;
+import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
 import cn.iyunbei.handself.greendao.GreenDaoHelper;
 import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.presenter.SpeechUtils;
+import cn.iyunbei.handself.service.BleGattClient;
+import cn.iyunbei.handself.service.BleGattServer;
+import cn.iyunbei.handself.service.BleService;
+import cn.iyunbei.handself.service.BluetoothService;
 import cn.iyunbei.handself.service.LiveService;
+import cn.iyunbei.handself.utils.EditTextWithText;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.bean.EventBusBean;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.CommonUtil;
 import jt.kundream.utils.CurrencyUtils;
+import jt.kundream.utils.ToastUtils;
 
-import static android.content.ContentValues.TAG;
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 import androidx.annotation.NonNull;
@@ -114,6 +116,9 @@ import androidx.camera.view.PreviewView;
 
 public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View,CameraScan.OnScanResultCallback<List<Barcode>>{
     private static final String TAG = MainActivity.class.getSimpleName();
+
+
+
     public static final int REQUEST_CAMERA = 100;
 
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 0X86;
@@ -132,8 +137,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private static final int INTERVAL = 1000 * 60;
     private static final int DELAY = 5000;
 
-    //蓝牙通信服务
-    private ChatService mChatService = null;
+
+    private BluetoothService mBluetoothService = null; //蓝牙通信服务
+
+
+    private BleGattServer mBleGattServer = null;          //Ble低功耗蓝牙设备服务端
+    private  BleGattClient mBleGattClient= null;          //Ble低功耗蓝牙设备客服端
+
+
+
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
     public static final int MESSAGE_WRITE = 3;
@@ -143,6 +155,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private String mConnectedDeviceName = null;
     private static final int REQUEST_CONNECT_DEVICE = 300;  //请求连接设备
     private static final int REQUEST_ENABLE_BLUETOOTH = 301;  //请求打开蓝牙
+
+    private static final int REQUEST_CONNECT_BLE = 302;  //请求连接BLE蓝牙低功耗设备
 
     //Check Permissions
     private static final int REQUEST_CODE_PERMISSION = 800;
@@ -160,7 +174,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     private BluetoothAdapter mBluetoothAdapter = null;
 
-//    com.king.mlkit.vision.barcode.BarcodeCameraScanActivity
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_title)
@@ -233,13 +246,92 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private Thread newThread; //声明一个子线程
 
 
-    private Handler handler = new Handler();
-    Runnable run = new Runnable() {
-        @Override
-        public void run() {
+    /**
+     * 商品信息更新后被回调
+     * @param data
+     */
+    @Override
+    public void showResult(GoodsDataBean data) {
+        //说明是商品信息更新后被回调
+        if(data.getGoodsName() != null && !data.getGoodsName().isEmpty()){
+            TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
+            goodsBean.setGoods_id(data.getId());
+            goodsBean.setSpec(data.getSpec());
+            goodsBean.setGoods_price(data.getPrice());
+            goodsBean.setGoods_name(data.getGoodsName());
+            goodsBean.setBarcode(data.getBarcode());
+            goodsBean.setSupplier(data.getSupplier());
+            goodsBean.setGoods_number(1);
+            presenter.checkGoodsIsSame(numMap, goodsList, goodsBean);
 
+            //未收录商品回调
+        }else{
+            spk.speak("商品未被收录，请确认条形码无误后补全商品信息");
+            showInputDialog(data);
         }
-    };
+
+    }
+
+    /**
+     * 更新商品信息dialog
+     */
+    private void showInputDialog(GoodsDataBean data) {
+        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
+        mCameraScan.setAnalyzeImage(false);//停止扫码
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+
+        View view = View.inflate(this, R.layout.dialog_input, null);
+        // dialog.setView(view);// 将自定义的布局文件设置给dialog
+        // 设置边距为0,保证在2.x的版本上运行没问题
+        dialog.setView(view, 0, 0, 0, 0);
+
+        TextView etCode = (TextView) view.findViewById(R.id.tv_goods_code);
+        etCode.setText(data.getBarcode());
+        EditText etGuide = (EditText) view.findViewById(R.id.et_goods_guige);
+        etGuide.setText(data.getSpec());
+        EditText etName = (EditText) view.findViewById(R.id.et_goods_name);
+        etName.setText(data.getGoodsName());
+        EditTextWithText etMoney = (EditTextWithText) view.findViewById(R.id.et_money);
+        if(data.getPrice() == null || data.getPrice().isEmpty()){
+            etMoney.setLeadText("￥");
+            etMoney.setText("");
+        }else{
+            etMoney.setLeadText("￥");
+            etMoney.setText(data.getPrice());
+        }
+
+        EditText etSupplier = (EditText) view.findViewById(R.id.et_supplier);
+        etSupplier.setText(data.getSupplier());
+
+
+        Log.d(TAG,"商品position="+data.getPosition());
+        Button btnModify = (Button) view.findViewById(R.id.btn_add_goods);
+
+        btnModify.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String barcode = etCode.getText().toString();
+                String goodsName = etName.getText().toString();
+                String supplier = etSupplier.getText().toString();
+                String price = etMoney.getText().toString();
+                String psec = etGuide.getText().toString();
+                Log.d(TAG,"商品psec="+psec);
+                if(barcode.isEmpty() || goodsName.isEmpty() || supplier.isEmpty() || price.isEmpty() || psec.isEmpty()){
+                    ToastUtils.showShort(getApplicationContext(), "商品信息不全");
+                    return;
+                }
+                presenter.saveGoodsInfo(data.getPosition(),barcode,goodsName,supplier,price,psec,MainActivity.this);
+
+                dialog.dismiss();
+            }
+        });
+        ActivityUtil.backgroundAlpha(1f, this);
+        dialog.show();
+    }
     private MediaPlayer player;
     private MediaPlayer di;
     private GoodsAdapter mAdapter = null;
@@ -370,7 +462,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             case R.id.btn_scan:
 
                 if(event.getAction() == MotionEvent.ACTION_UP){
-                    Log.d("test", "cansal button ---> cancel");
+                    Log.d(TAG, "cansal button ---> cancel");
                     if(mHasCamera){
                         releaseCamera();
                         rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
@@ -380,14 +472,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 }
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     //如果开启联动模式，未连接设备
-                    if(MyApp.getInstance().mUseConnecting && mChatService.getState() != ChatService.STATE_CONNECTED){
+                    if(MyApp.getInstance().mUseConnecting && mBleGattClient.getState() != Constants.STATE_CONNECTED){
                         spk.speak("联动模式已开启，请连接从设备");
                         Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-                        ActivityUtil.startActivityForResult(this, DeviceList.class, REQUEST_CONNECT_DEVICE);
+                        ActivityUtil.startActivityForResult(this, BleDeviceActivity.class, REQUEST_CONNECT_BLE);
                         return false;
                     }
 
-                    Log.d("test", "cansal button ---> down");
+                    Log.d(TAG, "cansal button ---> down");
                     if(mHasCamera){
                         startCamera();
                         rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
@@ -563,7 +655,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             if (resultCode == Activity.RESULT_OK) {
                 String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                mChatService.connect(device);
+                mBluetoothService.connect(device);
                 showProgress();
 
             } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -572,6 +664,10 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         //请求打开蓝牙
         }else if(requestCode == REQUEST_ENABLE_BLUETOOTH){
                 setupChat();
+        }else if(requestCode == REQUEST_CONNECT_BLE){
+            String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
+            Toast.makeText(this, "连接设备:"+address, Toast.LENGTH_SHORT).show();
+            mBleGattClient.connect(address);
         }
 
     }
@@ -595,6 +691,20 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     public void manageData(TempOrderBean.TempGoodsBean bean) {
         // TODO: 2018/8/23 如果这里是相同的goodsId，那么需要的是更改数量就行  如果不是相同的goodsId，那么做的就是集合中添加一个新数据
+        // TODO: 2022/10/12 如果价格为空，说明是新加入的商品，需要添加价格信息
+        if(bean.getGoods_price().isEmpty()){
+            spk.speak("新录入商品，请补充价格等信息,完成后再次扫码");
+            GoodsDataBean data = new GoodsDataBean();
+            data.setBarcode(bean.getBarcode());
+            data.setId(bean.getGoods_id());
+            data.setGoodsName(bean.getGoods_name());
+            data.setPrice(bean.getGoods_price());
+            data.setSpec(bean.getSpec());
+            data.setSupplier(bean.getSupplier());
+            showInputDialog(data);
+            return;
+
+        }
         presenter.checkGoodsIsSame(numMap, goodsList, bean);
     }
 
@@ -744,9 +854,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA);
         }
 
-        if (mChatService != null) {
-            if (mChatService.getState() == ChatService.STATE_NONE) {
-                mChatService.start();
+        if (mBluetoothService != null) {
+            if (mBluetoothService.getState() == BluetoothService.STATE_NONE) {
+                mBluetoothService.start();
             }
         }
 
@@ -933,7 +1043,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
 
         //创建服务对象
-        mChatService = new ChatService(this, mHandler);
+        mBluetoothService = new BluetoothService(this, mHandler);
+
+        //Ble低功耗蓝牙设备 ---------->
+        mBleGattServer = new BleGattServer(this,mHandler);
+
+        //Ble低功耗蓝牙设备 ---------->客户端
+        mBleGattClient = new  BleGattClient(this);
+
 
     }
     //使用Handler对象在UI主线程与子线程之间传递消息
@@ -943,16 +1060,16 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             switch (msg.what) {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
-                        case ChatService.STATE_CONNECTED:
+                        case BluetoothService.STATE_CONNECTED:
                             tvTitle.setText("结算(连接到"+mConnectedDeviceName+")");
                             spk.speak("连接到"+mConnectedDeviceName);
                             hideProgress();
                             break;
-                        case ChatService.STATE_CONNECTING:
+                        case BluetoothService.STATE_CONNECTING:
                             spk.speak("设备连接中");
                             break;
-                        case ChatService.STATE_LISTEN:
-                        case ChatService.STATE_NONE:
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
                             spk.speak("设备连接丢失");
                             tvTitle.setText("结算(未连接)");
                             break;
@@ -970,23 +1087,17 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             }
         }
     };
+
     private boolean sendMessage(String message) {
         //如果不是开启联动模式，直接返回true
         if(!MyApp.getInstance().mUseConnecting){
             return true;
         }
-//        if (mChatService.getState() != ChatService.STATE_CONNECTED) {
-//            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-//
-//            ActivityUtil.startActivityForResult(this, DeviceList.class, REQUEST_CONNECT_DEVICE);
-//
-//            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
-//            releaseCamera();
-//            return false;
-//        }
+
         if (message.length() > 0) {
             byte[] send = message.getBytes();
-            mChatService.write(send);
+            mBleGattClient.SendBarcode(message);
+//            mBluetoothService.write(send);
             return true;
         }
         return false;
@@ -1123,10 +1234,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         //注销物理scan按键的接受广播
         this.unregisterReceiver(scanBroadcastReceiver);
         //释放相机
-//        releaseCamera();
-//        System.exit(0);
+        releaseCamera();
+        System.exit(0);
 
 
     }
+
 
 }

@@ -39,7 +39,7 @@ public interface RequestCallback {
          *
          * @param err
          */
-        void fial(String err);
+        void fial(Integer code,String err);
 
 
     }

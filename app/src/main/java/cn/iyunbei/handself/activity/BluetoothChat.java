@@ -9,12 +9,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +28,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import android.os.Handler;
 import cn.iyunbei.handself.R;
+import cn.iyunbei.handself.service.BleService;
+import cn.iyunbei.handself.service.BluetoothService;
 
 /*
     本例演示了使用手机蓝牙实现会话功能
@@ -55,7 +57,9 @@ public class BluetoothChat extends AppCompatActivity{
     private ArrayAdapter<String> mConversationArrayAdapter;
     private StringBuffer mOutStringBuffer;
     private BluetoothAdapter mBluetoothAdapter = null;
-    private ChatService mChatService = null;
+    private BluetoothService mBluetoothService = null;
+    private BleService mBleService = null;          //Ble低功耗蓝牙设备
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +88,7 @@ public class BluetoothChat extends AppCompatActivity{
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT); //
         } else {
-            if (mChatService == null) {
+            if (mBluetoothService == null) {
                 setupChat();  //创建会话
             }
         }
@@ -102,9 +106,9 @@ public class BluetoothChat extends AppCompatActivity{
     @Override
     public synchronized void onResume() {  //synchronized：同步方法实现排队调用
         super.onResume();
-        if (mChatService != null) {
-            if (mChatService.getState() == ChatService.STATE_NONE) {
-                mChatService.start();
+        if (mBluetoothService != null) {
+            if (mBluetoothService.getState() == BluetoothService.STATE_NONE) {
+                mBluetoothService.start();
             }
         }
 
@@ -127,15 +131,21 @@ public class BluetoothChat extends AppCompatActivity{
                 sendMessage(message);
             }
         });
+        Log.d("BleService","=============================");
         //创建服务对象
-        mChatService = new ChatService(this, mHandler);
+        mBluetoothService = new BluetoothService(this, mHandler);
+        Log.d("BleService","=============================");
+        //Ble低功耗蓝牙设备
+        mBleService = new BleService(this, mHandler);
+        Log.d("BleService","=============================");
+
         mOutStringBuffer = new StringBuffer("");
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mChatService != null)
-            mChatService.stop();
+        if (mBluetoothService != null)
+            mBluetoothService.stop();
     }
     private void ensureDiscoverable() { //修改本机蓝牙设备的可见性
         //打开手机蓝牙后，能被其它蓝牙设备扫描到的时间不是永久的
@@ -148,13 +158,13 @@ public class BluetoothChat extends AppCompatActivity{
         }
     }
     private void sendMessage(String message) {
-        if (mChatService.getState() != ChatService.STATE_CONNECTED) {
+        if (mBluetoothService.getState() != BluetoothService.STATE_CONNECTED) {
             Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
         if (message.length() > 0) {
             byte[] send = message.getBytes();
-            mChatService.write(send);
+            mBluetoothService.write(send);
             mOutStringBuffer.setLength(0);
             mOutEditText.setText(mOutStringBuffer);
         }
@@ -177,16 +187,16 @@ public class BluetoothChat extends AppCompatActivity{
             switch (msg.what) {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
-                        case ChatService.STATE_CONNECTED:
+                        case BluetoothService.STATE_CONNECTED:
                             mTitle.setText(R.string.title_connected_to);
                             mTitle.append(mConnectedDeviceName);
                             mConversationArrayAdapter.clear();
                             break;
-                        case ChatService.STATE_CONNECTING:
+                        case BluetoothService.STATE_CONNECTING:
                             mTitle.setText(R.string.title_connecting);
                             break;
-                        case ChatService.STATE_LISTEN:
-                        case ChatService.STATE_NONE:
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
                             mTitle.setText(R.string.title_not_connected);
                             break;
                     }
@@ -221,7 +231,7 @@ public class BluetoothChat extends AppCompatActivity{
                 if (resultCode == Activity.RESULT_OK) {
                     String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
                     BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                    mChatService.connect(device);
+                    mBluetoothService.connect(device);
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     Toast.makeText(this, "未选择任何好友！", Toast.LENGTH_SHORT).show();
                 }

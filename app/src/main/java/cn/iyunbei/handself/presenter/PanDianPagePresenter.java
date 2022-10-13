@@ -127,7 +127,7 @@ public class PanDianPagePresenter extends BasePresenter<PanDianPageContract.View
         }
 
         @Override
-        public void fial(String err) {
+        public void fial(Integer code,String err) {
             mView.showToast(err);
         }
     };

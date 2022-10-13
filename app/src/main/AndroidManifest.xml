@@ -41,6 +41,9 @@
     <!--Android12 的蓝牙权限 如果您的应用查找蓝牙设备（如蓝牙低功耗 (BLE) 外围设备）-->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
+    <!--    开机自启动-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
 
     <uses-feature android:name="android.hardware.camera2.full" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -69,10 +72,26 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.example.openandroid.MyService" /> //必须是全名
 
+                <category android:name="android.intent.category.default" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.BleDeviceActivity"
+            android:exported="true">
+
+
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+
+        </activity>
+
         <activity android:name=".activity.SettingActivity">
 
 
@@ -117,6 +136,18 @@
             android:priority="1000"
             android:exported="true"
             android:process=":keepalive"/>
+
+        <!-- 程序自启动广播 -->
+        <receiver android:name="cn.iyunbei.handself.service.BootBroadcastReceiver"
+                  android:enabled="true"
+                  android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

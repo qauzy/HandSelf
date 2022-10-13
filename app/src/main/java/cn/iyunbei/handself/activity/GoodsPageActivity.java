@@ -4,6 +4,7 @@ import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -123,7 +124,7 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         tvRight.setVisibility(View.GONE);
         ivRight.setImageResource(R.mipmap.add);
 
-        presenter.getGoodsList(page,5,this);
+//        presenter.getGoodsList(page,5,this);
         //设置侧滑时候弹出侧滑删除菜单
         rvGoodsList.setSwipeMenuCreator(mSwipeMenuCreator);
         SwipeMenuRecyclerView.LoadMoreListener loadMore = new SwipeMenuRecyclerView.LoadMoreListener(){
@@ -132,13 +133,13 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
             public void onLoadMore() {
                 //设置还有更多数据
                 page++;
-                presenter.getGoodsList(page,5,GoodsPageActivity.this);
+                presenter.getGoodsList(page,10,GoodsPageActivity.this);
                 rvGoodsList.loadMoreFinish(false,true);
 
             }
         };
         rvGoodsList.setLoadMoreListener(loadMore);
-        //rvGoodsList.setAutoLoadMore(true);
+//        rvGoodsList.setAutoLoadMore(true);
         rvGoodsList.loadMoreFinish(false,true);
     }
     private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
@@ -159,11 +160,16 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         return new GoodsPresenter();
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        presenter.getGoodsList(page,10,this);
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.getGoodsList(page,5,this);
+
     }
 
     @Override
@@ -230,7 +236,11 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
                 String supplier = etSupplier.getText().toString();
                 String price = etMoney.getText().toString();
                 String psec = etGuide.getText().toString();
-
+                Log.d(TAG,"商品psec="+psec);
+                if(barcode.isEmpty() || goodsName.isEmpty() || supplier.isEmpty() || price.isEmpty() || psec.isEmpty()){
+                    ToastUtils.showShort(getApplicationContext(), "商品信息不全");
+                    return;
+                }
                 presenter.saveGoodsInfo(data.getPosition(),barcode,goodsName,supplier,price,psec,GoodsPageActivity.this);
 
                 dialog.dismiss();

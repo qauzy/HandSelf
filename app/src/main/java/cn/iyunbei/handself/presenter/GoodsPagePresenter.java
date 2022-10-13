@@ -125,7 +125,7 @@ public class GoodsPagePresenter extends BasePresenter<GoodsPageContract.View> im
         }
 
         @Override
-        public void fial(String err) {
+        public void fial(Integer code,String err) {
             mView.showToast(err);
         }
     };

@@ -1,12 +1,12 @@
 package cn.iyunbei.handself.bean;
 
 public class GoodsDataBean {
-    public Integer getGoodsId() {
-        return goodsId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setGoodsId(Integer goodsId) {
-        this.goodsId = goodsId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getGoodsName() {
@@ -73,7 +73,7 @@ public class GoodsDataBean {
      * spec : 规格
      */
     private Integer position;
-    private Integer goodsId;
+    private Integer id;
     private String goodsName;
     private String barcode;
     private String price;

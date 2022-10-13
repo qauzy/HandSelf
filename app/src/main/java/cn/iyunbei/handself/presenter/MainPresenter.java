@@ -1,6 +1,5 @@
 package cn.iyunbei.handself.presenter;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -15,7 +14,7 @@ import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.Single;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.MainContract;
-import cn.iyunbei.handself.greendao.GreenDaoHelper;
+import cn.iyunbei.handself.model.GoodsModel;
 import cn.iyunbei.handself.model.MainModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CurrencyUtils;
@@ -41,22 +40,49 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
             TempOrderBean.TempGoodsBean goodsBean = new TempOrderBean.TempGoodsBean();
             GoodsDataBean data = bean.getData();
 
-            goodsBean.setGoods_id(data.getGoodsId());
+            goodsBean.setGoods_id(data.getId());
             goodsBean.setSpec(data.getSpec());
             goodsBean.setGoods_price(data.getPrice());
             goodsBean.setGoods_name(data.getGoodsName());
             goodsBean.setBarcode(data.getBarcode());
+            goodsBean.setSupplier(data.getSupplier());
             goodsBean.setGoods_number(1);
             mView.hideProgress();
             mView.manageData(goodsBean);
         }
 
         @Override
-        public void fial(String err) {
+        public void fial(Integer code,String msg) {
             mView.hideProgress();
-            mView.showToast(err);
+            if(code == 10005){
+                GoodsDataBean data = new GoodsDataBean();
+                data.setBarcode(msg);
+                mView.showResult(data);
+                return;
+            }
+            mView.showToast(msg);
         }
     };
+
+    private RequestCallback.UpdateInfoCallback updateInfoCallback = new RequestCallback.UpdateInfoCallback() {
+        @Override
+        public void succ(GoodsDataBean data) {
+            mView.hideProgress();
+            mView.showResult(data);
+        }
+        @Override
+        public void Fail(String errMsg) {
+            mView.hideProgress();
+
+        }
+    };
+
+    @Override
+    public void saveGoodsInfo(Integer position, String barcode, String goodsName, String supplier, String price,String psec,Context ctx) {
+        mView.showProgress();
+        new GoodsModel().saveGoodsInfo(position,barcode, goodsName, supplier, price,psec, updateInfoCallback);
+    }
+
 
     @Override
     public void addGoods(String s, SpeechUtils spk) {

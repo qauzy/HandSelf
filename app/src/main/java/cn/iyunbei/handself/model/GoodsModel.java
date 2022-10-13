@@ -5,14 +5,66 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cn.iyunbei.handself.Constants;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.bean.GoodsBean;
 import cn.iyunbei.handself.bean.PanDianingBean;
 import cn.iyunbei.handself.contract.PanDianPageContract;
 import jt.kundream.utils.JsonUtils;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
-public class GoodsPageModel implements PanDianPageContract.Model {
+public class GoodsModel implements PanDianPageContract.Model {
+
+
+    /**
+     * 更新商品信息
+     *
+     * @param barcode
+     * @param goodsName
+     * @param supplier
+     * @param price
+     * @param psec
+     */
+    public void saveGoodsInfo(Integer position, String barcode, String goodsName, String supplier, String price,String psec,final RequestCallback.UpdateInfoCallback updateInfoCallback) {
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("position", position);
+            jsonObj.put("barcode", barcode);
+            jsonObj.put("goodsName",goodsName);
+            jsonObj.put("supplier",supplier);
+            jsonObj.put("price",price);
+            jsonObj.put("spec",psec);
+        }catch (JSONException e){
+            updateInfoCallback.Fail("参数错误");
+        }
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, jsonObj.toString());
+        OkGo.<String>post(Constants.GOODS_SAVE)
+                .upRequestBody(body)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String s = response.body();
+                        if (JsonUtils.checkToken(s) == 200) {
+                            GoodsBean bean = new Gson().fromJson(s, GoodsBean.class);
+                            updateInfoCallback.succ(bean.getData());
+                        } else {
+                            updateInfoCallback.Fail(JsonUtils.getMsg(s));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        updateInfoCallback.Fail("网络请求失败");
+                    }
+                });
+    }
 
     public void reqPanDianing(String token, int pd_id, int page, final RequestCallback.PanDianingCallback callback) {
 
@@ -108,8 +160,10 @@ public class GoodsPageModel implements PanDianPageContract.Model {
                         if (JsonUtils.checkToken(result) == 200) {
                             GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
                             getGoodsCallback.succ(bean);
-                        } else {
-                            getGoodsCallback.fial(JsonUtils.getMsg(result));
+                        } else if(JsonUtils.checkToken(result) == 10005){
+                            getGoodsCallback.fial(JsonUtils.checkToken(result),barCode);
+                        }else{
+                            getGoodsCallback.fial(JsonUtils.checkToken(result),JsonUtils.getMsg(result));
                         }
                     }
 
@@ -122,7 +176,7 @@ public class GoodsPageModel implements PanDianPageContract.Model {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        getGoodsCallback.fial("网络错误");
+                        getGoodsCallback.fial(500,"网络错误");
                     }
                 });
     }

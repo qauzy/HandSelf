@@ -108,8 +108,10 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                         if (JsonUtils.checkToken(result) == 200) {
                             GoodsBean bean = new Gson().fromJson(result, GoodsBean.class);
                             getGoodsCallback.succ(bean);
-                        } else {
-                            getGoodsCallback.fial(JsonUtils.getMsg(result));
+                        } else if(JsonUtils.checkToken(result) == 10005){
+                            getGoodsCallback.fial(JsonUtils.checkToken(result),barCode);
+                        }else{
+                            getGoodsCallback.fial(JsonUtils.checkToken(result),JsonUtils.getMsg(result));
                         }
                     }
 
@@ -122,7 +124,7 @@ public class PanDianPageModel implements PanDianPageContract.Model {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        getGoodsCallback.fial("网络错误");
+                        getGoodsCallback.fial(500,"网络错误");
                     }
                 });
     }

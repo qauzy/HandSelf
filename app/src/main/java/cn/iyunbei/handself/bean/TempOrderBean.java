@@ -79,6 +79,16 @@ public class TempOrderBean implements Serializable{
 
         private String barcode;
 
+        public String getSupplier() {
+            return supplier;
+        }
+
+        public void setSupplier(String supplier) {
+            this.supplier = supplier;
+        }
+
+        private String supplier;
+
         public int getGoods_number() {
             return goods_number;
         }

@@ -12,6 +12,7 @@ import cn.iyunbei.handself.bean.PanDianBean;
 import cn.iyunbei.handself.contract.GoodsContract;
 import cn.iyunbei.handself.contract.PanDianContract;
 import cn.iyunbei.handself.model.GoodsListModel;
+import cn.iyunbei.handself.model.GoodsModel;
 import cn.iyunbei.handself.model.PanDianModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CommonUtil;
@@ -32,6 +33,7 @@ public class GoodsPresenter extends BasePresenter<GoodsContract.View> implements
         public void succ(List<GoodsDataBean> list) {
             mView.hideProgress();
             if (list.size() < 1) {
+
             } else {
                 mView.showData(list);
             }
@@ -68,6 +70,6 @@ public class GoodsPresenter extends BasePresenter<GoodsContract.View> implements
     @Override
     public void saveGoodsInfo(Integer position, String barcode, String goodsName, String supplier, String price,String psec,Context ctx) {
         mView.showProgress();
-        new GoodsListModel().saveGoodsInfo(position,barcode, goodsName, supplier, price,psec, updateInfoCallback);
+        new GoodsModel().saveGoodsInfo(position,barcode, goodsName, supplier, price,psec, updateInfoCallback);
     }
 }

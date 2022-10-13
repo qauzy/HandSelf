@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.presenter.SpeechUtils;
 import jt.kundream.base.IBaseView;
@@ -55,9 +56,18 @@ public interface MainContract {
         void showEmptyView();
 
         void setThisOrderTemp(int count);
+
+
+        /**
+         *  商品信息更新结果调用
+         * @param data
+         */
+        void showResult(GoodsDataBean data);
     }
 
     interface Presenter {
+
+
         /**
          * 此页面的必须方法
          *
@@ -82,5 +92,17 @@ public interface MainContract {
          * @param numMap
          */
         void saveOrderDatas(List<TempOrderBean.TempGoodsBean> goodsList, Map<Integer, Integer> numMap, Context ctx, double tolMon, int tolNum);
+
+        /**
+         * 保存商品信息
+         * @param position
+         * @param barcode
+         * @param goodsName
+         * @param supplier
+         * @param price
+         * @param psec
+         * @param ctx
+         */
+        void saveGoodsInfo(Integer position,String barcode, String goodsName, String supplier, String price,String psec,Context ctx) ;
     }
 }
