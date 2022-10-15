@@ -93,8 +93,8 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         tvRight.setVisibility(View.GONE);
         tvTitle.setText("结算方式");
         tvMoney.setText(tolMoney);
-        showProgress();
-        presenter.getPayType(getContext());
+//        showProgress();
+//        presenter.getPayType(getContext());
     }
 
     @Override

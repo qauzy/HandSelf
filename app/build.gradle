@@ -5,6 +5,9 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
+        ndk {
+            abiFilters  'armeabi-v7a', 'arm64-v8a'
+        }
         applicationId "cn.iyunbei.handself"
         minSdkVersion 21
         targetSdkVersion 28
@@ -41,7 +44,7 @@ android {
     sourceSets {
         main {
             jni.srcDirs = []
-            jniLibs.srcDirs = ['src/main/duotellibs']
+            jniLibs.srcDirs = ['src/main/duotellibs','src/main/libs']
         }
     }
 }
@@ -69,4 +72,7 @@ dependencies {
     implementation 'com.jenzz:materialpreference:1.3'
     implementation "androidx.preference:preference:1.2.0"
     implementation 'com.yarolegovich:mp:1.1.6'
+    implementation project(':camera_ui')
+    implementation files('libs/easyedge-sdk.jar')
+
 }

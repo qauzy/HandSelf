@@ -30,22 +30,22 @@ public class MainModel implements MainContract.Model {
     private static final String TAG = MainModel.class.getSimpleName();
     public static void requestGoods(String barCode, SpeechUtils spk, final RequestCallback.GetGoodsCallback callback) {
         Cursor cursor =  GreenDaoHelper.getDb().rawQuery("select * from goods where barcode=?",new String[]{barCode});
-        if (cursor.getCount() != 0) {
-            cursor.moveToFirst();
-            GoodsBean goodsBean = new GoodsBean();
-            GoodsDataBean dataBean = new GoodsDataBean();
-            dataBean.setBarcode(barCode);
-            dataBean.setId(cursor.getInt(cursor.getColumnIndex("id")));
-            dataBean.setGoodsName(cursor.getString(cursor.getColumnIndex("goods_name")));
-            dataBean.setSpec(cursor.getString(cursor.getColumnIndex("spec")));
-            dataBean.setPrice(cursor.getString(cursor.getColumnIndex("price")));
-            dataBean.setSupplier(cursor.getString(cursor.getColumnIndex("supplier")));
-//            dataBean.setBrand(cursor.getString(cursor.getColumnIndex("brand")));
-            spk.speak(dataBean.getGoodsName());
-            goodsBean.setData(dataBean);
-            callback.succ(goodsBean);
-            return;
-        }
+//        if (cursor.getCount() != 0) {
+//            cursor.moveToFirst();
+//            GoodsBean goodsBean = new GoodsBean();
+//            GoodsDataBean dataBean = new GoodsDataBean();
+//            dataBean.setBarcode(barCode);
+//            dataBean.setId(cursor.getInt(cursor.getColumnIndex("id")));
+//            dataBean.setGoodsName(cursor.getString(cursor.getColumnIndex("goods_name")));
+//            dataBean.setSpec(cursor.getString(cursor.getColumnIndex("spec")));
+//            dataBean.setPrice(cursor.getString(cursor.getColumnIndex("price")));
+//            dataBean.setSupplier(cursor.getString(cursor.getColumnIndex("supplier")));
+////            dataBean.setBrand(cursor.getString(cursor.getColumnIndex("brand")));
+
+//            goodsBean.setData(dataBean);
+//            callback.succ(goodsBean);
+//            return;
+//        }
         OkGo.<String>get(Constants.GET_GOODS)
                 .params("barcode", barCode)
                 .execute(new StringCallback() {

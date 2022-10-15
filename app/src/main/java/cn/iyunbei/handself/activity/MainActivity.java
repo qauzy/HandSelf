@@ -705,6 +705,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             return;
 
         }
+        spk.speak(bean.getGoods_name());
         presenter.checkGoodsIsSame(numMap, goodsList, bean);
     }
 

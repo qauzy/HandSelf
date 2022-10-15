@@ -100,7 +100,7 @@
 
 
         <activity
-            android:name=".activity.BluetoothChat"
+            android:name=".activity.CameraActivity"
             android:exported="true">
 
 

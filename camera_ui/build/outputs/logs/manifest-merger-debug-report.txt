@@ -1,0 +1,53 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+	package
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:2:5-35
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:1-8:12
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:1:11-69
+uses-permission#android.permission.CAMERA
+ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:4:5-65
+	android:name
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:4:22-62
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:5:5-81
+	android:name
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:5:22-78
+uses-permission#android.permission.INTERNET
+ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:6:5-67
+	android:name
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:6:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:7:5-79
+	android:name
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml:7:22-76
+uses-sdk
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		ADDED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml
+		INJECTED from /opt/code/HandSelf/camera_ui/src/main/AndroidManifest.xml

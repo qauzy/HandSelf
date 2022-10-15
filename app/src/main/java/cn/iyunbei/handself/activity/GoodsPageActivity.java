@@ -2,26 +2,41 @@ package cn.iyunbei.handself.activity;
 
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.baidu.ai.edge.core.base.CallException;
+import com.baidu.ai.edge.core.base.Consts;
+import com.baidu.ai.edge.core.infer.InferManager;
+import com.baidu.ai.edge.core.util.FileUtil;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
@@ -49,6 +64,14 @@ import jt.kundream.utils.ToastUtils;
  * @desc:盘点页面
  **/
 public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPresenter> implements GoodsContract.View {
+
+    private Button startUIActivityBtn;
+    private String modelName = "";
+    private String version = "";
+    private String soc;
+    private ArrayList<String> socList = new ArrayList<>();
+    private int modelType;
+
     final String TAG = "GoodsPageActivity";
     @Bind(R.id.iv_left)
     ImageView ivLeft;
@@ -91,6 +114,15 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         }
     };
 
+    private void startUICameraActivity() {
+        Intent intent = new Intent(GoodsPageActivity.this, CameraActivity.class);
+        intent.putExtra("name", modelName);
+        intent.putExtra("model_type", modelType);
+//        intent.putExtra("serial_num", SERIAL_NUM);
+
+        intent.putExtra("soc", soc);
+        ActivityUtil.startActivityForResult(this,intent, 1);
+    }
     @OnClick({R.id.iv_left, R.id.iv_right})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -102,7 +134,7 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
                 /**
                  * 添加盘点单的时候 进入界面  数据直接为空
                  */
-//                ActivityUtil.startActivity(GoodsPageActivity.this, PanDianPageActivity.class, new Intent().putExtra("pd_id",-1 ), false);
+                startUICameraActivity();
                 break;
 
             default:
@@ -163,7 +195,10 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        initPermission();
         presenter.getGoodsList(page,10,this);
+        initConfig();
+        boolean checkChip = checkChip();
     }
 
     @Override
@@ -249,6 +284,159 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         ActivityUtil.backgroundAlpha(1f, this);
         dialog.show();
     }
+    /**
+     * demo文件夹非必需，如果没有默认使用通用arm的配置
+     */
+    private void initConfig() {
+        if (initConfigFromDemoConfig()) {
+            Log.i(TAG, "Initialized by demo/config.json");
+            return;
+        }
+        if (initConfigFromDemoConf()) {
+            Log.i(TAG, "Initialized by demo/conf.json");
+            return;
+        }
 
+        /* 从infer/读配置 */
+        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                Consts.ASSETS_DIR_ARM + "/conf.json");
+        if (!TextUtils.isEmpty(confJson)) {
+            try {
+                JSONObject confObj = new JSONObject(confJson);
+                modelName = confObj.optString("modelName", "");
+
+                String str = confObj.optString("soc", Consts.SOC_ARM);
+                String[] socs = str.split(",");
+                socList.addAll(Arrays.asList(socs));
+
+                modelType = confObj.getInt("modelType");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                    Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
+            try {
+                JSONObject confObj = new JSONObject(confJson);
+                socList.add(Consts.SOC_ARM);
+                modelType = confObj.getJSONObject("model_info").getInt("model_kind");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.i(TAG, "Initialized by arm#*.json");
+    }
+
+    /**
+     * 原有的
+     */
+    private boolean initConfigFromDemoConfig() {
+        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/config.json");
+        if (TextUtils.isEmpty(confJson)) {
+            return false;
+        }
+        try {
+            JSONObject confObj = new JSONObject(confJson);
+            modelName = confObj.optString("modelName", "");
+
+            String str = confObj.optString("soc", Consts.SOC_ARM);
+            String[] socs = str.split(",");
+            socList.addAll(Arrays.asList(socs));
+
+            modelType = confObj.getInt("modelType");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    /**
+     * 开放模型
+     */
+    private boolean initConfigFromDemoConf() {
+        String confJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(), "demo/conf.json");
+        if (TextUtils.isEmpty(confJson)) {
+            return false;
+        }
+        try {
+            JSONObject confObj = new JSONObject(confJson);
+            modelName = confObj.optString("modelName", "");
+            socList.add(Consts.SOC_ARM);
+
+            String inferCfgJson = FileUtil.readAssetsFileUTF8StringIfExists(getAssets(),
+                    Consts.ASSETS_DIR_ARM + "/infer_cfg.json");
+            if (TextUtils.isEmpty(inferCfgJson)) {
+                return false;
+            }
+            JSONObject inferCfgObj = new JSONObject(inferCfgJson);
+            modelType = inferCfgObj.getJSONObject("model_info").getInt("model_kind");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    private boolean checkChip() {
+        if (socList.contains(Consts.SOC_DSP) && Build.HARDWARE.equalsIgnoreCase("qcom")) {
+            soc = Consts.SOC_DSP;
+            return true;
+        }
+        if (socList.contains(Consts.SOC_ADRENO_GPU) && Build.HARDWARE.equalsIgnoreCase("qcom")) {
+            soc = Consts.SOC_ADRENO_GPU;
+            return true;
+        }
+        if (socList.contains(Consts.SOC_NPU) && Build.HARDWARE.contains("kirin980")) {
+            soc = "npu200";
+            return true;
+        }
+        if (socList.contains(Consts.SOC_NPU_VINCI) && (Build.HARDWARE.contains("kirin810")
+                || Build.HARDWARE.contains("kirin820") || Build.HARDWARE.contains("kirin990"))) {
+            soc = Consts.SOC_NPU_VINCI;
+            return true;
+        }
+        if (socList.contains(Consts.SOC_ARM_GPU)) {
+            try {
+                if (InferManager.isSupportOpencl()) {
+                    soc = Consts.SOC_ARM_GPU;
+                    return true;
+                }
+            } catch (CallException e) {
+                Toast.makeText(getApplicationContext(), e.getErrorCode() + ", " + e.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (socList.contains(Consts.SOC_ARM)) {
+            soc = Consts.SOC_ARM;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * android 6.0 以上需要动态申请权限
+     */
+    private void initPermission() {
+        String[] permissions = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.CAMERA
+        };
+
+        ArrayList<String> toApplyList = new ArrayList<String>();
+
+        for (String perm : permissions) {
+            if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
+                toApplyList.add(perm);
+                // 进入到这里代表没有权限.
+
+            }
+        }
+        String[] tmpList = new String[toApplyList.size()];
+        if (!toApplyList.isEmpty()) {
+            ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), 123);
+        }
+    }
 
 }
