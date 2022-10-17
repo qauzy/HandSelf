@@ -7,10 +7,16 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+
+import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.baidu.ai.edge.ui.util.StringUtil;
 import com.baidu.ai.edge.ui.view.model.BasePolygonResultModel;
@@ -28,6 +34,74 @@ import java.util.Random;
  */
 
 public class ResultMaskView extends View {
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d("ResultMaskView","Action:"+event.getAction()+" 起始位置：(" + event.getX() + "," + event.getY()+")");
+        switch (event.getAction()) {
+            /**
+             * 点击的开始位置
+             */
+            case MotionEvent.ACTION_DOWN:
+                Log.d("ResultMaskView","起始位置：(" + event.getX() + "," + event.getY()+")");
+                if(mResultModelList != null){
+                    for (BasePolygonResultModel v : mResultModelList) {
+
+                        Rect rect =new Rect();
+                        List<Point> ps =  v.getBounds(sizeRatio, originPt);
+                        for (Point p:ps) {
+                            if(rect.bottom < p.y){
+                                rect.bottom = p.y;
+                            }
+                            //FIXME 注意这里rect.to默认为0
+                            if(rect.top > p.y || rect.top ==0){
+                                rect.top = p.y;
+                            }
+                            if(rect.right < p.x ){
+                                rect.right = p.x;
+                            }
+                            //FIXME 注意这里rect.left默认为0
+                            if(rect.left > p.x || rect.left == 0){
+                                rect.left = p.x;
+                            }
+
+                        }
+
+
+                        if(event.getX() >rect.left  && event.getX() <rect.right  && event.getY() > rect.top  && event.getY() <rect.bottom){
+                            Log.d("ResultMaskView",v.getName() + ":" + " xmin:"+rect.left + " xmax:"+rect.right+ " ymin:"+rect.top+ " ymax:"+rect.bottom);
+                            //发送消息
+                            Message msg = handler.obtainMessage(1);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("info", v.getName());
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+                        }
+
+                    }
+
+                }
+                break;
+            /**
+             * 触屏实时位置
+             */
+            case MotionEvent.ACTION_MOVE:
+                Log.d("ResultMaskView","实时位置：(" + event.getX() + "," + event.getY());
+                break;
+            /**
+             * 离开屏幕的位置
+             */
+            case MotionEvent.ACTION_UP:
+                Log.d("ResultMaskView","离开屏幕位置：(" + event.getX() + "," + event.getY());
+                break;
+            default:
+                break;
+        }
+        return super.onTouchEvent(event);
+//        return true;
+    }
+
     private static final int[][] COLOR_MAP_DEF = {
             {0, 0, 0},
             {244, 35, 232},
@@ -52,7 +126,7 @@ public class ResultMaskView extends View {
     };
 
     private float sizeRatio;
-    private List<BasePolygonResultModel> mResultModelList;
+    private List<BasePolygonResultModel> mResultModelList;      //识别结果集合
     private Point originPt = new Point();
     private int imgWidth;
     private int imgHeight;

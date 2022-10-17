@@ -57,18 +57,18 @@ public class MainModel implements MainContract.Model {
                             GoodsDataBean data = bean.getData();
 
                             //只有价格不是空的才保存到本地数据库
-                            if(data.getPrice()!= null && !data.getPrice().isEmpty()){
-                                //实例化常量值
-                                ContentValues cValue = new ContentValues();
-                                cValue.put("id",data.getId());
-                                cValue.put("goods_name",data.getGoodsName());
-                                cValue.put("goods_name",data.getGoodsName());
-                                cValue.put("barcode",data.getBarcode());
-                                cValue.put("price",data.getPrice());
-                                cValue.put("spec",data.getSpec());
-                                cValue.put("supplier",data.getSupplier());
-                                GreenDaoHelper.getDb().insert("goods",null,cValue);
-                            }
+//                            if(data.getPrice()!= null && !data.getPrice().isEmpty()){
+//                                //实例化常量值
+//                                ContentValues cValue = new ContentValues();
+//                                cValue.put("id",data.getId());
+//                                cValue.put("goods_name",data.getGoodsName());
+//                                cValue.put("goods_name",data.getGoodsName());
+//                                cValue.put("barcode",data.getBarcode());
+//                                cValue.put("price",data.getPrice());
+//                                cValue.put("spec",data.getSpec());
+//                                cValue.put("supplier",data.getSupplier());
+//                                GreenDaoHelper.getDb().insert("goods",null,cValue);
+//                            }
 
                             callback.succ(bean);
                         }  else if(JsonUtils.checkToken(result) == 10005){

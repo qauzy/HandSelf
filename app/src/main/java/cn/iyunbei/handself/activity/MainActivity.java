@@ -640,16 +640,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 200) {
-            if (resultCode == 200) {
-                TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
-                goodsList.addAll(tempOrder.getGoodsList());
-                toaMon = tempOrder.getTotalMoney();
-                toaNum = tempOrder.getTotalNum();
-                for (int i = 0; i < goodsList.size(); i++) {
-                    numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
-                }
-                setAdapter();
+            TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
+            goodsList.addAll(tempOrder.getGoodsList());
+            toaMon = tempOrder.getTotalMoney();
+            toaNum = tempOrder.getTotalNum();
+            for (int i = 0; i < goodsList.size(); i++) {
+                numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
             }
+            setAdapter();
         }else if (requestCode == REQUEST_CONNECT_DEVICE) {
 
             if (resultCode == Activity.RESULT_OK) {
@@ -893,7 +891,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 presenter.addGoods(it.getRawValue(), spk);
             }
 
-
         }
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -902,8 +899,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 mCameraScan.setAnalyzeImage(true);
             }
         }, 1000);
-
-
 
     }
 
@@ -946,8 +941,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         initCameraScan();
 
         //TODO 这里判断下，如果没有摄像头就影藏扫描框，设置成横屏--说明是在智能音箱上运行的
-
-
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         String[] cameraIdList = new String[0];
         try {
@@ -957,13 +950,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
         if (cameraIdList.length>0) {
             mHasCamera = true;
-//            rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
-//            startCamera();
-
         }else{
             mHasCamera = false;
-//            rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
         }
 

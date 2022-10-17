@@ -1,6 +1,7 @@
 package cn.iyunbei.handself.presenter;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import cn.iyunbei.handself.contract.PanDianContract;
 import cn.iyunbei.handself.model.GoodsListModel;
 import cn.iyunbei.handself.model.GoodsModel;
 import cn.iyunbei.handself.model.PanDianModel;
+import cn.iyunbei.handself.model.PanDianPageModel;
 import jt.kundream.base.BasePresenter;
 import jt.kundream.utils.CommonUtil;
 
@@ -61,6 +63,29 @@ public class GoodsPresenter extends BasePresenter<GoodsContract.View> implements
         }
     };
 
+    private RequestCallback.GetGoodsCallback getGoodsCallback = new RequestCallback.GetGoodsCallback() {
+        @Override
+        public void succ(GoodsBean bean) {
+            GoodsDataBean data = bean.getData();
+            mView.showGoods(data);
+        }
+
+        @Override
+        public void fial(Integer code,String msg) {
+            if(code == 10005){
+                GoodsDataBean data = new GoodsDataBean();
+                data.setGoodsName("");
+                data.setSpec("");
+                data.setSupplier("");
+                data.setPrice("");
+                data.setBarcode(msg);
+                mView.showGoods(data);
+                return;
+            }
+            mView.showToast(msg);
+        }
+    };
+
     @Override
     public void getGoodsList(Integer page,Integer pageSize,Context ctx) {
         mView.showProgress();
@@ -71,5 +96,19 @@ public class GoodsPresenter extends BasePresenter<GoodsContract.View> implements
     public void saveGoodsInfo(Integer position, String barcode, String goodsName, String supplier, String price,String psec,Context ctx) {
         mView.showProgress();
         new GoodsModel().saveGoodsInfo(position,barcode, goodsName, supplier, price,psec, updateInfoCallback);
+    }
+
+    /**
+     * 获取单个商品，如果正确，在页面弹出盘点的dialog
+     *
+     * @param context
+     * @param barCode
+     */
+    public void reqGoods(Context context, String barCode) {
+        if (TextUtils.isEmpty(barCode)) {
+            mView.showToast("条码不正确");
+        } else {
+            new GoodsModel().requestGoods(barCode, CommonUtil.getString(context, "token"), getGoodsCallback);
+        }
     }
 }

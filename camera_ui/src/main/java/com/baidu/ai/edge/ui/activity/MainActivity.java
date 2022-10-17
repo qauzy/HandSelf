@@ -14,6 +14,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -103,7 +104,7 @@ public abstract class MainActivity extends AppCompatActivity {
     private ViewGroup realtimeControlViewGroup;
 
     private ResultMaskView resultMaskView;
-    private ResultMaskView realtimeResultMaskView;
+    private ResultMaskView realtimeResultMaskView;          //显示识别结果的VIEW
 
     private SeekBar confidenceSeekbar;
     private TextView seekbarText;
@@ -153,19 +154,20 @@ public abstract class MainActivity extends AppCompatActivity {
     Handler uiHandler;
 
     private String name;
+    public abstract void onSelectLabel(String label);
 
     public abstract void onActivityCreate();
 
     public abstract void onActivityDestory();
 
-    public abstract void onDetectBitmap(Bitmap bitmap, float confidence,
-                                        ResultListener.DetectListener listener);
+//    public abstract void onDetectBitmap(Bitmap bitmap, float confidence,
+//                                        ResultListener.DetectListener listener);
 
-    public abstract void onClassifyBitmap(Bitmap bitmap, float confidence,
-                                          ResultListener.ClassifyListener listener);
+//    public abstract void onClassifyBitmap(Bitmap bitmap, float confidence,
+//                                          ResultListener.ClassifyListener listener);
 
-    public abstract void onSegmentBitmap(Bitmap bitmap, float confidence,
-                                         ResultListener.SegmentListener listener);
+//    public abstract void onSegmentBitmap(Bitmap bitmap, float confidence,
+//                                         ResultListener.SegmentListener listener);
 
     public abstract void onOcrBitmap(Bitmap bitmap, float confidence,
                                      ResultListener.OcrListener listener);
@@ -195,7 +197,18 @@ public abstract class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        uiHandler = new Handler(getMainLooper());
+        uiHandler = new Handler(getMainLooper()){   //消息处理
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    default:
+                        //点击了标签
+                        onSelectLabel(msg.getData().getString("info"));
+
+                }
+            }
+        };
+
         pageCode = PAGE_CAMERA;
 
         setContentView(R.layout.ui_activity_main);
@@ -247,7 +260,7 @@ public abstract class MainActivity extends AppCompatActivity {
         }
     }
 
-    public abstract void onPoseBitmap(Bitmap bitmap, float confidence, ResultListener.PoseListener listener);
+//    public abstract void onPoseBitmap(Bitmap bitmap, float confidence, ResultListener.PoseListener listener);
 
 
     private boolean isProcessingAutoTakePicture = false;
@@ -269,7 +282,7 @@ public abstract class MainActivity extends AppCompatActivity {
         if (modelList.contains(model)) {
             resultTablePopview.setVisibility(View.GONE);
             if (actionType == ACTION_TYPE_SCAN && !isRealtimeStatusRunning) {
-                realtimeResultMaskView.clear();
+//                realtimeResultMaskView.clear();
             }
         }
 
@@ -710,49 +723,49 @@ public abstract class MainActivity extends AppCompatActivity {
 
     private void resolveDetectResult(Bitmap bitmap, float confidence,
                                      final ResultListener.ListListener listener) {
-        if (model == MODEL_DETECT || model == MODEL_FACE_DETECT) {
-            onDetectBitmap(bitmap, confidence, new ResultListener.DetectListener() {
-                @Override
-                public void onResult(List<BasePolygonResultModel> models) {
-                    if (models == null) {
-                        listener.onResult(null);
-                        return;
-                    }
-                    detectResultModelCache = models;
-                    listener.onResult(models);
-                }
-            });
-
-        }
-        if (model == MODEL_CLASSIFY) {
-            onClassifyBitmap(bitmap, confidence, new ResultListener.ClassifyListener() {
-                @Override
-                public void onResult(List<ClassifyResultModel> models) {
-                    if (models == null) {
-                        listener.onResult(null);
-                        return;
-                    }
-
-                    classifyResultModelCache = models;
-                    listener.onResult(models);
-                }
-            });
-        }
-        if (model == MODEL_SEGMENT || model == MODEL_SEMANTIC_SEGMENT) {
-
-            onSegmentBitmap(bitmap, confidence, new ResultListener.SegmentListener() {
-
-                @Override
-                public void onResult(List<BasePolygonResultModel> models) {
-                    if (models == null) {
-                        listener.onResult(null);
-                        return;
-                    }
-                    segmentResultModelCache = models;
-                    listener.onResult(models);
-                }
-            });
-        }
+//        if (model == MODEL_DETECT || model == MODEL_FACE_DETECT) {
+//            onDetectBitmap(bitmap, confidence, new ResultListener.DetectListener() {
+//                @Override
+//                public void onResult(List<BasePolygonResultModel> models) {
+//                    if (models == null) {
+//                        listener.onResult(null);
+//                        return;
+//                    }
+//                    detectResultModelCache = models;
+//                    listener.onResult(models);
+//                }
+//            });
+//
+//        }
+//        if (model == MODEL_CLASSIFY) {
+//            onClassifyBitmap(bitmap, confidence, new ResultListener.ClassifyListener() {
+//                @Override
+//                public void onResult(List<ClassifyResultModel> models) {
+//                    if (models == null) {
+//                        listener.onResult(null);
+//                        return;
+//                    }
+//
+//                    classifyResultModelCache = models;
+//                    listener.onResult(models);
+//                }
+//            });
+//        }
+//        if (model == MODEL_SEGMENT || model == MODEL_SEMANTIC_SEGMENT) {
+//
+//            onSegmentBitmap(bitmap, confidence, new ResultListener.SegmentListener() {
+//
+//                @Override
+//                public void onResult(List<BasePolygonResultModel> models) {
+//                    if (models == null) {
+//                        listener.onResult(null);
+//                        return;
+//                    }
+//                    segmentResultModelCache = models;
+//                    listener.onResult(models);
+//                }
+//            });
+//        }
 
         if (model == MODEL_OCR) {
 
@@ -770,19 +783,19 @@ public abstract class MainActivity extends AppCompatActivity {
             });
         }
 
-        if (model == MODEL_POSE) {
-            onPoseBitmap(bitmap, confidence, new ResultListener.PoseListener() {
-                @Override
-                public void onResult(List<BasePolygonResultModel> models) {
-                    if (models == null) {
-                        listener.onResult(null);
-                        return;
-                    }
-                    poseResultModelCache = models;
-                    listener.onResult(models);
-                }
-            });
-        }
+//        if (model == MODEL_POSE) {
+//            onPoseBitmap(bitmap, confidence, new ResultListener.PoseListener() {
+//                @Override
+//                public void onResult(List<BasePolygonResultModel> models) {
+//                    if (models == null) {
+//                        listener.onResult(null);
+//                        return;
+//                    }
+//                    poseResultModelCache = models;
+//                    listener.onResult(models);
+//                }
+//            });
+//        }
     }
 
     private void updateResultImageAndList(List<? extends BaseResultModel> results, final Bitmap bitmap, float min) {

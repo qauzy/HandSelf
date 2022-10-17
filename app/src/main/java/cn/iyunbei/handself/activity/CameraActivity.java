@@ -1,15 +1,17 @@
 package cn.iyunbei.handself.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.util.Pair;
@@ -57,11 +59,12 @@ import com.baidu.ai.edge.ui.view.model.PoseViewResultModel;
 import com.baidu.ai.edge.ui.view.model.SegmentResultModel;
 import com.baidu.ai.edge.ui.activity.MainActivity;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.bean.GoodsDataBean;
-import cn.iyunbei.handself.service.BluetoothService;
+import cn.iyunbei.handself.presenter.SpeechUtils;
 import cn.iyunbei.handself.utils.EditTextWithText;
 import jt.kundream.utils.ActivityUtil;
 import jt.kundream.utils.ToastUtils;
@@ -78,7 +81,10 @@ public class CameraActivity extends MainActivity {
     private String serialNum;
     private Integer step = 0;
 
-    private final String[] StepList = {"获取条形码","获取商品名","获取规格","获取生产商"};
+    private final String[] StepList = {"确认商品名","确认规格","确认生产商"};
+    private final String[] SayWaht = {"请选择商品名标签","请选择规格标签","请选择生产商标签"};
+    private HashMap InfoMap;
+
     ClassifyInterface mClassifyDLManager;
     ClassifyInterface mOnlineClassify;
     DetectInterface mDetectManager;
@@ -86,6 +92,8 @@ public class CameraActivity extends MainActivity {
     SegmentInterface mSegmentManager;
     OcrInterface mOcrManager;
     PoseInterface mPoseManager;
+    GoodsDataBean goodsInfo;    //用于存储OCR识别到的商品信息
+    private SpeechUtils spk;
 
 
     private static final int CODE_FOR_WRITE_PERMISSION = 0;
@@ -98,62 +106,111 @@ public class CameraActivity extends MainActivity {
     // 模型加载状态
     private boolean modelLoadStatus = false;
 
+    @Override
+    public void onSelectLabel(String label) {
 
-    //使用Handler对象在UI主线程与子线程之间传递消息
-    private final Handler mHandler = new Handler() {   //消息处理
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                default:
-                    player.start();
-                AlertDialog alertDialog1 = new AlertDialog.Builder(CameraActivity.this)
-                        .setTitle(StepList[step])//标题
-                        .setMessage(msg.getData().getString("净含量"))//内容
-                        .setCancelable(false) //点击弹框外部不会消失
-                        .setPositiveButton("确定",new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.cancel();
-
-                                step++;
-                                //获取完了所有信息，结束扫描
-                                if(step>3){
-                                    CameraActivity.this.finish();
-                                }else{
-                                    //继续识别
-                                    if(!isRealtimeStatusRunning){
-                                        toggleRealtimeStatus();
-                                    }
-                                }
+        if(goodsInfo == null){
+            goodsInfo = new GoodsDataBean();
+        }
+        AlertDialog alertDialog1 = new AlertDialog.Builder(CameraActivity.this)
+                .setTitle(StepList[step])//标题
+                .setMessage(label)//内容
+                .setCancelable(false) //点击弹框外部不会消失
+                .setPositiveButton("确定",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                        if(step == 0){
+                            goodsInfo.setGoodsName(label);
+                        }else if(step == 1){
+                            goodsInfo.setSpec(label);
+                        }else if(step == 2){
+                            goodsInfo.setSupplier(label);
+                        }
+                        step++;
+                        //获取完了所有信息，结束扫描
+                        if(step>2){
+                            String barcode = getIntent().getStringExtra("barcode");
+                            Intent intent = new Intent();
+                            intent.putExtra("goodsName", goodsInfo.getGoodsName());  //回传OCR识别到的商品信息
+                            intent.putExtra("barcode", barcode);
+                            intent.putExtra("supplier", goodsInfo.getSupplier());
+                            intent.putExtra("spec", goodsInfo.getSpec());
+                            CameraActivity.this.setResult(Activity.RESULT_OK, intent);
+                            CameraActivity.this.finish();
+                        }else{
+                            //继续识别
+                            if(!isRealtimeStatusRunning){
+                                toggleRealtimeStatus();
                             }
-                        })
-                        .setNegativeButton("关闭", new DialogInterface.OnClickListener() {//添加取消
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.cancel();
-                                //继续识别
-                                if(!isRealtimeStatusRunning){
-                                    toggleRealtimeStatus();
-                                }
+                        }
+                    }
+                })
+                .setNegativeButton("再获取一次", new DialogInterface.OnClickListener() {//添加取消
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                        //继续识别
+                        if(!isRealtimeStatusRunning){
+                            toggleRealtimeStatus();
+                        }
 
-                            }
-                        })
-                        .create();
-                alertDialog1.show();
+                    }
+                })
+                .create();
+        alertDialog1.show();
+
+    }
+
+
+
+    @Override
+    public void onOcrBitmap(Bitmap bitmap, float confidence, ResultListener.OcrListener listener) {
+        List<OcrResultModel> modelList = null;
+        try {
+            modelList = mOcrManager.ocr(bitmap, confidence);
+
+            List<BasePolygonResultModel> results = new ArrayList<>();
+            for (int i = 0; i < modelList.size(); i++) {
+                OcrResultModel mOcrResultModel = modelList.get(i);
+//
+//                //根据步骤获取商品信息
+//                GetGoodsInfo(mOcrResultModel.getLabel());
+
+                OcrViewResultModel mOcrViewResultModel = new OcrViewResultModel();
+                mOcrViewResultModel.setColorId(mOcrResultModel.getLabelIndex());
+                mOcrViewResultModel.setIndex(i + 1);
+                mOcrViewResultModel.setConfidence(mOcrResultModel.getConfidence());
+                mOcrViewResultModel.setName(mOcrResultModel.getLabel());
+                mOcrViewResultModel.setBounds(mOcrResultModel.getPoints());
+                mOcrViewResultModel.setTextOverlay(true);
+                results.add(mOcrViewResultModel);
+
 
             }
+            //显示识别结果
+            listener.onResult(results);
+            // 扫描到目标文字，暂停识别
+            if(isRealtimeStatusRunning && modelList.size()>0){
+                spk.speak(SayWaht[step]);
+                player.start();
+                toggleRealtimeStatus();
+            }
+        } catch (BaseException e) {
+            showError(e);
+            listener.onResult(null);
         }
-    };
-
+    }
 
     /*
-      onCreate中调用
-     */
+          onCreate中调用
+         */
     @Override
     public void onActivityCreate() {
         choosePlatform();
         start();
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
+        spk = new SpeechUtils(this);
     }
 
     private void choosePlatform() {
@@ -210,209 +267,6 @@ public class CameraActivity extends MainActivity {
         releaseEasyDL();
     }
 
-
-    /**
-     * 新线程中调用 ，从照相机中获取bitmap
-     *
-     * @param bitmap     RGBA格式
-     * @param confidence [0-1）
-     * @return
-     */
-    @Override
-    public void onDetectBitmap(Bitmap bitmap, float confidence,
-                               final ResultListener.DetectListener listener) {
-
-//        if (isOnline) {
-//            try {
-//                List<DetectionResultModel> result = mOnlineDetect.detect(bitmap, confidence);
-//                listener.onResult(fillDetectionResultModel(result));
-//            } catch (BaseException e) {
-//                listener.onResult(null);
-//                showError(e);
-//                e.printStackTrace();
-//            }
-//            return;
-//        }
-
-        if (mDetectManager == null) {
-            showMessage("模型初始化中，请稍后");
-            listener.onResult(null);
-            return;
-        }
-        try {
-            List<DetectionResultModel> modelList = mDetectManager.detect(bitmap, confidence);
-            listener.onResult(fillDetectionResultModel(modelList));
-        } catch (BaseException e) {
-            showError(e);
-            listener.onResult(null);
-        }
-    }
-
-    private List<BasePolygonResultModel> fillDetectionResultModel(
-            List<DetectionResultModel> modelList) {
-        List<BasePolygonResultModel> results = new ArrayList<>();
-        for (int i = 0; i < modelList.size(); i++) {
-            DetectionResultModel mDetectionResultModel = modelList.get(i);
-            DetectResultModel mDetectResultModel = new DetectResultModel();
-            mDetectResultModel.setIndex(i + 1);
-            mDetectResultModel.setConfidence(mDetectionResultModel.getConfidence());
-            mDetectResultModel.setName(mDetectionResultModel.getLabel());
-            mDetectResultModel.setBounds(mDetectionResultModel.getBounds());
-            results.add(mDetectResultModel);
-        }
-        return results;
-    }
-
-    @Override
-    public void onClassifyBitmap(Bitmap bitmap, float confidence,
-                                 final ResultListener.ClassifyListener listener) {
-//        if (isOnline) {
-//
-//            try {
-//                List<ClassificationResultModel> result = mOnlineClassify.classify(bitmap, confidence);
-//                fillClassificationResultModel(result);
-//            } catch (BaseException e) {
-//                e.printStackTrace();
-//                listener.onResult(null);
-//                showError(e);
-//            }
-//            return;
-//        }
-
-        if (mClassifyDLManager == null) {
-            showMessage("模型初始化中，请稍后");
-            listener.onResult(null);
-            return;
-        }
-        try {
-            List<ClassificationResultModel> modelList = mClassifyDLManager.classify(bitmap, confidence);
-            listener.onResult(fillClassificationResultModel(modelList));
-        } catch (BaseException e) {
-            showError(e);
-            listener.onResult(null);
-        }
-    }
-
-    @Override
-    public void onSegmentBitmap(Bitmap bitmap, float confidence, final ResultListener.SegmentListener listener) {
-        if (mSegmentManager == null) {
-            showMessage("模型初始化中，请稍后");
-            listener.onResult(null);
-            return;
-        }
-
-        List<SegmentationResultModel> resultModels = null;
-        try {
-            resultModels = mSegmentManager.segment(bitmap, confidence);
-            List<BasePolygonResultModel> results = new ArrayList<>();
-            for (int i = 0; i < resultModels.size(); i++) {
-                SegmentationResultModel mSegmentationResultModel = resultModels.get(i);
-                SegmentResultModel mSegmentResultModel = new SegmentResultModel();
-                mSegmentResultModel.setColorId(mSegmentationResultModel.getLabelIndex());
-                mSegmentResultModel.setIndex(i + 1);
-                mSegmentResultModel.setConfidence(mSegmentationResultModel.getConfidence());
-                mSegmentResultModel.setName(mSegmentationResultModel.getLabel());
-                mSegmentResultModel.setBounds(mSegmentationResultModel.getBox());
-                mSegmentResultModel.setMask(mSegmentationResultModel.getMask());
-                if (model == MODEL_SEMANTIC_SEGMENT) {
-                    // 语义分割不绘制标签
-                    mSegmentResultModel.setRect(false);
-                    mSegmentResultModel.setSemanticMask(true);
-                }
-                results.add(mSegmentResultModel);
-            }
-
-            listener.onResult(results);
-        } catch (BaseException e) {
-            showError(e);
-            listener.onResult(null);
-        }
-
-    }
-
-    @Override
-    public void onOcrBitmap(Bitmap bitmap, float confidence, ResultListener.OcrListener listener) {
-        List<OcrResultModel> modelList = null;
-        try {
-            modelList = mOcrManager.ocr(bitmap, confidence);
-            List<BasePolygonResultModel> results = new ArrayList<>();
-            for (int i = 0; i < modelList.size(); i++) {
-                OcrResultModel mOcrResultModel = modelList.get(i);
-
-                if(mOcrResultModel.getLabel().contains("净含量")){
-                    //扫描到目标文字，暂停识别
-                    if(isRealtimeStatusRunning){
-                        toggleRealtimeStatus();
-                    }
-                    //发送消息
-                    Message msg = mHandler.obtainMessage(BluetoothChat.MESSAGE_DEVICE_NAME);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("净含量", mOcrResultModel.getLabel());
-                    msg.setData(bundle);
-                    mHandler.sendMessage(msg);
-                    Log.d(TAG,mOcrResultModel.getLabel());
-
-//                    ToastUtils.showShort(CameraActivity.this,mOcrResultModel.getLabel());
-                }
-                OcrViewResultModel mOcrViewResultModel = new OcrViewResultModel();
-                mOcrViewResultModel.setColorId(mOcrResultModel.getLabelIndex());
-                mOcrViewResultModel.setIndex(i + 1);
-                mOcrViewResultModel.setConfidence(mOcrResultModel.getConfidence());
-                mOcrViewResultModel.setName(mOcrResultModel.getLabel());
-                mOcrViewResultModel.setBounds(mOcrResultModel.getPoints());
-                mOcrViewResultModel.setTextOverlay(true);
-                results.add(mOcrViewResultModel);
-
-
-            }
-            listener.onResult(results);
-        } catch (BaseException e) {
-            showError(e);
-            listener.onResult(null);
-        }
-    }
-
-    public void onPoseBitmap(Bitmap bitmap, float confidence, ResultListener.PoseListener listener) {
-        List<PoseResultModel> modelList = null;
-        try {
-            modelList = mPoseManager.pose(bitmap);
-            List<BasePolygonResultModel> results = new ArrayList<>();
-            for (int i = 0; i < modelList.size(); i++) {
-                PoseResultModel mPoseResultModel = modelList.get(i);
-                PoseViewResultModel mPoseViewResultModel = new PoseViewResultModel();
-                mPoseViewResultModel.setColorId(mPoseResultModel.getIndex());
-                mPoseViewResultModel.setIndex(i + 1);
-                mPoseViewResultModel.setConfidence(mPoseResultModel.getConfidence());
-                mPoseViewResultModel.setName(mPoseResultModel.getLabel() + "Line" + mPoseResultModel.getIndex());
-                Pair<Point, Point> line = mPoseResultModel.getPoints();
-                List<Point> points = new ArrayList<Point>();
-                points.add(line.first);
-                points.add(line.second);
-                mPoseViewResultModel.setBounds(points);
-                mPoseViewResultModel.setHasGroupColor(mPoseResultModel.hasGroups());
-                mPoseViewResultModel.setColorId(mPoseResultModel.getGroupIndex());
-                results.add(mPoseViewResultModel);
-            }
-            listener.onResult(results);
-        } catch (BaseException e) {
-            showError(e);
-            listener.onResult(null);
-        }
-    }
-
-    private List<ClassifyResultModel> fillClassificationResultModel(
-            List<ClassificationResultModel> modelList) {
-        List<ClassifyResultModel> results = new ArrayList<>();
-        for (int i = 0; i < modelList.size(); i++) {
-            ClassificationResultModel mClassificationResultModel = modelList.get(i);
-            ClassifyResultModel mClassifyResultModel = new ClassifyResultModel();
-            mClassifyResultModel.setIndex(i + 1);
-            mClassifyResultModel.setConfidence(mClassificationResultModel.getConfidence());
-            mClassifyResultModel.setName(mClassificationResultModel.getLabel());
-            results.add(mClassifyResultModel);
-        }
-        return results;
-    }
 
     @Override
     public void dumpDetectResult(List<DetectResultModel> model, Bitmap bitmap, float min) {
@@ -656,61 +510,4 @@ public class CameraActivity extends MainActivity {
     }
 
 
-    /**
-     * 更新商品信息dialog
-     */
-    private void showInputDialog(GoodsDataBean data) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final AlertDialog dialog = builder.create();
-
-        View view = View.inflate(this, R.layout.dialog_input, null);
-        // dialog.setView(view);// 将自定义的布局文件设置给dialog
-        // 设置边距为0,保证在2.x的版本上运行没问题
-        dialog.setView(view, 0, 0, 0, 0);
-
-        TextView etCode = (TextView) view.findViewById(R.id.tv_goods_code);
-        etCode.setText(data.getBarcode());
-        EditText etGuide = (EditText) view.findViewById(R.id.et_goods_guige);
-        etGuide.setText(data.getSpec());
-        EditText etName = (EditText) view.findViewById(R.id.et_goods_name);
-        etName.setText(data.getGoodsName());
-        EditTextWithText etMoney = (EditTextWithText) view.findViewById(R.id.et_money);
-        if(data.getPrice() == null || data.getPrice().isEmpty()){
-            etMoney.setLeadText("￥");
-            etMoney.setText("");
-        }else{
-            etMoney.setLeadText("￥");
-            etMoney.setText(data.getPrice());
-        }
-
-        EditText etSupplier = (EditText) view.findViewById(R.id.et_supplier);
-        etSupplier.setText(data.getSupplier());
-
-
-        Log.d(TAG,"商品position="+data.getPosition());
-        Button btnModify = (Button) view.findViewById(R.id.btn_add_goods);
-
-        btnModify.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                String barcode = etCode.getText().toString();
-                String goodsName = etName.getText().toString();
-                String supplier = etSupplier.getText().toString();
-                String price = etMoney.getText().toString();
-                String psec = etGuide.getText().toString();
-                Log.d(TAG,"商品psec="+psec);
-                if(barcode.isEmpty() || goodsName.isEmpty() || supplier.isEmpty() || price.isEmpty() || psec.isEmpty()){
-                    ToastUtils.showShort(getApplicationContext(), "商品信息不全");
-                    return;
-                }
-//                presenter.saveGoodsInfo(data.getPosition(),barcode,goodsName,supplier,price,psec, cn.iyunbei.handself.activity.MainActivity.this);
-
-                dialog.dismiss();
-            }
-        });
-        ActivityUtil.backgroundAlpha(1f, this);
-        dialog.show();
-    }
 }

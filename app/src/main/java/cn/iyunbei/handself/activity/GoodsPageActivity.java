@@ -3,20 +3,31 @@ package cn.iyunbei.handself.activity;
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -27,6 +38,8 @@ import com.baidu.ai.edge.core.base.CallException;
 import com.baidu.ai.edge.core.base.Consts;
 import com.baidu.ai.edge.core.infer.InferManager;
 import com.baidu.ai.edge.core.util.FileUtil;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.king.mlkit.vision.camera.CameraScan;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
@@ -35,6 +48,7 @@ import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +63,8 @@ import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.bean.GoodsListBean;
 import cn.iyunbei.handself.contract.GoodsContract;
 import cn.iyunbei.handself.presenter.GoodsPresenter;
+import cn.iyunbei.handself.presenter.SpeechUtils;
+import cn.iyunbei.handself.service.ScanService;
 import cn.iyunbei.handself.utils.EditTextWithText;
 import jt.kundream.base.BaseActivity;
 import jt.kundream.utils.ActivityUtil;
@@ -65,7 +81,9 @@ import jt.kundream.utils.ToastUtils;
  **/
 public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPresenter> implements GoodsContract.View {
 
-    private Button startUIActivityBtn;
+    private static final int REQUEST_GOODS_OCR = 303;  //请求OCR识别商品信息
+    private SpeechUtils spk;
+
     private String modelName = "";
     private String version = "";
     private String soc;
@@ -73,6 +91,7 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     private int modelType;
 
     final String TAG = "GoodsPageActivity";
+
     @Bind(R.id.iv_left)
     ImageView ivLeft;
     @Bind(R.id.tv_left)
@@ -90,6 +109,9 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
 
     private GoodsListAdapter mAdapter;
     private List<GoodsDataBean> mDatas = new ArrayList<>();
+
+
+    private ScanService mScanService;
     private RequestCallback.ItemViewOnClickListener itemClickListener = new RequestCallback.ItemViewOnClickListener() {
         @Override
         public void itemViewClick(View view) {
@@ -114,27 +136,76 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         }
     };
 
-    private void startUICameraActivity() {
+    /**
+     * OCR识别商品信息回传数据
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_GOODS_OCR) {
+            GoodsDataBean goods = new GoodsDataBean();
+            goods.setGoodsName(data.getExtras().getString("goodsName"));
+            goods.setBarcode(data.getExtras().getString("barcode"));
+            goods.setSupplier(data.getExtras().getString("supplier"));
+            goods.setSpec(data.getExtras().getString("spec"));
+            goods.setPrice("");
+            showInputDialog(goods);
+        }
+    }
+
+    private void startOCRActivity(String barcode) {
         Intent intent = new Intent(GoodsPageActivity.this, CameraActivity.class);
         intent.putExtra("name", modelName);
         intent.putExtra("model_type", modelType);
-//        intent.putExtra("serial_num", SERIAL_NUM);
+        intent.putExtra("barcode", barcode);
 
         intent.putExtra("soc", soc);
-        ActivityUtil.startActivityForResult(this,intent, 1);
+        ActivityUtil.startActivityForResult(this,intent, REQUEST_GOODS_OCR);
     }
     @OnClick({R.id.iv_left, R.id.iv_right})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_left:
-                finish();
+                //如果扫描打开，则关闭扫描
+                if(mScanService.isRunnning()){
+                    mScanService.stop();
+                }else{
+                    finish();
+                }
+
                 break;
 
             case R.id.iv_right:
                 /**
                  * 添加盘点单的时候 进入界面  数据直接为空
                  */
-                startUICameraActivity();
+                //实例化一个PopupMenu对象,传两个参数（Context，当前按钮的实例）
+                PopupMenu menu = new PopupMenu(GoodsPageActivity.this,view);
+                //加载菜单资源
+                menu.getMenuInflater().inflate(R.menu.context, menu.getMenu());
+                //设置点击事件的响应
+                menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+
+                        switch (menuItem.getItemId()){
+                            case R.id.goods_add_scan:
+                                mScanService.start();
+                                break;
+                            case R.id.goods_add_manual:
+                                Toast.makeText(GoodsPageActivity.this, "手动添加", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                //一定要调用show()来显示弹出式菜单
+                menu.show();
+//                startUICameraActivity();
                 break;
 
             default:
@@ -148,6 +219,12 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     public int getLayoutResId() {
         return R.layout.activity_goods;
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //将菜单资源加载到当前的菜单资源
+        getMenuInflater().inflate(R.menu.option_menu,menu);
+        return true;
+    }
 
     @Override
     public void initView() {
@@ -155,7 +232,6 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         tvTitle.setText("货品列表");
         tvRight.setVisibility(View.GONE);
         ivRight.setImageResource(R.mipmap.add);
-
 //        presenter.getGoodsList(page,5,this);
         //设置侧滑时候弹出侧滑删除菜单
         rvGoodsList.setSwipeMenuCreator(mSwipeMenuCreator);
@@ -173,6 +249,16 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         rvGoodsList.setLoadMoreListener(loadMore);
 //        rvGoodsList.setAutoLoadMore(true);
         rvGoodsList.loadMoreFinish(false,true);
+
+
+        //扫码服务
+        mScanService = new ScanService(this) {
+            @Override
+            public void onScanResult(String code) {
+                Log.d(TAG,code);
+                presenter.reqGoods(GoodsPageActivity.this,code);
+            }
+        };
     }
     private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
         @Override
@@ -199,6 +285,7 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         presenter.getGoodsList(page,10,this);
         initConfig();
         boolean checkChip = checkChip();
+        spk = new SpeechUtils(this);
     }
 
     @Override
@@ -222,9 +309,61 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
     }
     @Override
     public void showResult(GoodsDataBean data) {
-        mDatas.set(data.getPosition(),data);
-        mAdapter.notifyItemChanged(data.getPosition());
-        ToastUtils.showShort(getApplicationContext(), "信息更新成功");
+        //
+        if(data.getGoodsName().isEmpty() || data.getPrice().isEmpty() || data.getSpec().isEmpty() || data.getSupplier().isEmpty()){
+
+        }else{
+            mDatas.set(data.getPosition(),data);
+            mAdapter.notifyItemChanged(data.getPosition());
+            ToastUtils.showShort(getApplicationContext(), "信息更新成功");
+
+        }
+    }
+
+    @Override
+    public void showGoods(GoodsDataBean data) {
+        //停止扫码
+        mScanService.stop();
+        //
+        if(data.getGoodsName().isEmpty() ||  data.getSpec().isEmpty() || data.getSupplier().isEmpty()){
+            //询问是否需要OCR识别
+            spk.speak("商品未被收录，请确认条形码无误后，手动或自动添加其他信息");
+            AlertDialog alertDialog = new AlertDialog.Builder(GoodsPageActivity.this)
+                    .setTitle("提示")//标题
+                    .setMessage("商品「"+data.getBarcode()+"」未被收录，是否使用OCR扫描商品信息？")//内容
+                    .setCancelable(false) //点击弹框外部不会消失
+                    .setPositiveButton("是",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                            startOCRActivity(data.getBarcode());
+                        }
+                    })
+                    .setNegativeButton("否", new DialogInterface.OnClickListener() {//添加取消
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                            showInputDialog(data);
+                        }
+                    })
+                    .create();
+
+            final Window window = alertDialog.getWindow();
+            window.setBackgroundDrawable(new ColorDrawable(Color.GRAY));
+
+            alertDialog.show();
+
+
+
+
+        }else if( data.getPrice().isEmpty()){
+            spk.speak("新收录商品，请确认补全价格等信息");
+            showInputDialog(data);
+        }else{
+            spk.speak("商品已被收录，请确认是否需要更正商品信息");
+            showInputDialog(data);
+        }
+
     }
 
     /**

@@ -5,6 +5,7 @@
     android:id="@+id/preference_screen"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/gray_8"
     tools:context=".activity.SettingActivity">
 
     <include layout="@layout/include_head" />
@@ -12,7 +13,7 @@
     <com.yarolegovich.mp.MaterialPreferenceCategory
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        app:mp_cv_color="@color/gray_8"
         app:mpc_title="系统设置"
         app:mpc_title_color="@color/colorPrimary">
 
@@ -20,7 +21,7 @@
             android:id="@+id/pref_use_connecting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFFFFF"
+            app:mp_cv_color="@color/gray_8"
             app:mp_default_value="true"
             app:mp_key="@string/use_connecting_key"
             app:mp_title="开启联动" />
@@ -28,7 +29,7 @@
             android:id="@+id/pref_enable_scan_only"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#FFFFFF"
+            app:mp_initial_color="@color/gray_8"
             app:mp_default_value="false"
             app:mp_key="@string/enable_scan_only_key"
             app:mp_title="只作为扫描设备" />

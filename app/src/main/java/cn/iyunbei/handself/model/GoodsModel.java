@@ -150,9 +150,8 @@ public class GoodsModel implements PanDianPageContract.Model {
      * @param getGoodsCallback
      */
     public static void requestGoods(String barCode, String token, final RequestCallback.GetGoodsCallback getGoodsCallback) {
-        OkGo.<String>post(Constants.GET_GOODS)
+        OkGo.<String>get(Constants.GET_GOODS)
                 .params("barcode", barCode)
-                .params("_token", token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

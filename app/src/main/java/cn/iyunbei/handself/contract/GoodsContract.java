@@ -28,6 +28,7 @@ public interface GoodsContract {
          */
         void showResult(GoodsDataBean data);
 
+        void showGoods(GoodsDataBean data);
     }
 
     interface Presenter {

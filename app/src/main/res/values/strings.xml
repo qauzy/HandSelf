@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HandSelf</string>
+    <string name="app_name">机灵猫</string>
     <string name="long_btn_scan">扫描</string>
     <string name="hand_input">手动添加</string>
     <string name="scan_input">扫码添加</string>

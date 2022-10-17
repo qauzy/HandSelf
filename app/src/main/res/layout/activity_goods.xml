@@ -6,7 +6,22 @@
     android:orientation="vertical">
 
     <include layout="@layout/include_head" />
+    <RelativeLayout
+        android:id="@+id/rl_goods_add_scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerVertical="true">
+        <androidx.camera.view.PreviewView
+            android:id="@+id/goods_add_previewView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_300"/>
 
+        <com.king.mlkit.vision.barcode.ViewfinderView
+            android:id="@+id/viewfinderView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_300" />
+    </RelativeLayout>
     <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
         android:id="@+id/rv_goods_list"
         android:layout_width="match_parent"
