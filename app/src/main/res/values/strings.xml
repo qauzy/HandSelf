@@ -114,5 +114,6 @@
     <!--    pref 配置 keys-->
     <string name="use_connecting_key">use_connecting</string>
     <string name="enable_scan_only_key">enable_scan_only</string>
+    <string name="default_dev">default_dev</string>
     <string name="enable_goods_notice_key">enable_goods_notice</string>
 </resources>

@@ -44,9 +44,10 @@ public class MyApp extends BaseApplication implements SharedPreferences.OnShared
 
         mCurDev1 = ToolKit.getUniqueID(this);
         //初始化配置
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        prefs.registerOnSharedPreferenceChangeListener(this);
         mUseConnecting = prefs.getBoolean(getString(R.string.use_connecting_key),false);
         mEnableScanOnly = prefs.getBoolean(getString(R.string.enable_scan_only_key),false);
         spk = new SpeechUtils(this);

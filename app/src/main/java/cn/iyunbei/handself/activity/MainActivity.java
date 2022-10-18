@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -626,11 +628,17 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
             Toast.makeText(this, "连接设备:"+address, Toast.LENGTH_SHORT).show();
             mBleGattClient.connect(address);
+            //保存为默认连接设备
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(getString(R.string.default_dev),address).apply();
+
         }else if(requestCode == 500){
             if (resultCode == Activity.RESULT_OK) {
                 goodsList.clear();
                 numMap.clear();
                 mAdapter.notifyDataSetChanged();
+                setToalData(CurrencyUtils.toBigDecimal("0"), 0);
+
             }
 
         }
@@ -902,8 +910,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
         //Ble低功耗蓝牙设备 ---------->客户端
         mBleGattClient = new  BleGattClient(this);
-
-
+        //如果使用联动默认，而且默认默认设备不为空
+        if(MyApp.getInstance().mUseConnecting){
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String address = prefs.getString(getString(R.string.default_dev), "");
+            if(!address.isEmpty()){
+                mBleGattClient.connect(address);
+            }
+        }
     }
     //使用Handler对象在UI主线程与子线程之间传递消息
     private final Handler mHandler = new Handler() {   //消息处理

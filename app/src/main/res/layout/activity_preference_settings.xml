@@ -34,7 +34,14 @@
             app:mp_key="@string/enable_scan_only_key"
             app:mp_title="只作为扫描设备" />
 
-
+        <com.yarolegovich.mp.MaterialEditTextPreference
+            android:id="@+id/pref_default_dev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:mp_initial_color="@color/gray_8"
+            app:mp_default_value=""
+            app:mp_key="@string/default_dev"
+            app:mp_title="默认设备" />
 
     </com.yarolegovich.mp.MaterialPreferenceCategory>
 
