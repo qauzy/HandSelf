@@ -110,8 +110,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     private boolean mHasCamera;
 
-    private BluetoothService mBluetoothService = null; //蓝牙通信服务
-
 
     private BleGattServer mBleGattServer = null;          //Ble低功耗蓝牙设备服务端
     private  BleGattClient mBleGattClient= null;          //Ble低功耗蓝牙设备客服端
@@ -610,18 +608,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                     numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
                 }
                 setAdapter();
-        }else if (requestCode == REQUEST_CONNECT_DEVICE) {
-
-            if (resultCode == Activity.RESULT_OK) {
-                String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
-                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                mBluetoothService.connect(device);
-                showProgress();
-
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(this, "未选择任何设备！", Toast.LENGTH_SHORT).show();
-            }
-        //请求打开蓝牙
         }else if(requestCode == REQUEST_ENABLE_BLUETOOTH){
                 setupBluetoothDev();
         }else if(requestCode == REQUEST_CONNECT_BLE){
@@ -828,13 +814,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA);
         }
 
-        if (mBluetoothService != null) {
-            if (mBluetoothService.getState() == BluetoothService.STATE_NONE) {
-                mBluetoothService.start();
-            }
-        }
-
-
     }
     private void createTable(SQLiteDatabase db){
 //创建表SQL语句
@@ -902,8 +881,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             return;
         }
 
-        //创建服务对象
-        mBluetoothService = new BluetoothService(this, mHandler);
 
         //Ble低功耗蓝牙设备 ---------->
         mBleGattServer = new BleGattServer(this,mHandler);
@@ -926,16 +903,22 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             switch (msg.what) {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
-                        case BluetoothService.STATE_CONNECTED:
-                            tvTitle.setText("结算(连接到"+mConnectedDeviceName+")");
-                            MyApp.getInstance().say("连接到"+mConnectedDeviceName);
+                        case Constants.STATE_CONNECTED:
+                            if(mConnectedDeviceName == null) {
+                                tvTitle.setText("结算(已连接)");
+                                MyApp.getInstance().say("已连接");
+                            }else{
+                                tvTitle.setText("结算(连接到"+mConnectedDeviceName+")");
+                                MyApp.getInstance().say("连接到"+mConnectedDeviceName);
+                            }
+
                             hideProgress();
                             break;
-                        case BluetoothService.STATE_CONNECTING:
+                        case Constants.STATE_CONNECTING:
                             MyApp.getInstance().say("设备连接中");
                             break;
-                        case BluetoothService.STATE_LISTEN:
-                        case BluetoothService.STATE_NONE:
+                        case Constants.STATE_LISTEN:
+                        case Constants.STATE_NONE:
                             MyApp.getInstance().say("设备连接丢失");
                             tvTitle.setText("结算(未连接)");
                             break;

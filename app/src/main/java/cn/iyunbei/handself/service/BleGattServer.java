@@ -179,13 +179,13 @@ public class BleGattServer {
 //                .addServiceData(new ParcelUuid(UUID_SERVICE), new byte[]{2}) //服务数据，自定义
                 .build();
 
-
         //设置设备蓝牙名称
         mBluetoothAdapter.setName("机灵猫");
         mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
         //true,标识可以被连接
         //设为0时，代表无时间限制会一直广播
         mBluetoothLeAdvertiser.startAdvertising(settings, advertiseData,scanResponse, mAdvertiseCallback);
+
         Log.d(TAG,"开始广播...");
     }
 
