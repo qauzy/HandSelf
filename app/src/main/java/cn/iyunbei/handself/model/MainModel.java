@@ -28,7 +28,7 @@ import jt.kundream.utils.JsonUtils;
  **/
 public class MainModel implements MainContract.Model {
     private static final String TAG = MainModel.class.getSimpleName();
-    public static void requestGoods(String barCode, SpeechUtils spk, final RequestCallback.GetGoodsCallback callback) {
+    public static void requestGoods(String barCode, final RequestCallback.GetGoodsCallback callback) {
         Cursor cursor =  GreenDaoHelper.getDb().rawQuery("select * from goods where barcode=?",new String[]{barCode});
 //        if (cursor.getCount() != 0) {
 //            cursor.moveToFirst();

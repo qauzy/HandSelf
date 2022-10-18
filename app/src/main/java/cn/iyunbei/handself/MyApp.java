@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 import cn.iyunbei.handself.greendao.DaoMaster;
 import cn.iyunbei.handself.greendao.DaoSession;
+import cn.iyunbei.handself.presenter.SpeechUtils;
+import cn.iyunbei.handself.utils.ToolKit;
 import jt.kundream.base.BaseApplication;
 import jt.kundream.utils.ToastUtils;
 import okhttp3.OkHttpClient;
@@ -29,22 +31,25 @@ import okhttp3.OkHttpClient;
  * @desc:
  **/
 public class MyApp extends BaseApplication implements SharedPreferences.OnSharedPreferenceChangeListener{
-
     PosApi mPosApi = null;
     static MyApp instance = null;
-    private static String mCurDev1 = "";
+    private String mCurDev1 ;
     public Boolean mUseConnecting;
     public Boolean mEnableScanOnly;
+    private SpeechUtils spk;
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        mCurDev1 = ToolKit.getUniqueID(this);
         //初始化配置
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         mUseConnecting = prefs.getBoolean(getString(R.string.use_connecting_key),false);
         mEnableScanOnly = prefs.getBoolean(getString(R.string.enable_scan_only_key),false);
-
+        spk = new SpeechUtils(this);
         initOkGo();
 //        initDatabase();
     }
@@ -52,6 +57,10 @@ public class MyApp extends BaseApplication implements SharedPreferences.OnShared
     public MyApp() {
         super.onCreate();
         instance = this;
+
+    }
+    public void say(String what){
+        spk.speak(what);
     }
 
     public static  MyApp getInstance(){
@@ -82,48 +91,15 @@ public class MyApp extends BaseApplication implements SharedPreferences.OnShared
                 .setRetryCount(3);
 //                .addCommonParams();
     }
-
-
-    private void initPosapi() {
-        //posap初始化
-        mPosApi = PosApi.getInstance(this);
-        //根据型号进行初始化mPosApi类
-        if (Build.MODEL.contains("LTE") || android.os.Build.DISPLAY.contains("3508") ||
-                android.os.Build.DISPLAY.contains("403") ||
-                android.os.Build.DISPLAY.contains("35S09")) {
-            mPosApi.initPosDev("ima35s09");
-            setCurDevice("ima35s09");
-        } else if (Build.MODEL.contains("5501")) {
-            mPosApi.initPosDev("ima35s12");
-            setCurDevice("ima35s12");
-        } else {
-            mPosApi.initPosDev(PosApi.PRODUCT_MODEL_IMA80M01);
-            setCurDevice(PosApi.PRODUCT_MODEL_IMA80M01);
-        }
-
-        mPosApi.setOnComEventListener(new PosApi.OnCommEventListener() {
-            @Override
-            public void onCommState(int i, int i1, byte[] bytes, int i2) {
-
-                switch (i) {
-                    case PosApi.POS_INIT:
-                        if (i1 == PosApi.COMM_STATUS_SUCCESS) {
-                            ToastUtils.showShort(getApplicationContext(), "设备初始化成功");
-                        } else {
-                            ToastUtils.showShort(getApplicationContext(), "设备初始化失败");
-                        }
-                        break;
-                }
-            }
-        });
-
-    }
-
     public String getCurDevice() {
         return mCurDev1;
     }
 
-    public static void setCurDevice(String mCurDev) {
+    public boolean isFiberHome() {
+        return mCurDev1.compareToIgnoreCase(Constants.FiberHomeUUID) == 0;
+    }
+
+    public void setCurDevice(String mCurDev) {
         mCurDev1 = mCurDev;
     }
 

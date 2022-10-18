@@ -38,6 +38,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import cn.iyunbei.handself.Constants;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.presenter.SpeechUtils;
 import cn.iyunbei.handself.utils.ToolKit;
 
@@ -64,8 +65,6 @@ public class LiveService extends Service {
     private PowerManager.WakeLock mWakeLock;
     WifiManager.MulticastLock mMulticastLock;
 
-    private SpeechUtils spk;
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -88,10 +87,6 @@ public class LiveService extends Service {
 
         wifiLock.acquire();
 
-
-        Context ctx =  getApplicationContext();
-        spk = new SpeechUtils(ctx);
-
         Log.d(TAG, TAG + "---->initWebSocket,启动服务");
         //初始化WebSocket
         mHandler.postDelayed(heartBeatRunnable, HEART_BEAT_RATE);//开启心跳检测
@@ -102,10 +97,9 @@ public class LiveService extends Service {
             reconnectWs();//进入页面发现断开开启重连
         }
 
-        String uuid = ToolKit.getUniqueID(this);
 
-        if(uuid.compareToIgnoreCase(Constants.FiberHomeUUID) == 0){
-            Log.d(TAG, uuid);
+
+        if(MyApp.getInstance().isFiberHome()){
             mRunFiberHome = true;
             try {
                 Log.d(TAG, "温湿度测量服务初始化...");
@@ -114,11 +108,7 @@ public class LiveService extends Service {
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
-        }else{
-            Log.d(TAG, uuid);
         }
-
-
 
 //
 //        /* 开一个线程 接收udp多播*/
@@ -208,7 +198,7 @@ public class LiveService extends Service {
                         ms.receive(dp);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    spk.speak("组播监听可能被关闭,请检查设备");
+                    MyApp.getInstance().say("组播监听可能被关闭,请检查设备");
                     sendMsg("组播监听可能被关闭,请检查设备");
                 }
 
@@ -229,7 +219,7 @@ public class LiveService extends Service {
                     }
 
                     final String codeString = new String(data, 0, dp.getLength());
-                    spk.speak(codeString);
+                    MyApp.getInstance().say(codeString);
 
                 }
             }
@@ -299,7 +289,7 @@ public class LiveService extends Service {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {
                     Log.i(TAG, "云端连接成功"+handshakedata.toString());
-                    spk.speak("云端连接成功");
+                    MyApp.getInstance().say("云端连接成功");
                 }
 
                 @Override
@@ -312,13 +302,13 @@ public class LiveService extends Service {
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
                         String t=format.format(new Date());
                         if(mRunFiberHome){
-                            spk.speak("现在时间"+t+",实时温度"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
+                            MyApp.getInstance().say("现在时间"+t+",实时温度"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
                         }else{
-                            spk.speak("现在时间"+t);
+                            MyApp.getInstance().say("现在时间"+t);
                         }
 
                     }else{
-                                              spk.speak(message);
+                                              MyApp.getInstance().say(message);
                         Log.i(TAG, "websocket收到消息：" + message);
 
                     }

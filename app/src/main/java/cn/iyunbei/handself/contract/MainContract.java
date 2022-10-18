@@ -73,7 +73,7 @@ public interface MainContract {
          *
          * @param s
          */
-        void addGoods(String s, SpeechUtils token);
+        void addGoods(String s);
 
         void checkGoodsIsSame(Map<Integer, Integer> numMap, List<TempOrderBean.TempGoodsBean> list, TempOrderBean.TempGoodsBean bean);
 

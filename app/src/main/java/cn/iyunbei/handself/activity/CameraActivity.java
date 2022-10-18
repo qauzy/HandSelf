@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.bean.GoodsDataBean;
 import cn.iyunbei.handself.presenter.SpeechUtils;
@@ -93,8 +94,6 @@ public class CameraActivity extends MainActivity {
     OcrInterface mOcrManager;
     PoseInterface mPoseManager;
     GoodsDataBean goodsInfo;    //用于存储OCR识别到的商品信息
-    private SpeechUtils spk;
-
 
     private static final int CODE_FOR_WRITE_PERMISSION = 0;
 
@@ -192,7 +191,7 @@ public class CameraActivity extends MainActivity {
             listener.onResult(results);
             // 扫描到目标文字，暂停识别
             if(isRealtimeStatusRunning && modelList.size()>0){
-                spk.speak(SayWaht[step]);
+                MyApp.getInstance().say(SayWaht[step]);
                 player.start();
                 toggleRealtimeStatus();
             }
@@ -210,7 +209,6 @@ public class CameraActivity extends MainActivity {
         choosePlatform();
         start();
         player = MediaPlayer.create(getApplicationContext(), R.raw.beep);
-        spk = new SpeechUtils(this);
     }
 
     private void choosePlatform() {

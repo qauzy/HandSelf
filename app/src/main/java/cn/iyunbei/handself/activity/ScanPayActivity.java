@@ -10,6 +10,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +88,8 @@ public class ScanPayActivity extends BaseActivity<ScanPayContract.View, ScanPayP
     public void onClick(View view) {
         //此页面只有一个点击事件,点击之后回到上一个页面，重新选择支付方式。
         finish();
+        Intent intent = new Intent();
+        ActivityUtil.startActivity(getContext(), MainActivity.class, intent);
     }
 
     @Override

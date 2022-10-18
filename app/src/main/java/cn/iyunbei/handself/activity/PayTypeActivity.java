@@ -1,8 +1,11 @@
 package cn.iyunbei.handself.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -20,12 +23,14 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.adapter.PayTypeAdapter;
 import cn.iyunbei.handself.bean.PayTypeBean;
 import cn.iyunbei.handself.bean.TempOrderBean;
 import cn.iyunbei.handself.contract.PayTypeContract;
 import cn.iyunbei.handself.presenter.PayTypePresenter;
+import cn.iyunbei.handself.utils.ToolKit;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.adapter.rviewadapter.MultiItemTypeAdapter;
 import jt.kundream.base.BaseActivity;
@@ -67,6 +72,8 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
     TextView tvPrev;
     @Bind(R.id.tv_next)
     TextView tvNext;
+    @Bind(R.id.tv_finish)
+    TextView tvFinish;
     @Bind(R.id.et_realmoney)
     EditText etRealMoney;
     private String tolMoney;
@@ -114,7 +121,7 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
         }
     }
 
-    @OnClick({R.id.tv_next, R.id.tv_prev})
+    @OnClick({R.id.tv_next, R.id.tv_prev,R.id.tv_finish})
     public void onClick(View view) {
 
         //判断是否多次点击
@@ -128,20 +135,32 @@ public class PayTypeActivity extends BaseActivity<PayTypeContract.View, PayTypeP
 
                 break;
             case R.id.tv_next:
-                showProgress();
+//                showProgress();
                 String str = etRealMoney.getText().toString();
                 if (!TextUtils.isEmpty(str) && CurrencyUtils.toBigDecimal(str).doubleValue() > 0) {
                     realMoney = str;
                 } else {
                     realMoney = tolMoney;
                 }
-                if (payMode == 0) {
-                    presenter.useCashPay(getContext(), payType, goodsList, realMoney);
-                } else {
-                    userNetPay(realMoney);
-                }
-                break;
+//                if (payMode == 0) {
+//                    presenter.useCashPay(getContext(), payType, goodsList, realMoney);
+//                } else {
+//                    userNetPay(realMoney);
+//                }
+                MyApp.getInstance().say("请支付"+realMoney+"元");
+                tvMoney.setText(realMoney);
+                tvMoney.setTextColor(Color.RED);
 
+                llRealMoney.setVisibility(View.GONE);
+                tvPrev.setVisibility(View.GONE);
+                tvNext.setVisibility(View.GONE);
+                tvFinish.setVisibility(View.VISIBLE);
+                break;
+            case R.id.tv_finish:
+                Intent intent = new Intent();
+                setResult(Activity.RESULT_OK, intent);
+                finish();
+                break;
             default:
                 break;
         }

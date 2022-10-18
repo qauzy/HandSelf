@@ -37,8 +37,8 @@ public abstract class ScanService  implements CameraScan.OnScanResultCallback<Li
 
     public ScanService(FragmentActivity activity) {
         mActivity = activity;
-        mPreviewView = mActivity.findViewById(R.id.goods_add_previewView);
-        rlScan = mActivity.findViewById(R.id.rl_goods_add_scan);
+        mPreviewView = mActivity.findViewById(R.id.previewView);
+        rlScan = mActivity.findViewById(R.id.rl_scan);
         initCameraScan();
     }
 

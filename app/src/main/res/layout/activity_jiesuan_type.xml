@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="￥"
             android:textColor="@color/black"
-            android:textSize="@dimen/sp_8" />
+            android:textSize="@dimen/dp_50" />
 
         <TextView
             android:id="@+id/tv_money"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="522.00"
             android:textColor="@color/black"
-            android:textSize="@dimen/sp_14" />
+            android:textSize="@dimen/dp_50" />
 
     </LinearLayout>
 
@@ -68,10 +68,12 @@
             android:textColor="@color/black"
             android:textColorHint="@color/color_line_drivier"
             android:textSize="@dimen/sp_14" />
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_paytype"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
@@ -79,7 +81,23 @@
         android:layout_marginTop="@dimen/dp_28"
         android:scrollbars="none" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/head"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_54"
+        android:orientation="vertical">
 
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_weight="1"
+            android:src="@mipmap/pic" />
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_50"
@@ -107,8 +125,17 @@
             android:text="@string/next"
             android:textColor="@color/black"
             android:textSize="@dimen/sp_14" />
-
-
+        <TextView
+            android:id="@+id/tv_finish"
+            android:visibility="gone"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/shape_btn_red"
+            android:gravity="center"
+            android:text="@string/finish"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_14" />
     </LinearLayout>
 
 

@@ -1,126 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.iyunbei.handself">
-    <uses-permission android:name="android.permission.CAMERA"/>
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <uses-feature android:name="android.hardware.camera2.full" />
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
-    <!-- AUX -->
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- AUX -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-
-    <!-- LE Beacons位置相关权限-->
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- LE Beacons位置相关权限 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-
-    <!--Android12 的蓝牙权限 如果您的应用使当前设备可被其他蓝牙设备检测到-->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-    <!--Android12 的蓝牙权限 如果您的应用与已配对的蓝牙设备通信或者获取当前手机蓝牙是否打开-->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <!--Android12 的蓝牙权限 如果您的应用查找蓝牙设备（如蓝牙低功耗 (BLE) 外围设备）-->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-
-    <!--    开机自启动-->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" /> <!-- Android12 的蓝牙权限 如果您的应用使当前设备可被其他蓝牙设备检测到 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" /> <!-- Android12 的蓝牙权限 如果您的应用与已配对的蓝牙设备通信或者获取当前手机蓝牙是否打开 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> <!-- Android12 的蓝牙权限 如果您的应用查找蓝牙设备（如蓝牙低功耗 (BLE) 外围设备） -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" /> <!-- 开机自启动 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-
     <uses-feature android:name="android.hardware.camera2.full" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-
-<!--    <uses-permission android:name="android.permission.READ_PHONE_STATE"  />-->
 
     <application
-        android:networkSecurityConfig="@xml/network_config"
         android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_config"
         android:supportsRtl="true"
         android:theme="@style/ActivityTheme">
-        <!--android:screenOrientation="portrait"-->
-        <activity
-            android:name=".activity.LoginActivity"
-            >
-            <!--android:windowSoftInputMode="adjustResize|stateHidden"-->
+        <service
+            android:name=".service.TemperatureService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <!-- android:screenOrientation="portrait" -->
+        <activity android:name=".activity.LoginActivity">
+
+            <!-- android:windowSoftInputMode="adjustResize|stateHidden" -->
 
         </activity>
-
-        <activity android:name=".activity.MainActivity"
+        <activity
+            android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.example.openandroid.MyService" /> //必须是全名
-
+                <action android:name="com.example.openandroid.MyService" />
+                //必须是全名
                 <category android:name="android.intent.category.default" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.BleDeviceActivity"
             android:exported="true">
 
-
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-
-        </activity>
-
-        <activity android:name=".activity.SettingActivity">
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
 
 
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
 
         </activity>
-
-
+        <activity android:name=".activity.SettingActivity"></activity>
         <activity
             android:name=".activity.CameraActivity"
             android:exported="true">
 
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
 
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-
-        </activity>
-
-        <activity android:name=".activity.DeviceList">
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
 
         </activity>
-
+        <activity android:name=".activity.DeviceList"></activity>
         <activity android:name=".activity.TempOrderActivity" />
         <activity android:name=".activity.UserCenterActivity" />
-        <activity android:name=".activity.GoodsPageActivity" >
-
-        </activity>
+        <activity android:name=".activity.GoodsPageActivity"></activity>
         <activity android:name=".activity.OrderListActivity" />
         <activity android:name=".activity.PanDianActivity" />
         <activity android:name=".activity.OrderDetailActivity" />
@@ -133,17 +109,16 @@
         <service
             android:name=".service.LiveService"
             android:enabled="true"
-            android:priority="1000"
             android:exported="true"
-            android:process=":keepalive"/>
-
-        <!-- 程序自启动广播 -->
-        <receiver android:name="cn.iyunbei.handself.service.BootBroadcastReceiver"
-                  android:enabled="true"
-                  android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
-            >
+            android:priority="1000"
+            android:process=":keepalive" /> <!-- 程序自启动广播 -->
+        <receiver
+            android:name=".service.BootBroadcastReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>

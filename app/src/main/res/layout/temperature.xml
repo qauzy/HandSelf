@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/linearlayout"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/float_id"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/colorPrimary"
+        android:clickable="true"
+        android:textSize="14dp"
+        android:text="浮动显示"/>
+
+</LinearLayout>

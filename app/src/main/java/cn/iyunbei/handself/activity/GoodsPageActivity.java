@@ -55,6 +55,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import cn.iyunbei.handself.MyApp;
 import cn.iyunbei.handself.R;
 import cn.iyunbei.handself.RequestCallback;
 import cn.iyunbei.handself.adapter.GoodsListAdapter;
@@ -82,8 +83,6 @@ import jt.kundream.utils.ToastUtils;
 public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPresenter> implements GoodsContract.View {
 
     private static final int REQUEST_GOODS_OCR = 303;  //请求OCR识别商品信息
-    private SpeechUtils spk;
-
     private String modelName = "";
     private String version = "";
     private String soc;
@@ -285,7 +284,6 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         presenter.getGoodsList(page,10,this);
         initConfig();
         boolean checkChip = checkChip();
-        spk = new SpeechUtils(this);
     }
 
     @Override
@@ -327,7 +325,7 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
         //
         if(data.getGoodsName().isEmpty() ||  data.getSpec().isEmpty() || data.getSupplier().isEmpty()){
             //询问是否需要OCR识别
-            spk.speak("商品未被收录，请确认条形码无误后，手动或自动添加其他信息");
+            MyApp.getInstance().say("商品未被收录，请确认条形码无误后，手动或自动添加其他信息");
             AlertDialog alertDialog = new AlertDialog.Builder(GoodsPageActivity.this)
                     .setTitle("提示")//标题
                     .setMessage("商品「"+data.getBarcode()+"」未被收录，是否使用OCR扫描商品信息？")//内容
@@ -357,10 +355,10 @@ public class GoodsPageActivity extends BaseActivity<GoodsContract.View, GoodsPre
 
 
         }else if( data.getPrice().isEmpty()){
-            spk.speak("新收录商品，请确认补全价格等信息");
+            MyApp.getInstance().say("新收录商品，请确认补全价格等信息");
             showInputDialog(data);
         }else{
-            spk.speak("商品已被收录，请确认是否需要更正商品信息");
+            MyApp.getInstance().say("商品已被收录，请确认是否需要更正商品信息");
             showInputDialog(data);
         }
 

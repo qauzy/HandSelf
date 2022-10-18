@@ -1,6 +1,7 @@
 package cn.iyunbei.handself.activity;
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -15,24 +16,19 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -44,16 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.mlkit.vision.barcode.common.Barcode;
-import com.king.mlkit.vision.barcode.analyze.BarcodeScanningAnalyzer;
-import com.king.mlkit.vision.camera.AnalyzeResult;
-import com.king.mlkit.vision.camera.BaseCameraScan;
-import com.king.mlkit.vision.camera.CameraScan;
-import com.king.mlkit.vision.camera.analyze.Analyzer;
-import com.king.mlkit.vision.camera.util.LogUtils;
-import com.king.mlkit.vision.camera.util.PermissionUtils;
-import com.king.mlkit.vision.camera.config.ResolutionCameraConfig;
 
 
 import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
@@ -73,7 +59,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,9 +78,10 @@ import cn.iyunbei.handself.presenter.MainPresenter;
 import cn.iyunbei.handself.presenter.SpeechUtils;
 import cn.iyunbei.handself.service.BleGattClient;
 import cn.iyunbei.handself.service.BleGattServer;
-import cn.iyunbei.handself.service.BleService;
 import cn.iyunbei.handself.service.BluetoothService;
 import cn.iyunbei.handself.service.LiveService;
+import cn.iyunbei.handself.service.ScanService;
+import cn.iyunbei.handself.service.TemperatureService;
 import cn.iyunbei.handself.utils.EditTextWithText;
 import cn.iyunbei.handself.utils.aboutclick.AntiShake;
 import jt.kundream.base.BaseActivity;
@@ -108,35 +94,19 @@ import jt.kundream.utils.ToastUtils;
 import static android.widget.ListPopupWindow.MATCH_PARENT;
 
 import androidx.annotation.NonNull;
-import androidx.camera.view.PreviewView;
 
 /**
  * @author YangTianKun
  */
 
-public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View,CameraScan.OnScanResultCallback<List<Barcode>>{
+public class MainActivity extends BaseActivity<MainContract.View, MainPresenter> implements MainContract.View{
     private static final String TAG = MainActivity.class.getSimpleName();
-
-
 
     public static final int REQUEST_CAMERA = 100;
 
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 0X86;
 
-    protected PreviewView previewView;
     private boolean mHasCamera;
-    private boolean mHasDot;
-    private CameraScan<List<Barcode>> mCameraScan;
-    private SpeechUtils spk;
-    private int readBytes=0, writtenBytes=0;
-
-
-    private AlarmManager mAlarmManager;
-    private PendingIntent mPendingIntent;
-
-    private static final int INTERVAL = 1000 * 60;
-    private static final int DELAY = 5000;
-
 
     private BluetoothService mBluetoothService = null; //蓝牙通信服务
 
@@ -192,8 +162,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     TextView tvDigitPrice;
     @Bind(R.id.tv_hand_input)
     TextView tvHandInput;
-    @Bind(R.id.rl_scan)
-    RelativeLayout rlScan;
     @Bind(R.id.iv_jiesuan)
     ImageView ivJiesuan;
     @Bind(R.id.tv_jiesuan)
@@ -218,15 +186,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private double toaMon = 0;
     private int toaNum = 0;
 
-    //variables
-    private int audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
-    private int samplingRate = 44100; /* in Hz*/
-    private int channelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-    private int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
-    private int bufferSize = AudioRecord.getMinBufferSize(samplingRate, channelConfig, audioFormat);
-    private int sampleNumBits = 16;
-    private int numChannels = 1;
-    private boolean isLink = false;
+
 
     /**
      * SCAN 按键
@@ -244,7 +204,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private boolean isMain = true;
 
     private Thread newThread; //声明一个子线程
-
+    //扫码服务
+    private ScanService mScanService;
 
     /**
      * 商品信息更新后被回调
@@ -266,7 +227,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
             //未收录商品回调
         }else{
-            spk.speak("商品未被收录，请确认条形码无误后补全商品信息");
+            MyApp.getInstance().say("商品未被收录，请确认条形码无误后补全商品信息");
             showInputDialog(data);
         }
 
@@ -276,9 +237,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
      * 更新商品信息dialog
      */
     private void showInputDialog(GoodsDataBean data) {
-        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
-        mCameraScan.setAnalyzeImage(false);//停止扫码
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final AlertDialog dialog = builder.create();
@@ -464,16 +422,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 if(event.getAction() == MotionEvent.ACTION_UP){
                     Log.d(TAG, "cansal button ---> cancel");
                     if(mHasCamera){
-                        releaseCamera();
-                        rlScan.setVisibility(View.GONE);//隐藏摄像头扫描
-                        mCameraScan.setAnalyzeImage(false);
+                        mScanService.stop();
                     }
 
                 }
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     //如果开启联动模式，未连接设备
                     if(MyApp.getInstance().mUseConnecting && mBleGattClient.getState() != Constants.STATE_CONNECTED){
-                        spk.speak("联动模式已开启，请连接从设备");
+                        MyApp.getInstance().say("联动模式已开启，请连接从设备");
                         Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
                         ActivityUtil.startActivityForResult(this, BleDeviceActivity.class, REQUEST_CONNECT_BLE);
                         return false;
@@ -481,9 +437,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
                     Log.d(TAG, "cansal button ---> down");
                     if(mHasCamera){
-                        startCamera();
-                        rlScan.setVisibility(View.VISIBLE);//显示摄像头扫描
-                        mCameraScan.setAnalyzeImage(true);
+                        mScanService.start();
+
                     }
 
                 }
@@ -575,7 +530,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 String priceText = tvDigitPrice.getText().toString();
 
                 if(!isStandardNumeric(priceText) || new BigDecimal(priceText).compareTo(BigDecimal.valueOf(0.0))<=0){
-                    spk.speak("请输入正确的商品价格");
+                    MyApp.getInstance().say("请输入正确的商品价格");
                     break;
                 }
 
@@ -594,7 +549,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 goodsBean.setBarcode("无条形码");
                 goodsBean.setGoods_number(1);
                 manageData(goodsBean);
-                spk.speak(priceText+"元商品添加成功");
+                MyApp.getInstance().say(priceText+"元商品添加成功");
                 //清空价款
                 tvDigitPrice.setText("");
                 break;
@@ -617,7 +572,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                     Intent intent = new Intent();
                     intent.putExtra("tolMoney", String.valueOf(toaMon));
                     intent.putExtra("goods", (Serializable) goodsList);
-                    ActivityUtil.startActivity(this, PayTypeActivity.class, intent);
+                    ActivityUtil.startActivityForResult(this, PayTypeActivity.class, intent,500);
                 } else {
                     showToast("你还没有添加任何商品");
                 }
@@ -639,15 +594,20 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //直接返回的
+        if(data == null){
+            return;
+        }
         if (requestCode == 200) {
-            TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
-            goodsList.addAll(tempOrder.getGoodsList());
-            toaMon = tempOrder.getTotalMoney();
-            toaNum = tempOrder.getTotalNum();
-            for (int i = 0; i < goodsList.size(); i++) {
-                numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
-            }
-            setAdapter();
+            //有可能没有选择临时订单
+                TempOrderBean tempOrder = (TempOrderBean) data.getSerializableExtra("tempOrder");
+                goodsList.addAll(tempOrder.getGoodsList());
+                toaMon = tempOrder.getTotalMoney();
+                toaNum = tempOrder.getTotalNum();
+                for (int i = 0; i < goodsList.size(); i++) {
+                    numMap.put(goodsList.get(i).getGoods_id(), goodsList.get(i).getGoods_number());
+                }
+                setAdapter();
         }else if (requestCode == REQUEST_CONNECT_DEVICE) {
 
             if (resultCode == Activity.RESULT_OK) {
@@ -661,11 +621,18 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             }
         //请求打开蓝牙
         }else if(requestCode == REQUEST_ENABLE_BLUETOOTH){
-                setupChat();
+                setupBluetoothDev();
         }else if(requestCode == REQUEST_CONNECT_BLE){
             String address = data.getExtras().getString(DeviceList.EXTRA_DEVICE_ADDRESS);
             Toast.makeText(this, "连接设备:"+address, Toast.LENGTH_SHORT).show();
             mBleGattClient.connect(address);
+        }else if(requestCode == 500){
+            if (resultCode == Activity.RESULT_OK) {
+                goodsList.clear();
+                numMap.clear();
+                mAdapter.notifyDataSetChanged();
+            }
+
         }
 
     }
@@ -691,7 +658,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         // TODO: 2018/8/23 如果这里是相同的goodsId，那么需要的是更改数量就行  如果不是相同的goodsId，那么做的就是集合中添加一个新数据
         // TODO: 2022/10/12 如果价格为空，说明是新加入的商品，需要添加价格信息
         if(bean.getGoods_price().isEmpty()){
-            spk.speak("新录入商品，请补充价格等信息,完成后再次扫码");
+            MyApp.getInstance().say("新录入商品，请补充价格等信息,完成后再次扫码");
             GoodsDataBean data = new GoodsDataBean();
             data.setBarcode(bean.getBarcode());
             data.setId(bean.getGoods_id());
@@ -703,7 +670,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             return;
 
         }
-        spk.speak(bean.getGoods_name());
+        MyApp.getInstance().say(bean.getGoods_name());
         presenter.checkGoodsIsSame(numMap, goodsList, bean);
     }
 
@@ -867,78 +834,11 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 //执行SQL语句
         db.execSQL(stu_table);
     }
-    public boolean isNumeric(String str){
-        Pattern pattern = Pattern.compile("[0-9]*");
-        Matcher isNum = pattern.matcher(str);
-        if( !isNum.matches() ){
-            return false;
-        }
-        return true;
-    }
 
-    @Override
-    public void onScanResultCallback(@NonNull AnalyzeResult<List<Barcode>> result) {
-        mCameraScan.setAnalyzeImage(false);
-
-        for(Barcode it : result.getResult()){
-            //过滤不全是数字的结果
-           if(!isNumeric(it.getRawValue())){
-               continue;
-           }
-
-           //如果只作为扫描设备，则只发送扫码信息
-            if(sendMessage(it.getRawValue()) && !MyApp.getInstance().mEnableScanOnly){
-                presenter.addGoods(it.getRawValue(), spk);
-            }
-
-        }
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //延迟重新打开扫码识别
-                mCameraScan.setAnalyzeImage(true);
-            }
-        }, 1000);
-
-    }
-
-
-    @Override
-    public void onScanResultFailure() {
-
-    }
-    /**
-     * Get {@link CameraScan}
-     * @return
-     */
-    public CameraScan<List<Barcode>> getCameraScan(){
-        return mCameraScan;
-    }
-
-    /**
-     * 创建{@link CameraScan}
-     * @param previewView
-     * @return
-     */
-    public CameraScan<List<Barcode>> createCameraScan(PreviewView previewView){
-        return new BaseCameraScan<>(this,previewView);
-    }
-
-    /**
-     * 创建分析器，默认分析所有条码格式
-     * @return
-     */
-    @Nullable
-    public Analyzer<List<Barcode>> createAnalyzer(){
-        return new BarcodeScanningAnalyzer(Barcode.FORMAT_ALL_FORMATS);
-    }
     /**
      * 初始化
      */
     public void initUI()  {
-        previewView = findViewById(R.id.previewView);
-
-        initCameraScan();
 
         //TODO 这里判断下，如果没有摄像头就影藏扫描框，设置成横屏--说明是在智能音箱上运行的
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -958,44 +858,6 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
     }
 
-    /**
-     * 初始化CameraScan
-     */
-    public void initCameraScan(){
-        mCameraScan = createCameraScan(previewView)
-                .setDarkLightLux(45f)//设置光线足够暗的阈值（单位：lux），需要通过{@link #bindFlashlightView(View)}绑定手电筒才有效
-                .setBrightLightLux(100f)//设置光线足够明亮的阈值（单位：lux），需要通过{@link #bindFlashlightView(View)}绑定手电筒才有效
-                .setAnalyzer(createAnalyzer())
-                .setPlayBeep(true)
-                .setVibrate(true)
-                .setCameraConfig(new ResolutionCameraConfig(this))//设置CameraConfig
-                .setOnScanResultCallback(this);
-    }
-
-
-    /**
-     * 启动相机预览
-     */
-    public void startCamera(){
-        if(mCameraScan != null){
-            if(PermissionUtils.checkPermission(this,Manifest.permission.CAMERA)){
-                mCameraScan.startCamera();
-            }else{
-                LogUtils.d("checkPermissionResult != PERMISSION_GRANTED");
-                PermissionUtils.requestPermission(this,Manifest.permission.CAMERA,CAMERA_PERMISSION_REQUEST_CODE);
-            }
-        }
-    }
-
-
-    /**
-     * 释放相机
-     */
-    private void releaseCamera(){
-        if(mCameraScan != null){
-            mCameraScan.release();
-        }
-    }
 
 
     //判断是否合法数据
@@ -1016,7 +878,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     }
 
 
-    private void setupChat() {
+    private void setupBluetoothDev() {
         // 得到本地蓝牙适配器
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -1052,15 +914,15 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
                             tvTitle.setText("结算(连接到"+mConnectedDeviceName+")");
-                            spk.speak("连接到"+mConnectedDeviceName);
+                            MyApp.getInstance().say("连接到"+mConnectedDeviceName);
                             hideProgress();
                             break;
                         case BluetoothService.STATE_CONNECTING:
-                            spk.speak("设备连接中");
+                            MyApp.getInstance().say("设备连接中");
                             break;
                         case BluetoothService.STATE_LISTEN:
                         case BluetoothService.STATE_NONE:
-                            spk.speak("设备连接丢失");
+                            MyApp.getInstance().say("设备连接丢失");
                             tvTitle.setText("结算(未连接)");
                             break;
                     }
@@ -1068,7 +930,20 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    presenter.addGoods(readMessage, spk);
+                    //如果不在前台，则恢复前台运行
+                    if(!isForeground(MainActivity.this)){
+                        Log.d(TAG, "前台显示");
+                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+                        intent.setAction(Intent.ACTION_MAIN);
+
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                        MainActivity.this.startActivity(intent);
+                    }
+
+                    presenter.addGoods(readMessage);
                     break;
                 case MESSAGE_DEVICE_NAME:
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
@@ -1085,9 +960,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         }
 
         if (message.length() > 0) {
-            byte[] send = message.getBytes();
             mBleGattClient.SendBarcode(message);
-//            mBluetoothService.write(send);
             return true;
         }
         return false;
@@ -1161,10 +1034,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context ctx =  getApplicationContext();
-        spk = new SpeechUtils(ctx);
 
-        setupChat();
+        setupBluetoothDev();
 
         GreenDaoHelper.initDatabase();
         createTable(GreenDaoHelper.getDb());
@@ -1176,44 +1047,34 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             startForegroundService(intent);
         }else startService(intent);
 
-        bufferSize += 2048;
-        newThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                AudioRecord recorder = new AudioRecord(audioSource, samplingRate, channelConfig, audioFormat, bufferSize);
-                recorder.startRecording();
 
-                AudioTrack audioPlayer = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
-
-                if(audioPlayer.getPlayState() != AudioTrack.PLAYSTATE_PLAYING)
-                    audioPlayer.play();
-
-//capture data and record to file
-                byte[] data = new byte[bufferSize];
-
-                do{
-                    readBytes = recorder.read(data, 0, bufferSize);
-
-                    if(AudioRecord.ERROR_INVALID_OPERATION != readBytes){
-                        writtenBytes += audioPlayer.write(data, 0, readBytes);
-                    }
-
-                }
-                while(true);
-            }
-        });
-//        newThread.start(); //启动线程
 
         verifyPermissions(this);
 
 
 
+        mScanService = new ScanService(this) {
+            @Override
+            public void onScanResult(String code) {
+                Log.d(TAG,code);
+
+                //如果只作为扫描设备，则只发送扫码信息
+                if(sendMessage(code) && !MyApp.getInstance().mEnableScanOnly){
+                    presenter.addGoods(code);
+                }
+            }
+        };
+
+
+        //温湿度桌面显示
+        if(MyApp.getInstance().isFiberHome()){
+            //Android 6.0之后的悬浮窗动态申请,覆盖显示权限
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !Settings.canDrawOverlays(getApplicationContext())) {
+                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + this.getPackageName())));
+            }
+            Intent serviceIntent= new Intent(MainActivity.this, TemperatureService.class);
+            startService(serviceIntent);
+        }
     }
 
     @Override
@@ -1223,12 +1084,25 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
         CommonUtil.put(this, "tempCount", 0);
         //注销物理scan按键的接受广播
         this.unregisterReceiver(scanBroadcastReceiver);
-        //释放相机
-        releaseCamera();
         System.exit(0);
 
 
     }
 
+    //当前应用是否处于前台
+    private boolean isForeground(Context context) {
+        if (context != null) {
+            ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningAppProcessInfo> processes = activityManager.getRunningAppProcesses();
+            for (ActivityManager.RunningAppProcessInfo processInfo: processes) {
+                if (processInfo.processName.equals(context.getPackageName())) {
+                    if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
 }

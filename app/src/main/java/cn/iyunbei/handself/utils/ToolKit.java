@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.telephony.TelephonyManager;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.UUID;
 
@@ -16,7 +17,8 @@ public class ToolKit {
      * @return 返回UUID字符串
      */
     public static String getUniqueID(Context context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        //没有权限就动态申请权限
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
 
         }
         final TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -33,5 +35,12 @@ public class ToolKit {
      */
     public static String getUUID(Context context) {
         return UUID.randomUUID().toString();
+    }
+
+
+    public static float sp2px(Context context, float spValue) {
+        //fontScale （DisplayMetrics类中属性scaledDensity）
+        final float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
+        return (spValue * fontScale + 0.5f);
     }
 }

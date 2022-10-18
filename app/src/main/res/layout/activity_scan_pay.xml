@@ -58,7 +58,7 @@
         android:background="@color/black_white"
         android:textColor="@color/black"
         android:textSize="@dimen/sp_20"
-        android:text="@string/select_again"
+        android:text="@string/finish"
         />
 
 
