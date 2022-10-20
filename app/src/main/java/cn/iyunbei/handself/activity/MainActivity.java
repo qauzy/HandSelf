@@ -82,6 +82,7 @@ import cn.iyunbei.handself.service.BleGattClient;
 import cn.iyunbei.handself.service.BleGattServer;
 import cn.iyunbei.handself.service.BluetoothService;
 import cn.iyunbei.handself.service.LiveService;
+import cn.iyunbei.handself.service.MynahAI;
 import cn.iyunbei.handself.service.ScanService;
 import cn.iyunbei.handself.service.TemperatureService;
 import cn.iyunbei.handself.utils.EditTextWithText;
@@ -206,6 +207,9 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
     private Thread newThread; //声明一个子线程
     //扫码服务
     private ScanService mScanService;
+
+    private MynahAI mMynahAI;
+    private  Thread thread;
 
     /**
      * 商品信息更新后被回调
@@ -1072,6 +1076,27 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
             Intent serviceIntent= new Intent(MainActivity.this, TemperatureService.class);
             startService(serviceIntent);
         }
+
+
+        mMynahAI = new MynahAI(){
+
+            @Override
+            public void onScanResult(int code) {
+                MyApp.getInstance().say("我看到有"+code+"人哦");
+                Log.d(TAG,"我看到有"+code+"人哦");
+
+            }
+        };
+        String md  = MynahAI.copyFromAssetsToCache("picodet_640_lite_v6.nb",this);
+        thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                mMynahAI.loadModel(md);
+            }
+        });
+        thread.start();
+
     }
 
     @Override
