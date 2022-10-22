@@ -1087,7 +1087,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainPresenter>
 
             }
         };
-        String md  = MynahAI.copyFromAssetsToCache("picodet_640_lite_v6.nb",this);
+        String md  = MynahAI.copyFromAssetsToCache("picodet_320_lite.nb",this);
         thread = new Thread(new Runnable() {
 
             @Override

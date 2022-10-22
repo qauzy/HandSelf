@@ -299,7 +299,7 @@ public class LiveService extends Service {
                         Log.i(TAG, "websocket收到Heartbeat消息");
 
                     }else if (message.equals("clock")){
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                         String t=format.format(new Date());
                         if(mRunFiberHome){
                             MyApp.getInstance().say("现在时间"+t+",实时温度"+humidityControlUtil.getTemperature()+"度，相对湿度百分之"+humidityControlUtil.getHumidity());
